@@ -57,15 +57,20 @@ export default function StudentDashboard() {
         grade_average: 85.5
       })
       
-      setAssignments(data.assignments?.map(a => ({
-        id: a.id,
-        title: a.assignment?.title || a.title || 'Untitled Assignment',
-        subject: a.assignment?.subject || a.subject || 'General',
-        due_date: a.assignment?.due_date || a.due_date,
-        status: a.status?.toLowerCase() === 'not_started' ? 'pending' : a.status?.toLowerCase(),
-        grade: a.grade,
-        assignment: a.assignment // Keep full assignment data for view
-      })) || [])
+      setAssignments(data.assignments?.map(a => {
+        const assignmentId = a.assignment?.id || a.id
+        const isSubmitted = localStorage.getItem(`assignment_submitted_${assignmentId}`) === 'true'
+        
+        return {
+          id: a.id,
+          title: a.assignment?.title || a.title || 'Untitled Assignment',
+          subject: a.assignment?.subject || a.subject || 'General',
+          due_date: a.assignment?.due_date || a.due_date,
+          status: isSubmitted ? 'submitted' : (a.status?.toLowerCase() === 'not_started' ? 'pending' : a.status?.toLowerCase()),
+          grade: a.grade,
+          assignment: a.assignment
+        }
+      }) || [])
       
       setNotifications(data.announcements || [])
       setClassmates(data.classmates || [])
@@ -1050,112 +1055,153 @@ export default function StudentDashboard() {
                 My Grades
               </h3>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-                gap: '16px',
-                marginBottom: '24px'
-              }}>
-                <div style={{
-                  background: 'rgba(30, 41, 59, 0.6)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  textAlign: 'center',
-                  border: '1px solid rgba(71, 85, 105, 0.3)'
-                }}>
-                  <FaAward style={{ color: '#10b981', fontSize: '24px', marginBottom: '8px' }} />
-                  <h4 style={{ margin: '0 0 4px 0', color: 'white', fontSize: '20px' }}>85.5%</h4>
-                  <p style={{ margin: 0, color: '#94a3b8', fontSize: '12px' }}>Overall Average</p>
-                </div>
-                <div style={{
-                  background: 'rgba(30, 41, 59, 0.6)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  textAlign: 'center',
-                  border: '1px solid rgba(71, 85, 105, 0.3)'
-                }}>
-                  <FaChartBar style={{ color: '#3b82f6', fontSize: '24px', marginBottom: '8px' }} />
-                  <h4 style={{ margin: '0 0 4px 0', color: 'white', fontSize: '20px' }}>A-</h4>
-                  <p style={{ margin: 0, color: '#94a3b8', fontSize: '12px' }}>Current Grade</p>
-                </div>
-                <div style={{
-                  background: 'rgba(30, 41, 59, 0.6)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  textAlign: 'center',
-                  border: '1px solid rgba(71, 85, 105, 0.3)'
-                }}>
-                  <FaClipboardList style={{ color: '#8b5cf6', fontSize: '24px', marginBottom: '8px' }} />
-                  <h4 style={{ margin: '0 0 4px 0', color: 'white', fontSize: '20px' }}>12</h4>
-                  <p style={{ margin: 0, color: '#94a3b8', fontSize: '12px' }}>Subjects</p>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[
-                  { subject: 'Mathematics', grade: 'A', percentage: 92, color: '#10b981' },
-                  { subject: 'English', grade: 'A-', percentage: 88, color: '#3b82f6' },
-                  { subject: 'Science', grade: 'B+', percentage: 85, color: '#8b5cf6' },
-                  { subject: 'History', grade: 'A', percentage: 90, color: '#10b981' },
-                  { subject: 'Geography', grade: 'B', percentage: 82, color: '#f59e0b' }
-                ].map((grade, index) => (
-                  <div key={index} style={{
-                    background: 'rgba(30, 41, 59, 0.6)',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    border: '1px solid rgba(71, 85, 105, 0.3)'
-                  }}>
+              {(() => {
+                const completedAssignments = JSON.parse(localStorage.getItem('completed_assignments') || '[]')
+                const totalScore = completedAssignments.reduce((sum, a) => sum + a.score, 0)
+                const averageScore = completedAssignments.length > 0 ? Math.round(totalScore / completedAssignments.length) : 0
+                
+                return (
+                  <>
                     <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginBottom: '8px'
-                    }}>
-                      <h4 style={{
-                        margin: 0,
-                        color: 'white',
-                        fontSize: '16px',
-                        fontWeight: '600'
-                      }}>
-                        {grade.subject}
-                      </h4>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{
-                          background: grade.color,
-                          color: 'white',
-                          padding: '4px 12px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: '600'
-                        }}>
-                          {grade.grade}
-                        </span>
-                        <span style={{
-                          color: '#94a3b8',
-                          fontSize: '14px',
-                          fontWeight: '600'
-                        }}>
-                          {grade.percentage}%
-                        </span>
-                      </div>
-                    </div>
-                    <div style={{
-                      width: '100%',
-                      height: '6px',
-                      background: 'rgba(71, 85, 105, 0.3)',
-                      borderRadius: '3px',
-                      overflow: 'hidden'
+                      display: 'grid',
+                      gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+                      gap: '16px',
+                      marginBottom: '24px'
                     }}>
                       <div style={{
-                        width: `${grade.percentage}%`,
-                        height: '100%',
-                        background: grade.color,
-                        borderRadius: '3px'
-                      }} />
+                        background: 'rgba(30, 41, 59, 0.6)',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        textAlign: 'center',
+                        border: '1px solid rgba(71, 85, 105, 0.3)'
+                      }}>
+                        <FaAward style={{ color: '#10b981', fontSize: '24px', marginBottom: '8px' }} />
+                        <h4 style={{ margin: '0 0 4px 0', color: 'white', fontSize: '20px' }}>{averageScore}%</h4>
+                        <p style={{ margin: 0, color: '#94a3b8', fontSize: '12px' }}>Overall Average</p>
+                      </div>
+                      <div style={{
+                        background: 'rgba(30, 41, 59, 0.6)',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        textAlign: 'center',
+                        border: '1px solid rgba(71, 85, 105, 0.3)'
+                      }}>
+                        <FaChartBar style={{ color: '#3b82f6', fontSize: '24px', marginBottom: '8px' }} />
+                        <h4 style={{ margin: '0 0 4px 0', color: 'white', fontSize: '20px' }}>
+                          {averageScore >= 90 ? 'A+' : averageScore >= 80 ? 'A' : averageScore >= 70 ? 'B' : averageScore >= 60 ? 'C' : 'D'}
+                        </h4>
+                        <p style={{ margin: 0, color: '#94a3b8', fontSize: '12px' }}>Current Grade</p>
+                      </div>
+                      <div style={{
+                        background: 'rgba(30, 41, 59, 0.6)',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        textAlign: 'center',
+                        border: '1px solid rgba(71, 85, 105, 0.3)'
+                      }}>
+                        <FaClipboardList style={{ color: '#8b5cf6', fontSize: '24px', marginBottom: '8px' }} />
+                        <h4 style={{ margin: '0 0 4px 0', color: 'white', fontSize: '20px' }}>{completedAssignments.length}</h4>
+                        <p style={{ margin: 0, color: '#94a3b8', fontSize: '12px' }}>Completed</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {completedAssignments.length === 0 ? (
+                        <div style={{
+                          textAlign: 'center',
+                          padding: '40px 20px',
+                          color: '#94a3b8'
+                        }}>
+                          <FaAward style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }} />
+                          <p style={{ margin: 0, fontSize: '16px' }}>No completed assignments yet</p>
+                          <p style={{ margin: '8px 0 0 0', fontSize: '14px', opacity: 0.7 }}>Complete some assignments to see your grades here</p>
+                        </div>
+                      ) : (
+                        completedAssignments.map((assignment, index) => {
+                          const gradeColor = assignment.score >= 90 ? '#10b981' : 
+                                          assignment.score >= 80 ? '#3b82f6' : 
+                                          assignment.score >= 70 ? '#8b5cf6' : 
+                                          assignment.score >= 60 ? '#f59e0b' : '#ef4444'
+                          const grade = assignment.score >= 90 ? 'A+' : 
+                                      assignment.score >= 80 ? 'A' : 
+                                      assignment.score >= 70 ? 'B' : 
+                                      assignment.score >= 60 ? 'C' : 'D'
+                          
+                          return (
+                            <div key={index} style={{
+                              background: 'rgba(30, 41, 59, 0.6)',
+                              borderRadius: '12px',
+                              padding: '16px',
+                              border: '1px solid rgba(71, 85, 105, 0.3)'
+                            }}>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                marginBottom: '8px'
+                              }}>
+                                <h4 style={{
+                                  margin: 0,
+                                  color: 'white',
+                                  fontSize: '16px',
+                                  fontWeight: '600'
+                                }}>
+                                  {assignment.title}
+                                </h4>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                  <span style={{
+                                    background: gradeColor,
+                                    color: 'white',
+                                    padding: '4px 12px',
+                                    borderRadius: '12px',
+                                    fontSize: '12px',
+                                    fontWeight: '600'
+                                  }}>
+                                    {grade}
+                                  </span>
+                                  <span style={{
+                                    color: '#94a3b8',
+                                    fontSize: '14px',
+                                    fontWeight: '600'
+                                  }}>
+                                    {assignment.score}%
+                                  </span>
+                                </div>
+                              </div>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '16px',
+                                marginBottom: '8px',
+                                fontSize: '12px',
+                                color: '#94a3b8'
+                              }}>
+                                <span>Subject: {assignment.subject}</span>
+                                <span>Score: {assignment.correctAnswers}/{assignment.totalQuestions}</span>
+                                <span>Completed: {new Date(assignment.completedAt).toLocaleDateString()}</span>
+                              </div>
+                              <div style={{
+                                width: '100%',
+                                height: '6px',
+                                background: 'rgba(71, 85, 105, 0.3)',
+                                borderRadius: '3px',
+                                overflow: 'hidden'
+                              }}>
+                                <div style={{
+                                  width: `${assignment.score}%`,
+                                  height: '100%',
+                                  background: gradeColor,
+                                  borderRadius: '3px'
+                                }} />
+                              </div>
+                            </div>
+                          )
+                        })
+                      )}
+                    </div>
+                  </>
+                )
+              })()}
             </div>
           </div>
         )}
@@ -1612,57 +1658,57 @@ export default function StudentDashboard() {
                         gap: '8px',
                         alignSelf: isMobile ? 'stretch' : 'flex-start'
                       }}>
-                        <button 
-                          onClick={() => {
-                            console.log('VIEW BUTTON CLICKED!')
-                            console.log('Assignment clicked:', assignment)
-                            console.log('Assignment.assignment:', assignment.assignment)
-                            
-                            // Store the assignment data
-                            if (assignment.assignment) {
-                              console.log('Storing assignment data:', assignment.assignment)
-                              localStorage.setItem('current_assignment', JSON.stringify(assignment))
-                            } else {
-                              console.log('No assignment.assignment found, storing full object')
-                              localStorage.setItem('current_assignment', JSON.stringify({ assignment: assignment }))
-                            }
-                            
-                            // Verify storage
-                            const stored = localStorage.getItem('current_assignment')
-                            console.log('Verification - stored data:', stored)
-                            
-                            const assignmentId = assignment.assignment?.id || assignment.id
-                            console.log('Navigating to assignment ID:', assignmentId)
-                            navigate(`/student/assignment/${assignmentId}`)
-                          }}
-                          style={{
-                            background: 'rgba(59, 130, 246, 0.2)',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            color: '#60a5fa',
-                            borderRadius: '6px',
-                            padding: '6px 12px',
-                            cursor: 'pointer',
-                            fontSize: '11px',
-                            fontWeight: '600'
-                          }}
-                        >
-                          <FaEye size={10} style={{ marginRight: '4px' }} />
-                          View
-                        </button>
-                        {assignment.status === 'pending' && (
-                          <button style={{
+                        {assignment.status !== 'submitted' && (
+                          <button 
+                            onClick={() => {
+                              console.log('VIEW BUTTON CLICKED!')
+                              console.log('Assignment clicked:', assignment)
+                              console.log('Assignment.assignment:', assignment.assignment)
+                              
+                              // Store the assignment data with proper structure
+                              const assignmentData = {
+                                assignment: assignment.assignment || assignment
+                              }
+                              
+                              console.log('Storing assignment data:', assignmentData)
+                              localStorage.setItem('current_assignment', JSON.stringify(assignmentData))
+                              
+                              // Verify storage
+                              const stored = localStorage.getItem('current_assignment')
+                              console.log('Verification - stored data:', stored)
+                              
+                              const assignmentId = assignment.assignment?.id || assignment.id
+                              console.log('Navigating to assignment ID:', assignmentId)
+                              navigate(`/student/assignment/${assignmentId}`)
+                            }}
+                            style={{
+                              background: 'rgba(59, 130, 246, 0.2)',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              color: '#60a5fa',
+                              borderRadius: '6px',
+                              padding: '6px 12px',
+                              cursor: 'pointer',
+                              fontSize: '11px',
+                              fontWeight: '600'
+                            }}
+                          >
+                            <FaEye size={10} style={{ marginRight: '4px' }} />
+                            View
+                          </button>
+                        )}
+                        {assignment.status === 'submitted' && (
+                          <span style={{
                             background: 'rgba(16, 185, 129, 0.2)',
                             border: '1px solid rgba(16, 185, 129, 0.3)',
                             color: '#10b981',
                             borderRadius: '6px',
                             padding: '6px 12px',
-                            cursor: 'pointer',
                             fontSize: '11px',
                             fontWeight: '600'
                           }}>
-                            <FaUpload size={10} style={{ marginRight: '4px' }} />
-                            Submit
-                          </button>
+                            <FaCheckCircle size={10} style={{ marginRight: '4px' }} />
+                            Completed
+                          </span>
                         )}
                       </div>
                     </div>

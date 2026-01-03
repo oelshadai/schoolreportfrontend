@@ -42,68 +42,76 @@ export default function AssignmentView() {
 
   const loadAssignment = async () => {
     try {
-      // Check attempt count first
-      const attemptKey = `assignment_attempts_${id}`
-      const currentAttempts = parseInt(localStorage.getItem(attemptKey) || '0')
-      setAttemptCount(currentAttempts)
+      // Check if assignment is already submitted
+      const submittedKey = `assignment_submitted_${id}`
+      const isSubmitted = localStorage.getItem(submittedKey) === 'true'
       
-      if (currentAttempts >= 2) {
-        setMaxAttemptsReached(true)
-        setLoading(false)
-        return
+      if (isSubmitted) {
+        // Show completed assignment from history
+        const completedAssignments = JSON.parse(localStorage.getItem('completed_assignments') || '[]')
+        const completedAssignment = completedAssignments.find(a => a.id === id)
+        
+        if (completedAssignment) {
+          setExamResults({
+            score: completedAssignment.score,
+            correctAnswers: completedAssignment.correctAnswers,
+            totalQuestions: completedAssignment.totalQuestions,
+            results: completedAssignment.results,
+            submissionTime: new Date(completedAssignment.completedAt),
+            timeUsed: completedAssignment.timeUsed
+          })
+          setExamCompleted(true)
+          setLoading(false)
+          return
+        }
       }
+      
+      setLoading(false)
       
       // First try to get from localStorage (passed from dashboard)
       const storedAssignment = localStorage.getItem('current_assignment')
-      console.log('Stored assignment raw:', storedAssignment)
       
       if (storedAssignment && storedAssignment !== 'undefined') {
         const assignmentData = JSON.parse(storedAssignment)
-        console.log('Parsed assignment data:', assignmentData)
-        
-        // The assignment data is directly in assignmentData.assignment
         const assignment = assignmentData.assignment
-        if (assignment) {
-          console.log('Using assignment:', assignment)
-          console.log('Assignment questions:', assignment.questions)
-          
+        if (assignment && assignment.questions && assignment.questions.length > 0) {
           setAssignment({
             title: assignment.title || 'Assignment',
             description: assignment.description || 'Complete this assignment',
-            subject: assignment.subject || 'General',
+            subject: assignment.class_subject || assignment.subject || 'General',
             teacher: assignment.created_by_name || 'Teacher',
             duration: assignment.time_limit || 30,
-            questions: assignment.questions || []
+            questions: assignment.questions
           })
           return
         }
       }
       
-      console.log('No valid stored assignment found, creating basic assignment for ID:', id)
-      // Create a basic assignment based on the ID
+      // Use fallback data
       setAssignment({
-        title: `Science Assignment`,
+        title: 'Science Assignment',
         description: 'Complete this assignment about atoms and molecules.',
         subject: 'Science',
-        teacher: 'Class Teacher',
+        teacher: 'osei elshadai',
         duration: 30,
         questions: [
           {
-            id: 1,
-            question_text: 'What is the smallest unit of matter?',
-            options: ['Molecule', 'Atom', 'Cell', 'Particle']
-          },
-          {
             id: 2,
-            question_text: 'Which particle has a positive charge?',
-            options: ['Electron', 'Neutron', 'Proton', 'Ion']
+            question_text: 'How many legs have an ant',
+            question_type: 'MULTIPLE_CHOICE',
+            points: 1,
+            order: 0,
+            expected_answer: '',
+            case_sensitive: false,
+            options: [
+              { id: 3, option_text: '2', is_correct: false, order: 0 },
+              { id: 4, option_text: '4', is_correct: true, order: 0 }
+            ]
           }
         ]
       })
     } catch (error) {
       console.error('Error loading assignment:', error)
-      console.log('Falling back to mock data')
-      // Show sample assignment
       setAssignment({
         title: `Assignment ${id}`,
         description: 'This is a sample assignment. Please complete all questions.',
@@ -114,17 +122,15 @@ export default function AssignmentView() {
           {
             id: 1,
             question_text: 'What is 2 + 2?',
-            options: ['2', '3', '4', '5']
-          },
-          {
-            id: 2,
-            question_text: 'What is 5 × 3?',
-            options: ['10', '15', '20', '25']
+            options: [
+              { option_text: '2', is_correct: false },
+              { option_text: '3', is_correct: false },
+              { option_text: '4', is_correct: true },
+              { option_text: '5', is_correct: false }
+            ]
           }
         ]
       })
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -174,11 +180,9 @@ export default function AssignmentView() {
   }
 
   const handleSubmit = async () => {
-    // Increment attempt count
-    const attemptKey = `assignment_attempts_${id}`
-    const newAttemptCount = attemptCount + 1
-    localStorage.setItem(attemptKey, newAttemptCount.toString())
-    setAttemptCount(newAttemptCount)
+    // Mark assignment as submitted
+    const submittedKey = `assignment_submitted_${id}`
+    localStorage.setItem(submittedKey, 'true')
     
     // Calculate grade automatically
     const gradeResult = calculateGrade(answers, assignment.questions)
@@ -190,14 +194,10 @@ export default function AssignmentView() {
       totalQuestions: gradeResult.totalQuestions,
       results: gradeResult.results,
       submissionTime: new Date(),
-      timeUsed: assignment.duration * 60 - timeLeft,
-      attempts: newAttemptCount
+      timeUsed: assignment.duration * 60 - timeLeft
     }
     
     setExamResults(results)
-    
-    // Check if student can retake (only if time is remaining AND attempts < 2)
-    setCanRetake(timeLeft > 0 && newAttemptCount < 2)
     setExamCompleted(true)
     
     // Save to completed assignments history
@@ -212,8 +212,7 @@ export default function AssignmentView() {
       totalQuestions: gradeResult.totalQuestions,
       results: gradeResult.results,
       completedAt: new Date().toISOString(),
-      timeUsed: assignment.duration * 60 - timeLeft,
-      attempts: newAttemptCount
+      timeUsed: assignment.duration * 60 - timeLeft
     }
     
     // Update or add assignment record
@@ -225,14 +224,6 @@ export default function AssignmentView() {
     }
     
     localStorage.setItem('completed_assignments', JSON.stringify(completedAssignments))
-    
-    // Log for teacher feedback
-    console.log('Student submission:', {
-      studentName: 'Current Student',
-      assignmentTitle: assignment.title,
-      ...gradeResult,
-      attempts: newAttemptCount
-    })
   }
 
   const formatTime = (seconds) => {
@@ -460,28 +451,6 @@ export default function AssignmentView() {
           </div>
           
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-            {canRetake && (
-              <button
-                onClick={() => {
-                  setExamCompleted(false)
-                  setExamResults(null)
-                  setAnswers({})
-                  setCurrentQuestion(0)
-                }}
-                style={{
-                  padding: '12px 24px',
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: '600'
-                }}
-              >
-                Retake Assignment
-              </button>
-            )}
-            
             <button
               onClick={() => navigate('/student-dashboard')}
               style={{
