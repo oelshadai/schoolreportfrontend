@@ -282,7 +282,7 @@ export default function Teachers() {
       
       console.log('Sending teacher data:', JSON.stringify(teacherData, null, 2))
       
-      const response = await api.post('/teachers/', teacherData, {
+      const response = await api.post('/teachers/cors/', teacherData, {
         headers: {
           'Content-Type': 'application/json'
         }
