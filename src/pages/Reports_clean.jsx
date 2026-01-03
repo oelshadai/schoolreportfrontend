@@ -20,6 +20,9 @@ export default function Reports() {
   const [loadingPreview, setLoadingPreview] = useState(false)
   const [loading, setLoading] = useState(false)
   const [stats, setStats] = useState(null)
+  const [schoolInfo, setSchoolInfo] = useState(null)
+  const [settings, setSettings] = useState(null)
+  const [teacherRemarks, setTeacherRemarks] = useState({})
 
   const isAdmin = user?.role === 'SCHOOL_ADMIN' || user?.role === 'PRINCIPAL'
   const isClassTeacher = user?.role === 'TEACHER'
@@ -31,13 +34,23 @@ export default function Reports() {
   const loadInitialData = async () => {
     try {
       setLoading(true)
-      const [cls, trm] = await Promise.all([
+      const [cls, trm, school, schoolSettings] = await Promise.all([
         api.get('/schools/classes/'),
-        api.get('/schools/terms/')
+        api.get('/schools/terms/'),
+        api.get('/schools/school-info/').catch(() => ({ data: null })),
+        api.get('/schools/settings/').catch(() => ({ data: null }))
       ])
       
       const allClasses = cls.data.results || cls.data
       const allTerms = trm.data.results || trm.data
+      
+      if (school.data) {
+        setSchoolInfo(school.data)
+      }
+      
+      if (schoolSettings.data) {
+        setSettings(schoolSettings.data)
+      }
       
       // Filter classes for class teachers
       if (isClassTeacher) {
@@ -103,12 +116,30 @@ export default function Reports() {
     })()
   }, [termId, classId])
 
-  // Load statistics when term changes
   useEffect(() => {
-    if (termId && classId) {
-      loadStats()
+    if (classId && termId) {
+      loadTeacherRemarks()
     }
-  }, [termId, classId])
+  }, [classId, termId])
+
+  const loadTeacherRemarks = async () => {
+    if (!classId || !termId) return
+    try {
+      const response = await api.get(`/teacher-remarks/?class_id=${classId}&term_id=${termId}`)
+      const remarksData = response.data.results || response.data
+      const remarksObj = {}
+      remarksData.forEach(remark => {
+        remarksObj[remark.student] = {
+          teacher_remarks: remark.teacher_remarks || '',
+          student_interests: remark.student_interests || ''
+        }
+      })
+      setTeacherRemarks(remarksObj)
+    } catch (error) {
+      console.log('No teacher remarks found')
+      setTeacherRemarks({})
+    }
+  }
 
   const loadStats = async () => {
     try {
@@ -132,7 +163,49 @@ export default function Reports() {
   const handleGenerate = async () => {
     setResult(null)
     try {
-      const res = await api.post('/reports/generate-report/', { student_id: Number(studentId), term_id: Number(termId) })
+      const selectedStudent = students.find(s => s.id === Number(studentId))
+      const selectedTerm = terms.find(t => t.id === Number(termId))
+      const selectedClass = classes.find(c => c.id === Number(classId))
+      
+      const reportData = {
+        student_id: Number(studentId),
+        term_id: Number(termId),
+        student_context: selectedStudent ? {
+          full_name: selectedStudent.full_name,
+          student_id: selectedStudent.student_id,
+          class_name: selectedStudent.class_name,
+          date_of_birth: selectedStudent.date_of_birth,
+          gender: selectedStudent.gender,
+          guardian_name: selectedStudent.guardian_name,
+          guardian_phone: selectedStudent.guardian_phone
+        } : null,
+        term_context: selectedTerm ? {
+          name: selectedTerm.name_display || selectedTerm.name,
+          academic_year: selectedTerm.academic_year
+        } : null,
+        class_context: selectedClass ? {
+          level: selectedClass.level_display || selectedClass.level,
+          section: selectedClass.section,
+          class_teacher_name: selectedClass.class_teacher_name
+        } : null,
+        school_context: schoolInfo ? {
+          name: schoolInfo.name,
+          address: schoolInfo.address,
+          phone: schoolInfo.phone,
+          email: schoolInfo.email,
+          logo: schoolInfo.logo,
+          motto: schoolInfo.motto,
+          principal_name: schoolInfo.principal_name
+        } : null,
+        settings_context: settings ? {
+          show_promotion: settings.show_promotion === true,
+          term_closing_date: settings.term_closing_date,
+          term_reopening_date: settings.term_reopening_date
+        } : null,
+        teacher_remarks_context: teacherRemarks[Number(studentId)] || null
+      }
+      
+      const res = await api.post('/reports/generate-report/', reportData)
       setResult(res.data)
     } catch (e) {
       setResult({ error: e?.response?.data?.error || 'Failed to generate' })
@@ -142,7 +215,49 @@ export default function Reports() {
   const handleBulkGenerate = async () => {
     setResult(null)
     try {
-      const res = await api.post('/reports/bulk-generate/', { term_id: Number(termId), class_id: classId ? Number(classId) : undefined })
+      const selectedTerm = terms.find(t => t.id === Number(termId))
+      const selectedClass = classes.find(c => c.id === Number(classId))
+      
+      const bulkData = {
+        term_id: Number(termId),
+        class_id: classId ? Number(classId) : undefined,
+        term_context: selectedTerm ? {
+          name: selectedTerm.name_display || selectedTerm.name,
+          academic_year: selectedTerm.academic_year
+        } : null,
+        class_context: selectedClass ? {
+          level: selectedClass.level_display || selectedClass.level,
+          section: selectedClass.section,
+          class_teacher_name: selectedClass.class_teacher_name
+        } : null,
+        students_context: students.map(student => ({
+          id: student.id,
+          full_name: student.full_name,
+          student_id: student.student_id,
+          class_name: student.class_name,
+          date_of_birth: student.date_of_birth,
+          gender: student.gender,
+          guardian_name: student.guardian_name,
+          guardian_phone: student.guardian_phone
+        })),
+        school_context: schoolInfo ? {
+          name: schoolInfo.name,
+          address: schoolInfo.address,
+          phone: schoolInfo.phone,
+          email: schoolInfo.email,
+          logo: schoolInfo.logo,
+          motto: schoolInfo.motto,
+          principal_name: schoolInfo.principal_name
+        } : null,
+        settings_context: settings ? {
+          show_promotion: settings.show_promotion === true,
+          term_closing_date: settings.term_closing_date,
+          term_reopening_date: settings.term_reopening_date
+        } : null,
+        teacher_remarks_context: teacherRemarks
+      }
+      
+      const res = await api.post('/reports/bulk-generate/', bulkData)
       setResult(res.data)
     } catch (e) {
       setResult({ error: e?.response?.data?.error || 'Failed to bulk generate' })
@@ -185,25 +300,40 @@ export default function Reports() {
   }
 
   return (
-    <div className="container">
-      <div className="page-header">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
+      color: '#f8fafc',
+      padding: isMobile ? '20px 12px' : '20px',
+      paddingTop: isMobile ? '90px' : '20px'
+    }}>
+      <div className="container" style={{maxWidth: '1400px', margin: '0 auto'}}>
+        <div className="page-header" style={{
+          marginBottom: '32px',
+          textAlign: 'center'
+        }}>
         <h1 style={{
           display: 'flex', 
           alignItems: 'center', 
-          gap: '12px',
-          background: 'linear-gradient(135deg, #fb7185, #f43f5e)',
+          justifyContent: 'center',
+          gap: '16px',
+          background: 'linear-gradient(135deg, #60a5fa, #3b82f6, #1d4ed8)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          fontSize: '28px',
-          fontWeight: '700'
+          fontSize: '36px',
+          fontWeight: '800',
+          marginBottom: '24px',
+          textShadow: '0 0 30px rgba(59, 130, 246, 0.3)'
         }}>
-          <FaGraduationCap style={{color: '#fb7185'}}/> 
+          <FaGraduationCap style={{color: '#60a5fa', filter: 'drop-shadow(0 0 10px rgba(96, 165, 250, 0.5))'}}/> 
           Report Generation
         </h1>
         <div style={{
           display: 'flex',
-          gap: '8px',
-          flexWrap: 'wrap'
+          gap: '12px',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          marginBottom: '32px'
         }}>
           <button 
             className="btn" 
@@ -213,9 +343,14 @@ export default function Reports() {
               background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
               color: 'white',
               border: 'none',
+              borderRadius: '12px',
+              padding: '12px 20px',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '8px',
+              boxShadow: '0 8px 25px rgba(139, 92, 246, 0.3)',
+              transition: 'all 0.3s ease',
+              cursor: 'pointer'
             }}
           >
             <FaEye/>
@@ -231,9 +366,14 @@ export default function Reports() {
                   background: 'linear-gradient(135deg, #059669, #047857)',
                   color: 'white',
                   border: 'none',
+                  borderRadius: '12px',
+                  padding: '12px 20px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: '8px',
+                  boxShadow: '0 8px 25px rgba(5, 150, 105, 0.3)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
                 }}
               >
                 <FaCalculator/>
@@ -247,9 +387,14 @@ export default function Reports() {
                   background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
                   color: 'white',
                   border: 'none',
+                  borderRadius: '12px',
+                  padding: '12px 20px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: '8px',
+                  boxShadow: '0 8px 25px rgba(14, 165, 233, 0.3)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
                 }}
               >
                 <FaListOl/>
@@ -266,9 +411,14 @@ export default function Reports() {
               background: !termId || loading ? '#9ca3af' : 'linear-gradient(135deg, #dc2626, #b91c1c)',
               color: 'white',
               border: 'none',
+              borderRadius: '12px',
+              padding: '12px 20px',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '8px',
+              boxShadow: !termId || loading ? 'none' : '0 8px 25px rgba(220, 38, 38, 0.3)',
+              transition: 'all 0.3s ease',
+              cursor: !termId || loading ? 'not-allowed' : 'pointer'
             }}
           >
             <FaPlay/>
@@ -661,6 +811,7 @@ export default function Reports() {
         onClose={() => setShowPreview(false)}
         previewData={previewData}
       />
+      </div>
     </div>
   )
-}
+} 

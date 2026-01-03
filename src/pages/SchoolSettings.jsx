@@ -15,9 +15,27 @@ export default function SchoolSettings() {
   const [message, setMessage] = useState({ text: '', type: '' });
   const [logoFile, setLogoFile] = useState(null);
   
-  // Responsive design constants
-  const isMobile = window.innerWidth <= 768;
-  const isTablet = window.innerWidth <= 1024;
+  // Enhanced responsive design with proper breakpoints
+  const [screenSize, setScreenSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const isMobile = screenSize.width <= 768;
+  const isTablet = screenSize.width <= 1024 && screenSize.width > 768;
+  const isSmallMobile = screenSize.width <= 480;
   const [settings, setSettings] = useState({
     name: '',
     address: '',
@@ -38,7 +56,11 @@ export default function SchoolSettings() {
     class_teacher_signature_required: true,
     show_headteacher_signature: true,
     report_template: 'STANDARD',
-    current_academic_year: ''
+    current_academic_year: '',
+    term_closing_date: '',
+    term_reopening_date: '',
+    show_promotion_on_terminal: true,
+    principal_name: ''
   });
 
   useEffect(() => {
@@ -118,7 +140,7 @@ export default function SchoolSettings() {
         // Only send fields the API accepts
         const allowedKeys = [
           'id','name','address','location','phone_number','email','logo','motto','website','current_academic_year',
-          'score_entry_mode','is_active',
+          'score_entry_mode','is_active','principal_name','term_closing_date','term_reopening_date','show_promotion_on_terminal',
           'report_template','report_header_text','report_footer_text',
           'show_class_average','show_position_in_class','show_attendance','show_behavior_comments',
           'principal_signature','class_teacher_signature_required','show_student_photos','show_headteacher_signature',
@@ -164,15 +186,22 @@ export default function SchoolSettings() {
   const handlePreviewTemplate = async () => {
     setLoadingPreview(true);
     try {
-      const response = await api.get('/reports/preview_data/', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setPreviewData(response.data);
-      setShowPreview(true);
-    } catch (error) {
-      console.error('Error loading preview:', error);
+      // Use the working template-preview-standalone endpoint directly
+      const baseURL = api.defaults.baseURL?.replace(/\/$/, '') || 'http://localhost:8000/api';
+      const previewUrl = `${baseURL}/reports/template-preview-standalone/?token=${token}`;
+      
+      // Open in new window - this works reliably
+      window.open(previewUrl, '_blank', 'width=900,height=700,scrollbars=yes,resizable=yes');
+      
       setMessage({
-        text: 'Failed to load template preview',
+        text: 'Preview opened in new window',
+        type: 'success'
+      });
+      
+    } catch (error) {
+      console.error('Error opening preview:', error);
+      setMessage({
+        text: 'Failed to open template preview',
         type: 'error'
       });
     } finally {
@@ -222,7 +251,7 @@ export default function SchoolSettings() {
     <div style={{
       maxWidth: 1400,
       margin: '0 auto',
-      padding: isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
+      padding: isSmallMobile ? '16px 8px' : isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
       paddingTop: isMobile ? '100px' : '24px',
       background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
       minHeight: '100vh',
@@ -627,32 +656,128 @@ export default function SchoolSettings() {
               </div>
             </div>
 
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{
-                display: 'block',
-                marginBottom: '8px',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#e2e8f0'
-              }}>School Motto</label>
-              <input
-                type="text"
-                name="motto"
-                value={settings.motto}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: isMobile ? '14px 16px' : '12px 16px',
-                  fontSize: isMobile ? 16 : 15,
-                  border: '2px solid rgba(71, 85, 105, 0.4)',
-                  borderRadius: 8,
-                  background: 'rgba(30, 41, 59, 0.8)',
-                  color: 'white',
-                  outline: 'none',
-                  transition: 'all 0.3s ease',
-                  boxSizing: 'border-box'
-                }}
-              />
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+              gap: '16px',
+              marginBottom: '16px'
+            }}>
+              <div>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#e2e8f0'
+                }}>School Motto</label>
+                <input
+                  type="text"
+                  name="motto"
+                  value={settings.motto}
+                  onChange={handleInputChange}
+                  style={{
+                    width: '100%',
+                    padding: isMobile ? '14px 16px' : '12px 16px',
+                    fontSize: isMobile ? 16 : 15,
+                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    borderRadius: 8,
+                    background: 'rgba(30, 41, 59, 0.8)',
+                    color: 'white',
+                    outline: 'none',
+                    transition: 'all 0.3s ease',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#e2e8f0'
+                }}>Principal Name</label>
+                <input
+                  type="text"
+                  name="principal_name"
+                  value={settings.principal_name}
+                  onChange={handleInputChange}
+                  style={{
+                    width: '100%',
+                    padding: isMobile ? '14px 16px' : '12px 16px',
+                    fontSize: isMobile ? 16 : 15,
+                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    borderRadius: 8,
+                    background: 'rgba(30, 41, 59, 0.8)',
+                    color: 'white',
+                    outline: 'none',
+                    transition: 'all 0.3s ease',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+              gap: '16px',
+              marginBottom: '16px'
+            }}>
+              <div>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#e2e8f0'
+                }}>Term Closing Date</label>
+                <input
+                  type="date"
+                  name="term_closing_date"
+                  value={settings.term_closing_date}
+                  onChange={handleInputChange}
+                  style={{
+                    width: '100%',
+                    padding: isMobile ? '14px 16px' : '12px 16px',
+                    fontSize: isMobile ? 16 : 15,
+                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    borderRadius: 8,
+                    background: 'rgba(30, 41, 59, 0.8)',
+                    color: 'white',
+                    outline: 'none',
+                    transition: 'all 0.3s ease',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#e2e8f0'
+                }}>Term Reopening Date</label>
+                <input
+                  type="date"
+                  name="term_reopening_date"
+                  value={settings.term_reopening_date}
+                  onChange={handleInputChange}
+                  style={{
+                    width: '100%',
+                    padding: isMobile ? '14px 16px' : '12px 16px',
+                    fontSize: isMobile ? 16 : 15,
+                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    borderRadius: 8,
+                    background: 'rgba(30, 41, 59, 0.8)',
+                    color: 'white',
+                    outline: 'none',
+                    transition: 'all 0.3s ease',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
             </div>
           </div>
 
@@ -746,8 +871,8 @@ export default function SchoolSettings() {
             
             <div style={{
               display: 'grid',
-              gridTemplateColumns: isMobile ? '1fr 1fr' : isTablet ? 'repeat(3, 1fr)' : 'repeat(5, 1fr)',
-              gap: '12px'
+              gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? '1fr 1fr' : 'repeat(5, 1fr)',
+              gap: isSmallMobile ? '8px' : '12px'
             }}>
               <div>
                 <label style={{
@@ -1000,29 +1125,41 @@ export default function SchoolSettings() {
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : 'repeat(4, 1fr)',
-              gap: '16px'
+              gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? '1fr 1fr' : isTablet ? '1fr 1fr' : 'repeat(4, 1fr)',
+              gap: isSmallMobile ? '12px' : '16px'
             }}>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '12px'
               }}>
-                <input
-                  type="checkbox"
-                  id="show_position_in_class"
-                  name="show_position_in_class"
-                  checked={settings.show_position_in_class}
-                  onChange={handleInputChange}
+                <div 
+                  onClick={() => handleInputChange({target: {name: 'show_position_in_class', type: 'checkbox', checked: !settings.show_position_in_class}})}
                   style={{
+                    width: '44px',
+                    height: '24px',
+                    borderRadius: '12px',
+                    background: settings.show_position_in_class ? '#3b82f6' : '#64748b',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent'
+                  }}
+                >
+                  <div style={{
                     width: '18px',
                     height: '18px',
-                    accentColor: '#6366f1',
-                    cursor: 'pointer'
-                  }}
-                />
+                    borderRadius: '50%',
+                    background: 'white',
+                    position: 'absolute',
+                    top: '1px',
+                    left: settings.show_position_in_class ? '23px' : '3px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
                 <label 
-                  htmlFor="show_position_in_class"
+                  onClick={() => handleInputChange({target: {name: 'show_position_in_class', type: 'checkbox', checked: !settings.show_position_in_class}})}
                   style={{
                     fontSize: '14px',
                     fontWeight: 500,
@@ -1037,23 +1174,35 @@ export default function SchoolSettings() {
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '12px'
               }}>
-                <input
-                  type="checkbox"
-                  id="show_student_photos"
-                  name="show_student_photos"
-                  checked={settings.show_student_photos}
-                  onChange={handleInputChange}
+                <div 
+                  onClick={() => handleInputChange({target: {name: 'show_student_photos', type: 'checkbox', checked: !settings.show_student_photos}})}
                   style={{
+                    width: '44px',
+                    height: '24px',
+                    borderRadius: '12px',
+                    background: settings.show_student_photos ? '#3b82f6' : '#64748b',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent'
+                  }}
+                >
+                  <div style={{
                     width: '18px',
                     height: '18px',
-                    accentColor: '#6366f1',
-                    cursor: 'pointer'
-                  }}
-                />
+                    borderRadius: '50%',
+                    background: 'white',
+                    position: 'absolute',
+                    top: '1px',
+                    left: settings.show_student_photos ? '23px' : '3px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
                 <label 
-                  htmlFor="show_student_photos"
+                  onClick={() => handleInputChange({target: {name: 'show_student_photos', type: 'checkbox', checked: !settings.show_student_photos}})}
                   style={{
                     fontSize: '14px',
                     fontWeight: 500,
@@ -1068,23 +1217,35 @@ export default function SchoolSettings() {
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '12px'
               }}>
-                <input
-                  type="checkbox"
-                  id="class_teacher_signature_required"
-                  name="class_teacher_signature_required"
-                  checked={settings.class_teacher_signature_required}
-                  onChange={handleInputChange}
+                <div 
+                  onClick={() => handleInputChange({target: {name: 'class_teacher_signature_required', type: 'checkbox', checked: !settings.class_teacher_signature_required}})}
                   style={{
+                    width: '44px',
+                    height: '24px',
+                    borderRadius: '12px',
+                    background: settings.class_teacher_signature_required ? '#3b82f6' : '#64748b',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent'
+                  }}
+                >
+                  <div style={{
                     width: '18px',
                     height: '18px',
-                    accentColor: '#6366f1',
-                    cursor: 'pointer'
-                  }}
-                />
+                    borderRadius: '50%',
+                    background: 'white',
+                    position: 'absolute',
+                    top: '1px',
+                    left: settings.class_teacher_signature_required ? '23px' : '3px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
                 <label 
-                  htmlFor="class_teacher_signature_required"
+                  onClick={() => handleInputChange({target: {name: 'class_teacher_signature_required', type: 'checkbox', checked: !settings.class_teacher_signature_required}})}
                   style={{
                     fontSize: '14px',
                     fontWeight: 500,
@@ -1099,23 +1260,35 @@ export default function SchoolSettings() {
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '12px'
               }}>
-                <input
-                  type="checkbox"
-                  id="show_headteacher_signature"
-                  name="show_headteacher_signature"
-                  checked={settings.show_headteacher_signature}
-                  onChange={handleInputChange}
+                <div 
+                  onClick={() => handleInputChange({target: {name: 'show_headteacher_signature', type: 'checkbox', checked: !settings.show_headteacher_signature}})}
                   style={{
+                    width: '44px',
+                    height: '24px',
+                    borderRadius: '12px',
+                    background: settings.show_headteacher_signature ? '#3b82f6' : '#64748b',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent'
+                  }}
+                >
+                  <div style={{
                     width: '18px',
                     height: '18px',
-                    accentColor: '#6366f1',
-                    cursor: 'pointer'
-                  }}
-                />
+                    borderRadius: '50%',
+                    background: 'white',
+                    position: 'absolute',
+                    top: '1px',
+                    left: settings.show_headteacher_signature ? '23px' : '3px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
                 <label 
-                  htmlFor="show_headteacher_signature"
+                  onClick={() => handleInputChange({target: {name: 'show_headteacher_signature', type: 'checkbox', checked: !settings.show_headteacher_signature}})}
                   style={{
                     fontSize: '14px',
                     fontWeight: 500,
@@ -1126,6 +1299,75 @@ export default function SchoolSettings() {
                   Head Teacher Signature
                 </label>
               </div>
+            </div>
+            
+            {/* Terminal Report Settings */}
+            <div style={{
+              marginTop: '24px',
+              padding: isMobile ? '16px' : '20px',
+              background: 'rgba(30, 41, 59, 0.5)',
+              borderRadius: 10,
+              border: '1px solid rgba(71, 85, 105, 0.3)'
+            }}>
+              <h4 style={{
+                margin: '0 0 16px 0',
+                fontSize: isMobile ? 16 : 18,
+                fontWeight: 600,
+                color: '#e2e8f0'
+              }}>Terminal Report Settings</h4>
+              
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                marginBottom: '16px'
+              }}>
+                <div 
+                  onClick={() => handleInputChange({target: {name: 'show_promotion_on_terminal', type: 'checkbox', checked: !settings.show_promotion_on_terminal}})}
+                  style={{
+                    width: '44px',
+                    height: '24px',
+                    borderRadius: '12px',
+                    background: settings.show_promotion_on_terminal ? '#3b82f6' : '#64748b',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent'
+                  }}
+                >
+                  <div style={{
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    position: 'absolute',
+                    top: '1px',
+                    left: settings.show_promotion_on_terminal ? '23px' : '3px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
+                <label 
+                  onClick={() => handleInputChange({target: {name: 'show_promotion_on_terminal', type: 'checkbox', checked: !settings.show_promotion_on_terminal}})}
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#e2e8f0',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Show Promotion Status on Terminal Reports
+                </label>
+              </div>
+              
+              <p style={{
+                margin: '0',
+                fontSize: '12px',
+                color: '#64748b',
+                lineHeight: 1.4
+              }}>
+                When enabled, terminal reports will display promotion status and term dates set above.
+              </p>
             </div>
           </div>
 
@@ -1189,11 +1431,28 @@ export default function SchoolSettings() {
         previewData={previewData}
       />
 
-      {/* CSS Animations */}
+      {/* CSS Animations and Mobile Styles */}
       <style jsx>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+        
+        /* Enhanced Mobile Responsive Styles */
+        @media (max-width: 480px) {
+          .settings-grid-single { grid-template-columns: 1fr !important; }
+          .settings-grid-double { grid-template-columns: 1fr !important; }
+          .settings-grid-triple { grid-template-columns: 1fr 1fr !important; }
+          .settings-grid-grades { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+          .settings-grid-toggles { grid-template-columns: 1fr !important; gap: 12px !important; }
+          .toggle-label-mobile { font-size: 12px !important; line-height: 1.2 !important; }
+        }
+        
+        @media (min-width: 481px) and (max-width: 768px) {
+          .settings-grid-double { grid-template-columns: 1fr !important; }
+          .settings-grid-triple { grid-template-columns: 1fr 1fr !important; }
+          .settings-grid-grades { grid-template-columns: repeat(3, 1fr) !important; }
+          .settings-grid-toggles { grid-template-columns: 1fr 1fr !important; }
         }
       `}</style>
     </div>

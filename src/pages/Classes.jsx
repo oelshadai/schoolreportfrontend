@@ -57,10 +57,50 @@ export default function Classes() {
   const loadClassStudents = async (classId) => {
     setLoadingStudents(true)
     try {
-      const res = await api.get(`/students/?class_id=${classId}`)
-      const students = res.data.results || res.data || []
+      console.log('Loading students for class ID:', classId)
+      
+      // Try different API endpoints
+      let students = []
+      
+      try {
+        // Method 1: Direct class filter
+        const res1 = await api.get(`/students/?class_instance=${classId}`)
+        students = res1.data.results || res1.data || []
+        console.log('Method 1 - Direct filter:', students.length, 'students')
+      } catch (e1) {
+        console.log('Method 1 failed:', e1.message)
+      }
+      
+      if (students.length === 0) {
+        try {
+          // Method 2: Get all students and filter
+          const res2 = await api.get('/students/')
+          const allStudents = res2.data.results || res2.data || []
+          students = allStudents.filter(s => 
+            s.class_instance == classId || 
+            s.class_id == classId || 
+            s.class == classId ||
+            (s.class_instance && s.class_instance.id == classId)
+          )
+          console.log('Method 2 - Filter all:', students.length, 'students from', allStudents.length, 'total')
+        } catch (e2) {
+          console.log('Method 2 failed:', e2.message)
+        }
+      }
+      
+      if (students.length === 0) {
+        try {
+          // Method 3: Try with class_id parameter
+          const res3 = await api.get(`/students/?class_id=${classId}`)
+          students = res3.data.results || res3.data || []
+          console.log('Method 3 - class_id param:', students.length, 'students')
+        } catch (e3) {
+          console.log('Method 3 failed:', e3.message)
+        }
+      }
+      
+      console.log('Final student count:', students.length)
       setClassStudents(students)
-      console.log(`Loaded ${students.length} students for class ${classId}`)
     } catch (e) {
       console.error('Failed to load class students:', e)
       setClassStudents([])
@@ -314,24 +354,246 @@ export default function Classes() {
   }, [assignFor, subjects])
 
   return (
-    <div className="container">
-      <div 
-        className="page-header"
-        style={{
-          background: 'linear-gradient(135deg, #1e40af, #3b82f6)',
-          color: 'white',
-          padding: '24px',
-          borderRadius: '12px',
-          marginBottom: '24px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-        }}
-      >
-        <h1 style={{display:'flex',alignItems:'center',gap:12, margin: 0, fontSize: '24px', fontWeight: '700'}}>
-          <FaLayerGroup style={{fontSize: '28px'}}/> 
+    <div className="classes-page">
+      {/* Mobile-optimized viewport settings */}
+      <style>{`
+        @viewport {
+          width: device-width;
+          initial-scale: 1;
+        }
+        
+        .classes-page {
+          min-height: 100vh;
+          max-height: 100vh;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        
+        .classes-container {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 16px;
+          padding-top: 120px;
+          min-height: calc(100vh - 32px);
+          overflow-y: auto;
+        }
+        
+        .classes-header {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 20px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .classes-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 22px;
+          font-weight: 600;
+          color: #1f2937;
+          margin: 0;
+        }
+        
+        .classes-title svg {
+          font-size: 24px;
+          color: #6366f1;
+        }
+        
+        .classes-card {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-radius: 12px;
+          padding: 16px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          transition: all 0.3s ease;
+          margin-bottom: 16px;
+        }
+        
+        .classes-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Responsive Design - Mobile First */
+        @media (max-width: 320px) {
+          .classes-container {
+            padding: 4px;
+            padding-top: 60px;
+          }
+          
+          .classes-header {
+            padding: 8px;
+            margin-bottom: 8px;
+          }
+          
+          .classes-title {
+            font-size: 16px;
+            flex-direction: column;
+            gap: 4px;
+            text-align: center;
+          }
+          
+          .classes-title svg {
+            font-size: 18px;
+          }
+          
+          .classes-card {
+            padding: 8px;
+            margin-bottom: 8px;
+          }
+        }
+        
+        @media (min-width: 321px) and (max-width: 480px) {
+          .classes-container {
+            padding: 6px;
+            padding-top: 70px;
+          }
+          
+          .classes-header {
+            padding: 10px;
+            margin-bottom: 10px;
+          }
+          
+          .classes-title {
+            font-size: 17px;
+          }
+          
+          .classes-title svg {
+            font-size: 19px;
+          }
+          
+          .classes-card {
+            padding: 10px;
+            margin-bottom: 10px;
+          }
+        }
+        
+        @media (min-width: 481px) and (max-width: 768px) {
+          .classes-container {
+            padding: 12px;
+            padding-top: 90px;
+          }
+          
+          .classes-header {
+            padding: 14px;
+            margin-bottom: 14px;
+          }
+          
+          .classes-title {
+            font-size: 20px;
+          }
+          
+          .classes-title svg {
+            font-size: 22px;
+          }
+          
+          .classes-card {
+            padding: 14px;
+            margin-bottom: 14px;
+          }
+        }
+        
+        /* Mobile-specific styles for better touch interaction */
+        @media (max-width: 768px) {
+          .mobile-card {
+            min-height: 60px;
+            padding: 10px !important;
+            border-radius: 8px !important;
+            margin-bottom: 6px;
+            max-width: 280px;
+            margin-left: auto;
+            margin-right: auto;
+          }
+          
+          .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6px;
+            max-width: 320px;
+            margin: 0 auto;
+          }
+          
+          .student-grid {
+            grid-template-columns: 1fr !important;
+            gap: 6px !important;
+          }
+          
+          .student-card {
+            padding: 6px !important;
+            min-height: 50px;
+          }
+          
+          .class-header-mobile {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+          }
+          
+          .action-button-mobile {
+            max-width: 280px;
+            margin: 0 auto;
+            padding: 12px !important;
+            font-size: 14px !important;
+          }
+        }
+        
+        @media (min-width: 769px) {
+          .classes-page {
+            padding: 20px;
+            overflow-y: scroll;
+            scrollbar-width: auto;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+          }
+          
+          .classes-page::-webkit-scrollbar {
+            width: 12px;
+          }
+          
+          .classes-page::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+          }
+          
+          .classes-page::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+          }
+          
+          .classes-page::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+          }
+          
+          .classes-container {
+            padding: 20px;
+            padding-top: 120px;
+            min-height: auto;
+            overflow-y: visible;
+          }
+        }
+      `}</style>
+      
+      <div className="classes-container">
+      <div className="classes-header">
+        <h1 className="classes-title">
+          <FaLayerGroup />
           {isTeacher ? 'My Classes & Subjects' : 'Classes Management'}
         </h1>
         {isTeacher && (
-          <p style={{margin: '8px 0 0 0', fontSize: '16px', opacity: 0.9}}>
+          <p style={{
+            margin: '4px 0 0 0',
+            fontSize: 14,
+            color: '#6b7280',
+            fontWeight: 400
+          }}>
             Select a class and subject to enter student scores
           </p>
         )}
@@ -339,26 +601,26 @@ export default function Classes() {
 
       {/* Teacher Interface - Class and Subject Selection */}
       {isTeacher && (
-        <div className="mobile-card" style={{
-          marginBottom: '24px'
-        }}>
+        <div className="classes-card">
           <h3 style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-            fontSize: '20px',
+            gap: 8,
+            fontSize: '18px',
             fontWeight: '600',
-            color: 'var(--text)',
-            marginBottom: '20px'
+            color: '#1f2937',
+            marginBottom: '16px'
           }}>
-            <FaGraduationCap style={{color: 'var(--green)'}}/> 
+            <FaGraduationCap style={{color: '#6366f1'}}/> 
             Select Class & Subject
           </h3>
           
           {teacherAssignments.length === 0 ? (
-            <div className="mobile-card" style={{
-              background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
-              border: '2px solid #f59e0b',
+            <div style={{
+              background: 'rgba(251, 191, 36, 0.1)',
+              border: '2px solid rgba(245, 158, 11, 0.3)',
+              borderRadius: '8px',
+              padding: '16px',
               textAlign: 'center'
             }}>
               <p style={{margin: 0, color: '#92400e', fontWeight: '500', lineHeight: '1.5'}}>
@@ -378,7 +640,13 @@ export default function Classes() {
                     }}>
                       Your Assigned Classes ({Array.from(new Set(teacherAssignments.map(a => a.class.id))).length}):
                     </label>
-                    <div className="dashboard-grid">
+                    <div className="dashboard-grid" style={{
+                      display: 'grid',
+                      gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(auto-fill, minmax(300px, 1fr))',
+                      gap: window.innerWidth <= 768 ? '6px' : '16px',
+                      maxWidth: window.innerWidth <= 768 ? '320px' : 'none',
+                      margin: window.innerWidth <= 768 ? '0 auto' : '0'
+                    }}>
                       {Array.from(new Set(teacherAssignments.map(a => a.class.id))).map(classId => {
                         const classObj = teacherAssignments.find(a => a.class.id === classId)?.class
                         if (!classObj) return null
@@ -405,7 +673,12 @@ export default function Classes() {
                                 ? '0 8px 25px rgba(5, 150, 105, 0.25)' 
                                 : '0 4px 12px rgba(0, 0, 0, 0.1)',
                               transform: isSelected ? 'translateY(-2px) scale(1.02)' : 'translateY(0) scale(1)',
-                              transition: 'all 0.3s ease'
+                              transition: 'all 0.3s ease',
+                              padding: window.innerWidth <= 768 ? '10px' : '16px',
+                              borderRadius: '8px',
+                              minHeight: window.innerWidth <= 768 ? '60px' : 'auto',
+                              maxWidth: window.innerWidth <= 768 ? '280px' : 'none',
+                              margin: window.innerWidth <= 768 ? '0 auto 6px auto' : '0'
                             }}
                             onMouseEnter={(e) => {
                               if (!isSelected) {
@@ -423,15 +696,15 @@ export default function Classes() {
                             }}
                           >
                             <div style={{
-                              fontSize: '18px', 
+                              fontSize: window.innerWidth <= 768 ? '16px' : '18px', 
                               fontWeight: '700', 
                               color: isSelected ? 'var(--green)' : 'var(--text)', 
-                              marginBottom: '12px'
+                              marginBottom: window.innerWidth <= 768 ? '8px' : '12px'
                             }}>
                               {classObj.name}
                             </div>
                             {/* Teacher Role Title */}
-                            <div style={{fontSize: '14px', fontWeight: '600', color: isSelected ? '#065f46' : '#4b5563', marginBottom: '8px'}}>
+                            <div style={{fontSize: window.innerWidth <= 768 ? '12px' : '14px', fontWeight: '600', color: isSelected ? '#065f46' : '#4b5563', marginBottom: window.innerWidth <= 768 ? '6px' : '8px'}}>
                               {isFormClass && subjectCount > 0 ? (
                                 <>🏫 Form Teacher + 📚 Subject Teacher</>
                               ) : isFormClass ? (
@@ -440,14 +713,14 @@ export default function Classes() {
                                 <>📚 Subject Teacher ({subjectCount} subject{subjectCount !== 1 ? 's' : ''})</>
                               )}
                             </div>
-                            <div style={{display: 'flex', justifyContent: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '4px'}}>
+                            <div style={{display: 'flex', justifyContent: 'center', gap: window.innerWidth <= 768 ? '4px' : '6px', flexWrap: 'wrap', marginBottom: window.innerWidth <= 768 ? '2px' : '4px'}}>
                               {isFormClass && 
                                 <span style={{
                                   background: 'linear-gradient(135deg, #3b82f6, #2563eb)', 
                                   color: 'white', 
                                   padding: '3px 8px', 
                                   borderRadius: '6px', 
-                                  fontSize: '11px',
+                                  fontSize: window.innerWidth <= 768 ? '10px' : '11px',
                                   fontWeight: '600'
                                 }}>
                                   Form Class
@@ -459,14 +732,14 @@ export default function Classes() {
                                   color: 'white', 
                                   padding: '3px 8px', 
                                   borderRadius: '6px', 
-                                  fontSize: '11px',
+                                  fontSize: window.innerWidth <= 768 ? '10px' : '11px',
                                   fontWeight: '600'
                                 }}>
                                   {subjectCount} Subject{subjectCount > 1 ? 's' : ''}
                                 </span>
                               }
                             </div>
-                            <div style={{fontSize: '12px', color: '#6b7280'}}>
+                            <div style={{fontSize: window.innerWidth <= 768 ? '11px' : '12px', color: '#6b7280'}}>
                               Click to select this class
                             </div>
                           </div>
@@ -549,42 +822,42 @@ export default function Classes() {
                         <>
                           <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                            gap: '12px',
+                            gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(auto-fill, minmax(250px, 1fr))',
+                            gap: window.innerWidth <= 768 ? '8px' : '12px',
                             marginBottom: '24px'
                           }}>
                             {classStudents.slice(0, 6).map((student, index) => (
                               <div
                                 key={student.id}
                                 style={{
-                                  padding: '12px',
+                                  padding: window.innerWidth <= 768 ? '8px' : '12px',
                                   background: '#f8fafc',
                                   borderRadius: '8px',
                                   border: '1px solid #e5e7eb',
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: '12px'
+                                  gap: window.innerWidth <= 768 ? '8px' : '12px'
                                 }}
                               >
                                 <div style={{
-                                  width: '40px',
-                                  height: '40px',
+                                  width: window.innerWidth <= 768 ? '32px' : '40px',
+                                  height: window.innerWidth <= 768 ? '32px' : '40px',
                                   borderRadius: '50%',
                                   background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   color: 'white',
-                                  fontSize: '16px',
+                                  fontSize: window.innerWidth <= 768 ? '14px' : '16px',
                                   fontWeight: '600'
                                 }}>
                                   {(student.first_name || student.full_name || 'S').charAt(0).toUpperCase()}
                                 </div>
                                 <div style={{flex: 1}}>
-                                  <div style={{fontWeight: '600', color: '#1f2937', fontSize: '14px'}}>
+                                  <div style={{fontWeight: '600', color: '#1f2937', fontSize: window.innerWidth <= 768 ? '13px' : '14px'}}>
                                     {student.full_name || `${student.first_name} ${student.last_name}`}
                                   </div>
-                                  <div style={{fontSize: '12px', color: '#6b7280'}}>
+                                  <div style={{fontSize: window.innerWidth <= 768 ? '11px' : '12px', color: '#6b7280'}}>
                                     ID: {student.student_id}
                                   </div>
                                 </div>
@@ -664,8 +937,8 @@ export default function Classes() {
                       color: 'white',
                       border: 'none',
                       borderRadius: '12px',
-                      padding: '18px 36px',
-                      fontSize: '18px',
+                      padding: window.innerWidth <= 768 ? '14px 24px' : '18px 36px',
+                      fontSize: window.innerWidth <= 768 ? '16px' : '18px',
                       fontWeight: '700',
                       cursor: 'pointer',
                       display: 'flex',
@@ -673,7 +946,9 @@ export default function Classes() {
                       gap: '12px',
                       margin: '0 auto',
                       boxShadow: '0 6px 12px -2px rgba(5, 150, 105, 0.3)',
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s ease',
+                      width: window.innerWidth <= 768 ? '100%' : 'auto',
+                      justifyContent: 'center'
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.transform = 'translateY(-3px) scale(1.02)'
@@ -699,11 +974,11 @@ export default function Classes() {
       {!isTeacher && (
         <>
         {/* Left: Create form and class list */}
-        <div className="panel">
+        <div className="classes-card">
           {canCreateClass && (
             <>
-              <h3 style={{display:'flex',alignItems:'center',gap:8}}>
-                <FaLayerGroup/> {editingClass ? 'Edit Class' : 'Create Class'}
+              <h3 style={{display:'flex',alignItems:'center',gap:8, color: '#1f2937', fontSize: '18px', fontWeight: '600', marginBottom: '16px'}}>
+                <FaLayerGroup style={{color: '#6366f1'}}/> {editingClass ? 'Edit Class' : 'Create Class'}
               </h3>
               <form className="grid form" onSubmit={editingClass ? handleUpdateClass : handleCreate}>
                 <label>Level</label>
@@ -764,16 +1039,27 @@ export default function Classes() {
         </div>
 
         {/* Right: Assignment panel */}
-        <div className="panel">
-          <div className="header">
-            <h3 style={{display:'flex',alignItems:'center',gap:8}}>
-              <FaChalkboard color="#93c5fd"/> Assign Subjects
+        <div className="classes-card">
+          <div style={{marginBottom: '16px'}}>
+            <h3 style={{display:'flex',alignItems:'center',gap:8, color: '#1f2937', fontSize: '18px', fontWeight: '600', margin: 0}}>
+              <FaChalkboard style={{color: '#6366f1'}}/> Assign Subjects
             </h3>
             {assignFor && (
-              <span className="chip">{assignFor.level_display || assignFor.level}{assignFor.section ? ` ${assignFor.section}` : ''}</span>
+              <span style={{
+                background: 'rgba(99, 102, 241, 0.1)',
+                color: '#6366f1',
+                padding: '4px 12px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                fontWeight: '600',
+                marginTop: '8px',
+                display: 'inline-block'
+              }}>
+                {assignFor.level_display || assignFor.level}{assignFor.section ? ` ${assignFor.section}` : ''}
+              </span>
             )}
           </div>
-          {!assignFor && <p className="muted">Select a class from the list to manage its subjects and teachers.</p>}
+          {!assignFor && <p style={{color: '#6b7280', fontStyle: 'italic'}}>Select a class from the list to manage its subjects and teachers.</p>}
           {assignFor && (
             <>
               {canManageAssignmentsFor(assignFor) && (
@@ -819,6 +1105,7 @@ export default function Classes() {
         </div>
         </>
       )}
+      </div>
     </div>
   )
 }

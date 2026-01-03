@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
 import { useAuth } from '../state/AuthContext'
+import TeacherNotifications from '../components/TeacherNotifications'
 import { 
   FaLayerGroup, FaGraduationCap, FaBookOpen, FaChartLine, FaArrowRight,
   FaUserGraduate, FaChalkboardTeacher, FaUsers, FaClipboardList, FaCalendarAlt,
@@ -15,59 +16,117 @@ export default function Dashboard() {
   const [teacherData, setTeacherData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [studentCountUpdated, setStudentCountUpdated] = useState(false)
+
+  const loadDashboardData = async () => {
+    try {
+      const dashboardRes = await api.get('/schools/dashboard/')
+      setData(dashboardRes.data)
+
+      if (user?.role === 'TEACHER') {
+        try {
+          // Get created assignments (homework, quizzes, etc.)
+          const assignmentsRes = await api.get('/assignments/assignments/')
+          const createdAssignments = Array.isArray(assignmentsRes.data.results) ? assignmentsRes.data.results : 
+                                   Array.isArray(assignmentsRes.data) ? assignmentsRes.data : []
+          
+          console.log('Assignments API response:', assignmentsRes.data)
+          console.log('Created assignments:', createdAssignments)
+          
+          // Get teacher assignments (class/subject assignments)
+          const teacherAssignmentsRes = await api.get('/teachers/assignments/')
+          const teacherAssignments = Array.isArray(teacherAssignmentsRes.data.results) ? teacherAssignmentsRes.data.results : 
+                                    Array.isArray(teacherAssignmentsRes.data) ? teacherAssignmentsRes.data : []
+          
+          // Get students
+          const studentsRes = await api.get('/students/')
+          const allStudents = studentsRes.data.results || studentsRes.data || []
+          
+          console.log('Created assignments:', createdAssignments)
+          console.log('Teacher assignments:', teacherAssignments)
+          console.log('Students:', allStudents)
+          
+          const assignedClasses = [...new Set(teacherAssignments.map(a => a.class?.id).filter(Boolean))]
+          const assignedSubjects = [...new Set(teacherAssignments.map(a => a.subject?.id).filter(Boolean))]
+          const isFormTeacher = teacherAssignments.some(a => a.type === 'form_class')
+          const formClass = teacherAssignments.find(a => a.type === 'form_class')
+          const myStudents = formClass 
+            ? allStudents.filter(s => s.class_instance === formClass.class?.id)
+            : []
+
+          const newTeacherData = {
+            assignments: teacherAssignments, // Class/subject assignments
+            createdAssignments, // Homework/quiz assignments
+            assignedClasses: assignedClasses.length,
+            assignedSubjects: assignedSubjects.length,
+            isFormTeacher,
+            formClass: formClass?.class,
+            myStudents: myStudents.length,
+            totalAssignments: createdAssignments.length, // Use created assignments count
+            // Add real assignment stats
+            assignmentStats: {
+              total: createdAssignments.length,
+              published: createdAssignments.filter(a => a.status === 'PUBLISHED').length,
+              draft: createdAssignments.filter(a => a.status === 'DRAFT').length,
+              closed: createdAssignments.filter(a => a.status === 'CLOSED').length
+            }
+          }
+          
+          // Check if student count changed to show update indicator
+          if (teacherData && teacherData.myStudents !== newTeacherData.myStudents) {
+            setStudentCountUpdated(true)
+            setTimeout(() => setStudentCountUpdated(false), 3000) // Hide after 3 seconds
+          }
+          
+          setTeacherData(newTeacherData)
+        } catch (teacherError) {
+          console.error('Teacher data error:', teacherError)
+          setError(`Teacher data: ${teacherError?.response?.data?.detail || teacherError.message}`)
+        }
+      }
+    } catch (e) {
+      setError(e?.response?.data?.detail || 'Failed to load dashboard')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Expose refresh function globally for other components
+  useEffect(() => {
+    window.refreshTeacherDashboard = () => {
+      if (user?.role === 'TEACHER') {
+        loadDashboardData()
+      }
+    }
+    
+    return () => {
+      delete window.refreshTeacherDashboard
+    }
+  }, [user])
 
   useEffect(() => {
     let mounted = true
     ;(async () => {
-      try {
-        const dashboardRes = await api.get('/schools/dashboard/')
-        if (mounted) setData(dashboardRes.data)
-
-        if (user?.role === 'TEACHER') {
-          try {
-            const [assignmentsRes, studentsRes] = await Promise.all([
-              api.get('/teachers/assignments/'),
-              api.get('/students/')
-            ])
-            
-            console.log('Assignments response:', assignmentsRes.data)
-            console.log('Students response:', studentsRes.data)
-            
-            const assignments = assignmentsRes.data.results || assignmentsRes.data || []
-            const allStudents = studentsRes.data.results || studentsRes.data || []
-
-            console.log('Processed assignments:', assignments)
-            console.log('Processed students:', allStudents)
-
-            const assignedClasses = [...new Set(assignments.map(a => a.class?.id).filter(Boolean))]
-            const assignedSubjects = [...new Set(assignments.map(a => a.subject?.id).filter(Boolean))]
-            const isFormTeacher = assignments.some(a => a.type === 'form_class')
-            const formClass = assignments.find(a => a.type === 'form_class')
-            const myStudents = formClass 
-              ? allStudents.filter(s => s.class_instance === formClass.class?.id)
-              : []
-
-            if (mounted) setTeacherData({
-              assignments,
-              assignedClasses: assignedClasses.length,
-              assignedSubjects: assignedSubjects.length,
-              isFormTeacher,
-              formClass: formClass?.class,
-              myStudents: myStudents.length,
-              totalAssignments: assignments.length
-            })
-          } catch (teacherError) {
-            console.error('Teacher data error:', teacherError)
-            if (mounted) setError(`Teacher data: ${teacherError?.response?.data?.detail || teacherError.message}`)
-          }
-        }
-      } catch (e) {
-        if (mounted) setError(e?.response?.data?.detail || 'Failed to load dashboard')
-      } finally {
-        if (mounted) setLoading(false)
+      if (mounted) {
+        await loadDashboardData()
       }
     })()
     return () => { mounted = false }
+  }, [user])
+
+  // Listen for student creation events to refresh dashboard
+  useEffect(() => {
+    const handleStudentCreated = () => {
+      console.log('Student created event received, refreshing dashboard...')
+      loadDashboardData()
+    }
+
+    // Listen for custom events from student creation
+    window.addEventListener('studentCreated', handleStudentCreated)
+    
+    return () => {
+      window.removeEventListener('studentCreated', handleStudentCreated)
+    }
   }, [user])
 
   if (loading) {
@@ -100,85 +159,108 @@ export default function Dashboard() {
   }
 
   if (user?.role === 'TEACHER') {
+    const isMobile = window.innerWidth <= 768
+    const isSmallMobile = window.innerWidth <= 480
+    const isTinyMobile = window.innerWidth <= 320
+    
     return (
-      <div className="container" style={{ 
-        maxWidth: 1400, 
-        margin: '0 auto',
-        paddingTop: window.innerWidth <= 768 ? '80px' : '20px' // Add space for mobile navbar
-      }}>
+      <div className="dashboard-page">
+        {/* Teacher Notifications */}
+        <TeacherNotifications />
+        
+        <style>{`
+          .dashboard-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: ${isTinyMobile ? '4px' : isSmallMobile ? '6px' : isMobile ? '8px' : '16px'};
+            padding-top: ${isTinyMobile ? '70px' : isSmallMobile ? '75px' : isMobile ? '80px' : '120px'};
+          }
+          
+          .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+          }
+        `}</style>
+        
+        <div className="dashboard-container">
         {/* Teacher Hero Section */}
         <div style={{
-          background: 'linear-gradient(135deg, #0f766e 0%, #14b8a6 50%, #5eead4 100%)',
-          borderRadius: 20,
-          padding: window.innerWidth <= 640 ? '28px 20px' : '40px 48px',
-          marginBottom: 32,
-          boxShadow: '0 20px 60px -15px rgba(20, 184, 166, 0.4)',
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: isMobile ? 12 : 16,
+          padding: isTinyMobile ? '12px 8px' : isSmallMobile ? '14px 10px' : isMobile ? '16px 12px' : '28px 32px',
+          marginBottom: isMobile ? 12 : 24,
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
           position: 'relative',
           overflow: 'hidden'
         }}>
           {/* Decorative circles */}
           <div style={{
             position: 'absolute',
-            top: -50,
-            right: -50,
-            width: 200,
-            height: 200,
+            top: isMobile ? -30 : -50,
+            right: isMobile ? -30 : -50,
+            width: isMobile ? 120 : 200,
+            height: isMobile ? 120 : 200,
             background: 'rgba(255,255,255,0.1)',
             borderRadius: '50%',
             filter: 'blur(40px)'
           }} />
           <div style={{
             position: 'absolute',
-            bottom: -30,
-            left: -30,
-            width: 150,
-            height: 150,
+            bottom: isMobile ? -20 : -30,
+            left: isMobile ? -20 : -30,
+            width: isMobile ? 80 : 150,
+            height: isMobile ? 80 : 150,
             background: 'rgba(255,255,255,0.08)',
             borderRadius: '50%',
             filter: 'blur(30px)'
           }} />
           
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: 20, flexDirection: window.innerWidth <= 640 ? 'column' : 'row', alignItems: window.innerWidth <= 640 ? 'flex-start' : 'center' }}>
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: isMobile ? 10 : 16, flexDirection: 'column', alignItems: 'flex-start' }}>
             <div style={{
-              width: 80,
-              height: 80,
-              background: 'rgba(255,255,255,0.25)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: 20,
+              width: isTinyMobile ? 40 : isSmallMobile ? 44 : isMobile ? 48 : 64,
+              height: isTinyMobile ? 40 : isSmallMobile ? 44 : isMobile ? 48 : 64,
+              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+              borderRadius: isMobile ? 12 : 16,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+              boxShadow: '0 4px 16px rgba(99, 102, 241, 0.3)',
+              alignSelf: isMobile ? 'center' : 'flex-start'
             }}>
-              <FaGraduationCap style={{ fontSize: 36, color: 'white' }} />
+              <FaGraduationCap style={{ fontSize: isTinyMobile ? 16 : isSmallMobile ? 18 : isMobile ? 20 : 28, color: 'white' }} />
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, textAlign: isMobile ? 'center' : 'left' }}>
               <h1 style={{ 
                 margin: 0, 
-                fontSize: window.innerWidth <= 640 ? 28 : 36, 
-                fontWeight: 800, 
-                color: 'white',
-                letterSpacing: '-0.02em'
+                fontSize: isTinyMobile ? 16 : isSmallMobile ? 17 : isMobile ? 18 : 28, 
+                fontWeight: 700, 
+                color: '#1f2937',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.2
               }}>
                 Welcome back, {user.first_name}!
               </h1>
               <p style={{ 
-                margin: '12px 0 0', 
-                fontSize: 16, 
-                color: 'rgba(255,255,255,0.95)',
+                margin: '6px 0 0', 
+                fontSize: isTinyMobile ? 10 : isSmallMobile ? 11 : isMobile ? 12 : 14, 
+                color: '#6b7280',
                 fontWeight: 500,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 8,
+                justifyContent: isMobile ? 'center' : 'flex-start',
+                gap: 6,
                 flexWrap: 'wrap'
               }}>
                 {teacherData?.isFormTeacher ? (
                   <>
                     <span style={{ 
-                      background: 'rgba(255,255,255,0.2)', 
-                      padding: '4px 12px', 
+                      background: 'rgba(99, 102, 241, 0.1)', 
+                      color: '#6366f1',
+                      padding: isMobile ? '3px 8px' : '4px 12px', 
                       borderRadius: 20,
-                      fontSize: 14,
+                      fontSize: isMobile ? 10 : 12,
                       fontWeight: 600
                     }}>
                       🏫 Form Teacher
@@ -188,10 +270,11 @@ export default function Dashboard() {
                 ) : (
                   <>
                     <span style={{ 
-                      background: 'rgba(255,255,255,0.2)', 
-                      padding: '4px 12px', 
+                      background: 'rgba(99, 102, 241, 0.1)', 
+                      color: '#6366f1',
+                      padding: isMobile ? '3px 8px' : '4px 12px', 
                       borderRadius: 20,
-                      fontSize: 14,
+                      fontSize: isMobile ? 10 : 12,
                       fontWeight: 600
                     }}>
                       📚 Subject Teacher
@@ -223,15 +306,15 @@ export default function Dashboard() {
             {/* Stats Cards Grid */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: window.innerWidth <= 640 ? '1fr' : window.innerWidth <= 968 ? '1fr 1fr' : 'repeat(4, 1fr)',
-              gap: 20,
-              marginBottom: 32
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
+              gap: isTinyMobile ? 8 : isSmallMobile ? 10 : isMobile ? 12 : 20,
+              marginBottom: isTinyMobile ? 16 : isSmallMobile ? 18 : isMobile ? 20 : 32
             }}>
               {teacherData.isFormTeacher && (
                 <div style={{
                   background: 'white',
-                  borderRadius: 16,
-                  padding: 24,
+                  borderRadius: isMobile ? 12 : 16,
+                  padding: isTinyMobile ? '12px' : isSmallMobile ? '14px' : isMobile ? '16px' : 24,
                   boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
                   border: '1px solid #e5e7eb',
                   transition: 'all 0.3s ease',
@@ -246,21 +329,21 @@ export default function Dashboard() {
                     e.currentTarget.style.transform = 'translateY(0)'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: isTinyMobile ? 8 : isSmallMobile ? 10 : isMobile ? 12 : 16, marginBottom: isMobile ? 8 : 12 }}>
                     <div style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 12,
+                      width: isTinyMobile ? 32 : isSmallMobile ? 36 : isMobile ? 40 : 48,
+                      height: isTinyMobile ? 32 : isSmallMobile ? 36 : isMobile ? 40 : 48,
+                      borderRadius: isMobile ? 8 : 12,
                       background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}>
-                      <FaGraduationCap style={{ fontSize: 22, color: 'white' }} />
+                      <FaGraduationCap style={{ fontSize: isTinyMobile ? 14 : isSmallMobile ? 16 : isMobile ? 18 : 22, color: 'white' }} />
                     </div>
                     <div>
-                      <p style={{ margin: 0, fontSize: 13, color: '#6b7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Form Students</p>
-                      <h3 style={{ margin: '4px 0 0', fontSize: 32, fontWeight: 800, color: '#111827' }}>{teacherData.myStudents || 0}</h3>
+                      <p style={{ margin: 0, fontSize: isTinyMobile ? 9 : isSmallMobile ? 10 : isMobile ? 11 : 13, color: '#6b7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Form Students</p>
+                      <h3 style={{ margin: '4px 0 0', fontSize: isTinyMobile ? 18 : isSmallMobile ? 20 : isMobile ? 24 : 32, fontWeight: 800, color: '#111827' }}>{teacherData.myStudents || 0}</h3>
                     </div>
                   </div>
                 </div>
@@ -405,31 +488,31 @@ export default function Dashboard() {
             {/* Teaching Load Section */}
             <div style={{
               background: 'white',
-              borderRadius: 20,
-              padding: window.innerWidth <= 640 ? 20 : 32,
+              borderRadius: isMobile ? 12 : 20,
+              padding: isTinyMobile ? '12px' : isSmallMobile ? '14px' : isMobile ? '16px' : 32,
               boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
               border: '1px solid #e5e7eb',
-              marginBottom: 32
+              marginBottom: isTinyMobile ? 16 : isSmallMobile ? 18 : isMobile ? 20 : 32
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isMobile ? 16 : 24, flexDirection: isTinyMobile ? 'column' : 'row', gap: isTinyMobile ? 8 : 0 }}>
                 <h2 style={{ 
                   margin: 0, 
-                  fontSize: 22, 
+                  fontSize: isTinyMobile ? 16 : isSmallMobile ? 17 : isMobile ? 18 : 22, 
                   fontWeight: 800, 
                   color: '#111827',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 12
+                  gap: isMobile ? 8 : 12
                 }}>
                   <span style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
+                    width: isTinyMobile ? 28 : isSmallMobile ? 32 : isMobile ? 36 : 40,
+                    height: isTinyMobile ? 28 : isSmallMobile ? 32 : isMobile ? 36 : 40,
+                    borderRadius: isMobile ? 8 : 10,
                     background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 18
+                    fontSize: isTinyMobile ? 12 : isSmallMobile ? 14 : isMobile ? 16 : 18
                   }}>
                     📊
                   </span>
@@ -438,9 +521,9 @@ export default function Dashboard() {
                 <span style={{
                   background: '#f3f4f6',
                   color: '#6b7280',
-                  padding: '6px 14px',
+                  padding: isTinyMobile ? '3px 8px' : isSmallMobile ? '4px 10px' : isMobile ? '5px 12px' : '6px 14px',
                   borderRadius: 20,
-                  fontSize: 13,
+                  fontSize: isTinyMobile ? 10 : isSmallMobile ? 11 : isMobile ? 12 : 13,
                   fontWeight: 700
                 }}>
                   {teacherData.assignments?.length || 0} Total
@@ -448,13 +531,13 @@ export default function Dashboard() {
               </div>
               
               {teacherData.assignments && teacherData.assignments.length > 0 ? (
-                <div style={{ display: 'grid', gap: 16 }}>
+                <div style={{ display: 'grid', gap: isTinyMobile ? 10 : isSmallMobile ? 12 : isMobile ? 14 : 16 }}>
                   {teacherData.assignments.map((assignment, idx) => (
                     <div key={idx} style={{
                       background: assignment.type === 'form_class' ? '#fef3c7' : '#dbeafe',
                       border: `2px solid ${assignment.type === 'form_class' ? '#fbbf24' : '#60a5fa'}`,
                       borderRadius: 16,
-                      padding: 20,
+                      padding: isMobile ? '14px' : 20,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
@@ -473,8 +556,8 @@ export default function Dashboard() {
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, minWidth: 200 }}>
                         <div style={{
-                          width: 56,
-                          height: 56,
+                          width: isMobile ? 44 : 56,
+                          height: isMobile ? 44 : 56,
                           borderRadius: 14,
                           background: assignment.type === 'form_class' ? 
                             'linear-gradient(135deg, #fbbf24, #f59e0b)' : 
@@ -483,7 +566,7 @@ export default function Dashboard() {
                           alignItems: 'center',
                           justifyContent: 'center',
                           color: 'white',
-                          fontSize: 24,
+                          fontSize: isMobile ? 18 : 24,
                           fontWeight: 800,
                           boxShadow: assignment.type === 'form_class' ? 
                             '0 4px 14px rgba(251, 191, 36, 0.4)' : 
@@ -492,10 +575,10 @@ export default function Dashboard() {
                           {(assignment.class?.name || 'U').charAt(0)}
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 800, fontSize: 18, color: '#111827', marginBottom: 4 }}>
+                          <div style={{ fontWeight: 800, fontSize: isMobile ? 14 : 18, color: '#111827', marginBottom: 4 }}>
                             {assignment.class?.name || 'Unknown Class'}
                           </div>
-                          <div style={{ fontSize: 14, color: '#6b7280', fontWeight: 600 }}>
+                          <div style={{ fontSize: isMobile ? 12 : 14, color: '#6b7280', fontWeight: 600 }}>
                             {assignment.type === 'form_class' ? '🏫 Form Teacher' : `📚 ${assignment.subject?.name || 'Subject Teacher'}`}
                           </div>
                         </div>
@@ -539,48 +622,49 @@ export default function Dashboard() {
             {/* Quick Actions */}
             <div style={{
               background: 'white',
-              borderRadius: 20,
-              padding: window.innerWidth <= 640 ? 20 : 32,
+              borderRadius: isMobile ? 12 : 20,
+              padding: isTinyMobile ? '12px' : isSmallMobile ? '14px' : isMobile ? '16px' : 32,
               boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
               border: '1px solid #e5e7eb'
             }}>
               <h2 style={{ 
-                margin: '0 0 24px 0', 
-                fontSize: 22, 
+                margin: isMobile ? '0 0 16px 0' : '0 0 24px 0', 
+                fontSize: isTinyMobile ? 16 : isSmallMobile ? 17 : isMobile ? 18 : 22, 
                 fontWeight: 800, 
                 color: '#111827',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 12
+                justifyContent: isMobile ? 'center' : 'flex-start',
+                gap: isMobile ? 8 : 12
               }}>
                 <span style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 10,
+                  width: isTinyMobile ? 28 : isSmallMobile ? 32 : isMobile ? 36 : 40,
+                  height: isTinyMobile ? 28 : isSmallMobile ? 32 : isMobile ? 36 : 40,
+                  borderRadius: isMobile ? 8 : 10,
                   background: 'linear-gradient(135deg, #10b981, #059669)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 18
+                  fontSize: isTinyMobile ? 12 : isSmallMobile ? 14 : isMobile ? 16 : 18
                 }}>
                   ⚡
                 </span>
                 Quick Actions
               </h2>
-              <div style={{ display: 'grid', gap: 16, gridTemplateColumns: window.innerWidth <= 640 ? '1fr' : '1fr 1fr' }}>
+              <div style={{ display: 'grid', gap: isTinyMobile ? 10 : isSmallMobile ? 12 : isMobile ? 14 : 16, gridTemplateColumns: '1fr' }}>
                 <button
                   onClick={() => navigate('/classes')}
                   style={{
                     background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: 14,
-                    padding: '20px 24px',
+                    borderRadius: isMobile ? 10 : 14,
+                    padding: isTinyMobile ? '12px 16px' : isSmallMobile ? '14px 18px' : isMobile ? '16px 20px' : '20px 24px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    fontSize: 16,
+                    fontSize: isTinyMobile ? 13 : isSmallMobile ? 14 : isMobile ? 15 : 16,
                     fontWeight: 700,
                     boxShadow: '0 4px 14px rgba(59, 130, 246, 0.4)',
                     transition: 'all 0.3s ease'
@@ -594,14 +678,14 @@ export default function Dashboard() {
                     e.currentTarget.style.boxShadow = '0 4px 14px rgba(59, 130, 246, 0.4)'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                    <FaLayerGroup style={{ fontSize: 24 }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: isTinyMobile ? 10 : isSmallMobile ? 12 : 14 }}>
+                    <FaLayerGroup style={{ fontSize: isTinyMobile ? 18 : isSmallMobile ? 20 : isMobile ? 22 : 24 }} />
                     <div style={{ textAlign: 'left' }}>
                       <div>Select Class</div>
-                      <div style={{ fontSize: 12, opacity: 0.9, fontWeight: 500 }}>Choose what to work on</div>
+                      <div style={{ fontSize: isTinyMobile ? 10 : isSmallMobile ? 11 : 12, opacity: 0.9, fontWeight: 500 }}>Choose what to work on</div>
                     </div>
                   </div>
-                  <FaArrowRight style={{ fontSize: 18 }} />
+                  <FaArrowRight style={{ fontSize: isTinyMobile ? 14 : isSmallMobile ? 16 : 18 }} />
                 </button>
                 <button
                   onClick={() => navigate('/enter-scores')}
@@ -609,13 +693,13 @@ export default function Dashboard() {
                     background: 'linear-gradient(135deg, #10b981, #059669)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: 14,
-                    padding: '20px 24px',
+                    borderRadius: isMobile ? 10 : 14,
+                    padding: isTinyMobile ? '12px 16px' : isSmallMobile ? '14px 18px' : isMobile ? '16px 20px' : '20px 24px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    fontSize: 16,
+                    fontSize: isTinyMobile ? 13 : isSmallMobile ? 14 : isMobile ? 15 : 16,
                     fontWeight: 700,
                     boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
                     transition: 'all 0.3s ease'
@@ -629,40 +713,89 @@ export default function Dashboard() {
                     e.currentTarget.style.boxShadow = '0 4px 14px rgba(16, 185, 129, 0.4)'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                    <FaChartBar style={{ fontSize: 24 }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: isTinyMobile ? 10 : isSmallMobile ? 12 : 14 }}>
+                    <FaChartBar style={{ fontSize: isTinyMobile ? 18 : isSmallMobile ? 20 : isMobile ? 22 : 24 }} />
                     <div style={{ textAlign: 'left' }}>
                       <div>Enter Scores</div>
-                      <div style={{ fontSize: 12, opacity: 0.9, fontWeight: 500 }}>Direct entry</div>
+                      <div style={{ fontSize: isTinyMobile ? 10 : isSmallMobile ? 11 : 12, opacity: 0.9, fontWeight: 500 }}>Direct entry</div>
                     </div>
                   </div>
-                  <FaArrowRight style={{ fontSize: 18 }} />
+                  <FaArrowRight style={{ fontSize: isTinyMobile ? 14 : isSmallMobile ? 16 : 18 }} />
                 </button>
               </div>
             </div>
           </>
         )}
+        </div>
       </div>
     )
   }
 
   const isMobile = window.innerWidth <= 768
   const isTablet = window.innerWidth <= 1024
+  const isDesktop = window.innerWidth > 1024
 
   return (
-    <div style={{ 
-      maxWidth: 1400, 
-      margin: '0 auto',
-      padding: isMobile ? '0 16px' : isTablet ? '0 20px' : '0 24px',
-      paddingTop: isMobile ? '80px' : '20px' // Add space for mobile navbar
-    }}>
+    <div className="dashboard-page">
+      <style>{`
+        .dashboard-page {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: ${isDesktop ? '24px' : '16px'};
+          padding-top: ${isDesktop ? '140px' : '120px'};
+        }
+        
+        .dashboard-container {
+          max-width: ${isDesktop ? '1600px' : '1400px'};
+          margin: 0 auto;
+        }
+        
+        @media (max-width: 320px) {
+          .dashboard-page {
+            padding: 4px;
+            padding-top: 70px;
+          }
+        }
+        
+        @media (min-width: 321px) and (max-width: 480px) {
+          .dashboard-page {
+            padding: 8px;
+            padding-top: 80px;
+          }
+        }
+        
+        @media (min-width: 481px) and (max-width: 768px) {
+          .dashboard-page {
+            padding: 12px;
+            padding-top: 100px;
+          }
+        }
+        
+        @media (min-width: 1025px) {
+          .dashboard-page {
+            padding: 24px 32px;
+            padding-top: 140px;
+          }
+        }
+        
+        @media (min-width: 1440px) {
+          .dashboard-page {
+            padding: 32px 48px;
+            padding-top: 160px;
+          }
+        }
+      `}</style>
+      
+      <div className="dashboard-container">
       {/* Admin Hero Section */}
       <div style={{
-        background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #93c5fd 100%)',
-        borderRadius: isMobile ? 16 : 20,
-        padding: isMobile ? '24px 20px' : isTablet ? '32px 28px' : '40px 48px',
-        marginBottom: isMobile ? 20 : 32,
-        boxShadow: '0 20px 60px -15px rgba(59, 130, 246, 0.4)',
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: isDesktop ? 24 : 16,
+        padding: isMobile ? '20px 16px' : isTablet ? '24px 20px' : isDesktop ? '40px 48px' : '28px 32px',
+        marginBottom: isMobile ? 16 : isDesktop ? 32 : 24,
+        boxShadow: isDesktop ? '0 20px 60px rgba(0, 0, 0, 0.15)' : '0 8px 32px rgba(0, 0, 0, 0.1)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
         position: 'relative',
         overflow: 'hidden'
       }}>
@@ -692,54 +825,52 @@ export default function Dashboard() {
           position: 'relative', 
           zIndex: 1, 
           display: 'flex', 
-          gap: isMobile ? 16 : 20, 
+          gap: isMobile ? 12 : isDesktop ? 24 : 16, 
           flexDirection: isMobile ? 'column' : 'row', 
           alignItems: isMobile ? 'flex-start' : 'center',
           textAlign: isMobile ? 'left' : 'left'
         }}>
           <div style={{
-            width: isMobile ? 64 : 80,
-            height: isMobile ? 64 : 80,
-            background: 'rgba(255,255,255,0.25)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: isMobile ? 16 : 20,
+            width: isMobile ? 56 : isDesktop ? 80 : 64,
+            height: isMobile ? 56 : isDesktop ? 80 : 64,
+            background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+            borderRadius: isMobile ? 14 : isDesktop ? 20 : 16,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+            boxShadow: isDesktop ? '0 8px 32px rgba(99, 102, 241, 0.4)' : '0 4px 16px rgba(99, 102, 241, 0.3)',
             flexShrink: 0
           }}>
-            <FaUsers style={{ fontSize: isMobile ? 28 : 36, color: 'white' }} />
+            <FaUsers style={{ fontSize: isMobile ? 24 : isDesktop ? 36 : 28, color: 'white' }} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h1 style={{ 
               margin: 0, 
-              fontSize: isMobile ? 24 : isTablet ? 32 : 36, 
-              fontWeight: 800, 
-              color: 'white',
+              fontSize: isMobile ? 20 : isTablet ? 24 : isDesktop ? 36 : 28, 
+              fontWeight: 700, 
+              color: '#1f2937',
               letterSpacing: '-0.02em',
               lineHeight: 1.2
             }}>
               Welcome, {user.first_name}!
             </h1>
             <div style={{ 
-              margin: isMobile ? '8px 0 0' : '12px 0 0',
+              margin: isMobile ? '6px 0 0' : '8px 0 0',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
               flexWrap: 'wrap'
             }}>
               <span style={{ 
-                background: 'rgba(255,255,255,0.2)', 
-                padding: isMobile ? '6px 12px' : '8px 16px', 
+                background: 'rgba(99, 102, 241, 0.1)', 
+                color: '#6366f1',
+                padding: isMobile ? '4px 10px' : isDesktop ? '8px 16px' : '6px 12px', 
                 borderRadius: 20,
-                fontSize: isMobile ? 12 : 14,
+                fontSize: isMobile ? 11 : isDesktop ? 14 : 12,
                 fontWeight: 600,
-                color: 'rgba(255,255,255,0.95)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 6,
-                backdropFilter: 'blur(10px)'
+                gap: 4
               }}>
                 {user.role === 'SCHOOL_ADMIN' ? '🏫 School Administrator' : '👔 Principal'}
               </span>
@@ -768,8 +899,8 @@ export default function Dashboard() {
           <div style={{
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : 'repeat(4, 1fr)',
-            gap: isMobile ? 16 : 20,
-            marginBottom: isMobile ? 20 : 32
+            gap: isMobile ? 16 : isDesktop ? 28 : 20,
+            marginBottom: isMobile ? 20 : isDesktop ? 40 : 32
           }}>
             <div style={{
               background: 'white',
@@ -782,13 +913,13 @@ export default function Dashboard() {
             }}
               onMouseEnter={e => {
                 if (!isMobile) {
-                  e.currentTarget.style.boxShadow = '0 10px 40px rgba(59,130,246,0.15)'
-                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = isDesktop ? '0 20px 60px rgba(59,130,246,0.2)' : '0 10px 40px rgba(59,130,246,0.15)'
+                  e.currentTarget.style.transform = isDesktop ? 'translateY(-8px)' : 'translateY(-4px)'
                 }
               }}
               onMouseLeave={e => {
                 if (!isMobile) {
-                  e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)'
+                  e.currentTarget.style.boxShadow = isDesktop ? '0 4px 20px rgba(0,0,0,0.08)' : '0 1px 3px rgba(0,0,0,0.08)'
                   e.currentTarget.style.transform = 'translateY(0)'
                 }
               }}
@@ -802,16 +933,16 @@ export default function Dashboard() {
                 textAlign: isMobile ? 'center' : 'left'
               }}>
                 <div style={{
-                  width: isMobile ? 44 : 48,
-                  height: isMobile ? 44 : 48,
-                  borderRadius: isMobile ? 10 : 12,
+                  width: isMobile ? 44 : isDesktop ? 56 : 48,
+                  height: isMobile ? 44 : isDesktop ? 56 : 48,
+                  borderRadius: isMobile ? 10 : isDesktop ? 16 : 12,
                   background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   alignSelf: isMobile ? 'center' : 'flex-start'
                 }}>
-                  <FaUserGraduate style={{ fontSize: isMobile ? 18 : 22, color: 'white' }} />
+                  <FaUserGraduate style={{ fontSize: isMobile ? 18 : isDesktop ? 26 : 22, color: 'white' }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ 
@@ -824,7 +955,7 @@ export default function Dashboard() {
                   }}>Total Students</p>
                   <h3 style={{ 
                     margin: '4px 0 0', 
-                    fontSize: isMobile ? 24 : 32, 
+                    fontSize: isMobile ? 24 : isDesktop ? 40 : 32, 
                     fontWeight: 800, 
                     color: '#111827',
                     lineHeight: 1.2
@@ -1024,15 +1155,15 @@ export default function Dashboard() {
           <div style={{
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr',
-            gap: isMobile ? 16 : 24,
-            marginBottom: isMobile ? 20 : 32
+            gap: isMobile ? 16 : isDesktop ? 32 : 24,
+            marginBottom: isMobile ? 20 : isDesktop ? 40 : 32
           }}>
             {/* School Info Card */}
             <div style={{
               background: 'white',
-              borderRadius: isMobile ? 16 : 20,
-              padding: isMobile ? '20px 16px' : isTablet ? '24px' : '32px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              borderRadius: isMobile ? 16 : isDesktop ? 24 : 20,
+              padding: isMobile ? '20px 16px' : isTablet ? '24px' : isDesktop ? '40px 36px' : '32px',
+              boxShadow: isDesktop ? '0 8px 40px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.08)',
               border: '1px solid #e5e7eb'
             }}>
               <div style={{ 
@@ -1046,23 +1177,23 @@ export default function Dashboard() {
               }}>
                 <h2 style={{ 
                   margin: 0, 
-                  fontSize: isMobile ? 18 : 22, 
+                  fontSize: isMobile ? 18 : isDesktop ? 26 : 22, 
                   fontWeight: 800, 
                   color: '#111827',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: isMobile ? 8 : 12,
+                  gap: isMobile ? 8 : isDesktop ? 16 : 12,
                   flexDirection: isMobile ? 'column' : 'row'
                 }}>
                   <span style={{
-                    width: isMobile ? 36 : 40,
-                    height: isMobile ? 36 : 40,
-                    borderRadius: isMobile ? 8 : 10,
+                    width: isMobile ? 36 : isDesktop ? 48 : 40,
+                    height: isMobile ? 36 : isDesktop ? 48 : 40,
+                    borderRadius: isMobile ? 8 : isDesktop ? 12 : 10,
                     background: 'linear-gradient(135deg, #1e40af, #3b82f6)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: isMobile ? 16 : 18
+                    fontSize: isMobile ? 16 : isDesktop ? 22 : 18
                   }}>
                     🏫
                   </span>
@@ -1143,9 +1274,9 @@ export default function Dashboard() {
             {/* Quick Analytics */}
             <div style={{
               background: 'white',
-              borderRadius: isMobile ? 16 : 20,
-              padding: isMobile ? '20px 16px' : isTablet ? '24px' : '32px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              borderRadius: isMobile ? 16 : isDesktop ? 24 : 20,
+              padding: isMobile ? '20px 16px' : isTablet ? '24px' : isDesktop ? '40px 36px' : '32px',
+              boxShadow: isDesktop ? '0 8px 40px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.08)',
               border: '1px solid #e5e7eb'
             }}>
               <h3 style={{ 
@@ -1208,32 +1339,32 @@ export default function Dashboard() {
           {/* Management Actions */}
           <div style={{
             background: 'white',
-            borderRadius: isMobile ? 16 : 20,
-            padding: isMobile ? '20px 16px' : isTablet ? '24px' : '32px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+            borderRadius: isMobile ? 16 : isDesktop ? 24 : 20,
+            padding: isMobile ? '20px 16px' : isTablet ? '24px' : isDesktop ? '40px 36px' : '32px',
+            boxShadow: isDesktop ? '0 8px 40px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.08)',
             border: '1px solid #e5e7eb'
           }}>
             <h2 style={{ 
-              margin: isMobile ? '0 0 16px 0' : '0 0 24px 0', 
-              fontSize: isMobile ? 18 : 22, 
+              margin: isMobile ? '0 0 16px 0' : isDesktop ? '0 0 32px 0' : '0 0 24px 0', 
+              fontSize: isMobile ? 18 : isDesktop ? 26 : 22, 
               fontWeight: 800, 
               color: '#111827',
               display: 'flex',
               alignItems: 'center',
-              gap: isMobile ? 8 : 12,
+              gap: isMobile ? 8 : isDesktop ? 16 : 12,
               justifyContent: isMobile ? 'center' : 'flex-start',
               flexDirection: isMobile ? 'column' : 'row',
               textAlign: isMobile ? 'center' : 'left'
             }}>
               <span style={{
-                width: isMobile ? 36 : 40,
-                height: isMobile ? 36 : 40,
-                borderRadius: isMobile ? 8 : 10,
+                width: isMobile ? 36 : isDesktop ? 48 : 40,
+                height: isMobile ? 36 : isDesktop ? 48 : 40,
+                borderRadius: isMobile ? 8 : isDesktop ? 12 : 10,
                 background: 'linear-gradient(135deg, #10b981, #059669)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: isMobile ? 16 : 18
+                fontSize: isMobile ? 16 : isDesktop ? 22 : 18
               }}>
                 ⚡
               </span>
@@ -1241,8 +1372,8 @@ export default function Dashboard() {
             </h2>
             <div style={{ 
               display: 'grid', 
-              gap: isMobile ? 12 : 16, 
-              gridTemplateColumns: isMobile ? '1fr 1fr' : isTablet ? '1fr 1fr' : 'repeat(4, 1fr)'
+              gap: isMobile ? 12 : isDesktop ? 20 : 16, 
+              gridTemplateColumns: isMobile ? '1fr 1fr' : isTablet ? '1fr 1fr' : isDesktop ? 'repeat(4, 1fr)' : 'repeat(4, 1fr)'
             }}>
               <button
                 onClick={() => navigate('/students')}
@@ -1250,18 +1381,18 @@ export default function Dashboard() {
                   background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                   color: 'white',
                   border: 'none',
-                  borderRadius: isMobile ? 12 : 14,
-                  padding: isMobile ? '16px 12px' : '20px 20px',
+                  borderRadius: isMobile ? 12 : isDesktop ? 18 : 14,
+                  padding: isMobile ? '16px 12px' : isDesktop ? '28px 24px' : '20px 20px',
                   cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: isMobile ? 8 : 12,
-                  fontSize: isMobile ? 12 : 14,
+                  gap: isMobile ? 8 : isDesktop ? 16 : 12,
+                  fontSize: isMobile ? 12 : isDesktop ? 16 : 14,
                   fontWeight: 700,
-                  boxShadow: '0 4px 14px rgba(59, 130, 246, 0.4)',
+                  boxShadow: isDesktop ? '0 8px 32px rgba(59, 130, 246, 0.4)' : '0 4px 14px rgba(59, 130, 246, 0.4)',
                   transition: 'all 0.3s ease',
-                  minHeight: isMobile ? '80px' : 'auto',
+                  minHeight: isMobile ? '80px' : isDesktop ? '120px' : 'auto',
                   aspectRatio: isMobile ? '1' : 'auto'
                 }}
                 onMouseEnter={e => {
@@ -1277,8 +1408,8 @@ export default function Dashboard() {
                   }
                 }}
               >
-                <FaUserGraduate style={{ fontSize: isMobile ? 20 : 24 }} />
-                <span style={{ fontSize: isMobile ? 11 : 14 }}>Students</span>
+                <FaUserGraduate style={{ fontSize: isMobile ? 20 : isDesktop ? 32 : 24 }} />
+                <span style={{ fontSize: isMobile ? 11 : isDesktop ? 16 : 14 }}>Students</span>
               </button>
 
               <button
@@ -1397,6 +1528,7 @@ export default function Dashboard() {
 
         </>
       )}
+      </div>
     </div>
   )
 }

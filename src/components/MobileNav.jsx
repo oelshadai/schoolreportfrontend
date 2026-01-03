@@ -1,37 +1,38 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../state/AuthContext'
-import { FaTachometerAlt, FaUserGraduate, FaBookOpen, FaFileInvoice, FaChalkboardTeacher, FaSchool, FaLayerGroup, FaBook, FaCog, FaUsers } from 'react-icons/fa'
+import { 
+  FaTachometerAlt, FaUserGraduate, FaBookOpen, FaFileInvoice, 
+  FaChalkboardTeacher, FaLayerGroup, FaCog, FaVideo, FaComments, FaUserCheck, FaChartBar 
+} from 'react-icons/fa'
 
 export default function MobileNav() {
   const { user } = useAuth()
   const location = useLocation()
 
-  const Item = ({ to, Icon, label, badge }) => {
+  const NavItem = ({ to, Icon, label, badge }) => {
     const isActive = location.pathname.startsWith(to)
     return (
       <Link 
         to={to} 
-        className={`bottom-nav-item${isActive ? ' active' : ''}`}
         style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           gap: 4,
-          color: isActive ? '#60a5fa' : '#9ca3af',
+          color: isActive ? 'var(--primary)' : 'var(--gray-500)',
           textDecoration: 'none',
-          padding: '10px 8px',
+          padding: '12px 8px',
           borderRadius: 12,
           minWidth: 60,
-          transition: 'all 0.3s ease',
+          transition: 'all 0.2s ease',
           position: 'relative',
           background: isActive 
-            ? 'linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(96, 165, 250, 0.05))' 
+            ? 'rgba(79, 70, 229, 0.1)' 
             : 'transparent',
-          transform: isActive ? 'translateY(-2px)' : 'translateY(0)',
-          boxShadow: isActive ? '0 4px 12px rgba(96, 165, 250, 0.2)' : 'none'
+          transform: isActive ? 'translateY(-2px)' : 'translateY(0)'
         }}
       >
-        <div className="nav-icon-container" style={{
+        <div style={{
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
@@ -39,11 +40,11 @@ export default function MobileNav() {
         }}>
           <Icon size={isActive ? 22 : 20} />
           {badge && (
-            <span className="nav-badge" style={{
+            <span style={{
               position: 'absolute',
               top: -6,
               right: -6,
-              background: '#ef4444',
+              background: 'var(--error)',
               color: 'white',
               borderRadius: 10,
               padding: '2px 6px',
@@ -51,14 +52,14 @@ export default function MobileNav() {
               fontWeight: 600,
               minWidth: 16,
               textAlign: 'center',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+              boxShadow: 'var(--shadow-sm)'
             }}>
               {badge}
             </span>
           )}
         </div>
-        <span className="nav-label" style={{
-          fontSize: isActive ? 12 : 11,
+        <span style={{
+          fontSize: 11,
           lineHeight: 1,
           fontWeight: isActive ? 600 : 500,
           textAlign: 'center',
@@ -70,7 +71,6 @@ export default function MobileNav() {
     )
   }
 
-  // Enhanced navigation items based on user role
   const getNavItems = () => {
     const baseItems = [
       { to: "/dashboard", Icon: FaTachometerAlt, label: "Home" }
@@ -80,6 +80,7 @@ export default function MobileNav() {
       return [
         ...baseItems,
         { to: "/classes", Icon: FaLayerGroup, label: "Classes" },
+        { to: "/attendance", Icon: FaUserCheck, label: "Attendance" },
         { to: "/scores", Icon: FaBookOpen, label: "Scores" },
         { to: "/reports", Icon: FaFileInvoice, label: "Reports" }
       ]
@@ -87,6 +88,8 @@ export default function MobileNav() {
       return [
         ...baseItems,
         { to: "/students", Icon: FaUserGraduate, label: "Students" },
+        { to: "/attendance-dashboard", Icon: FaChartBar, label: "Attendance" },
+        { to: "/classroom", Icon: FaVideo, label: "Classroom" },
         { to: "/teachers", Icon: FaChalkboardTeacher, label: "Teachers" },
         { to: "/reports", Icon: FaFileInvoice, label: "Reports" },
         { to: "/settings", Icon: FaCog, label: "Settings" }
@@ -96,23 +99,26 @@ export default function MobileNav() {
     return baseItems
   }
 
+  // Only show on mobile
+  if (window.innerWidth > 768) return null
+
   return (
-    <nav className="bottom-nav" style={{
+    <nav style={{
       position: 'fixed',
       bottom: 0,
       left: 0,
       right: 0,
       zIndex: 40,
-      background: 'rgba(17,24,39,.98)',
-      backdropFilter: 'blur(16px)',
-      borderTop: '1px solid #374151',
-      display: window.innerWidth <= 768 ? 'flex' : 'none',
+      background: 'rgba(255, 255, 255, 0.95)',
+      backdropFilter: 'blur(20px)',
+      borderTop: '1px solid var(--gray-200)',
+      display: 'flex',
       padding: '8px 6px calc(8px + env(safe-area-inset-bottom))',
       justifyContent: 'space-around',
-      boxShadow: '0 -4px 20px rgba(0,0,0,.4)'
+      boxShadow: '0 -4px 20px rgba(0,0,0,0.1)'
     }}>
       {getNavItems().map(item => (
-        <Item key={item.to} {...item} />
+        <NavItem key={item.to} {...item} />
       ))}
     </nav>
   )

@@ -55,6 +55,36 @@ export default function EnterScores() {
   const [savedStudents, setSavedStudents] = useState(new Set())
   const [loadingClassData, setLoadingClassData] = useState(false)
   
+  // Responsive design constants with CSS media query support
+  const getResponsiveStyles = () => {
+    const width = typeof window !== 'undefined' ? window.innerWidth : 1200
+    return {
+      isSmall: width <= 360,
+      isMobile: width <= 480,
+      isTablet: width <= 768,
+      isDesktop: width > 768
+    }
+  }
+
+  const responsive = getResponsiveStyles()
+
+  // Add CSS for mobile viewport
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      @media (max-width: 480px) {
+        * {
+          box-sizing: border-box !important;
+        }
+        body {
+          overflow-x: hidden !important;
+        }
+      }
+    `
+    document.head.appendChild(style)
+    return () => document.head.removeChild(style)
+  }, [])
+
   // Batch Preview State
   const [showBatchPreview, setShowBatchPreview] = useState(false)
   const [batchPreviewData, setBatchPreviewData] = useState([])
@@ -882,27 +912,115 @@ export default function EnterScores() {
 
   if (step === 'setup') {
     return (
-      <div className="container">
-        <div className="page-header">
-          <h1 style={{display:'flex',alignItems:'center',gap:10}}>
-            <FaBookOpen color="#c4b5fd"/> Enter Scores - Setup
-          </h1>
+      <div className="container" style={{
+        maxWidth: responsive.isSmall ? '100vw' : 1400,
+        margin: '0 auto',
+        padding: responsive.isSmall ? '16px 8px' : responsive.isMobile ? '20px 12px' : '24px 20px',
+        paddingTop: responsive.isSmall ? '80px' : responsive.isMobile ? '100px' : '24px',
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+        minHeight: '100vh',
+        color: 'white',
+        overflowX: 'hidden',
+        boxSizing: 'border-box'
+      }}>
+        <div className="mobile-card" style={{ 
+          marginBottom: '20px',
+          background: 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(16px)',
+          borderRadius: responsive.isSmall ? 12 : responsive.isMobile ? 16 : 20,
+          padding: responsive.isSmall ? '16px 12px' : responsive.isMobile ? '20px 16px' : '24px 20px',
+          border: '1px solid rgba(59, 130, 246, 0.2)',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          overflowX: 'hidden'
+        }}>
+          <div className="page-header" style={{ 
+            marginBottom: 0,
+            display: 'flex',
+            flexDirection: responsive.isMobile ? 'column' : 'row',
+            alignItems: responsive.isMobile ? 'flex-start' : 'center',
+            justifyContent: 'space-between',
+            gap: responsive.isMobile ? 16 : 12
+          }}>
+            <h1 style={{
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: responsive.isSmall ? 8 : responsive.isMobile ? 12 : 16, 
+              fontSize: responsive.isSmall ? '18px' : responsive.isMobile ? '20px' : responsive.isTablet ? '24px' : '28px',
+              margin: 0,
+              fontWeight: 700,
+              background: 'linear-gradient(135deg, #60a5fa, #3b82f6)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              <div style={{
+                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                borderRadius: 12,
+                padding: responsive.isSmall ? '8px' : responsive.isMobile ? '10px' : '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 8px 20px rgba(59, 130, 246, 0.4)'
+              }}>
+                <FaBookOpen size={responsive.isSmall ? 16 : responsive.isMobile ? 18 : 22} color="white" />
+              </div>
+              Enter Scores - Setup
+            </h1>
+          </div>
         </div>
         
-        {error && <div className="alert">{error}</div>}
+        {error && (
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: 10,
+            padding: '12px 16px',
+            marginBottom: 20,
+            color: '#fca5a5',
+            fontSize: 14
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
         
-        <div className="card">
-          <h3 style={{marginTop:0}}>
+        <div style={{
+          background: 'rgba(15, 23, 42, 0.8)',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+          border: '1px solid rgba(71, 85, 105, 0.3)',
+          marginBottom: '24px',
+          backdropFilter: 'blur(12px)',
+          padding: responsive.isMobile ? '20px 16px' : '24px 20px'
+        }}>
+          <h3 style={{
+            marginTop: 0,
+            fontSize: responsive.isMobile ? '18px' : '20px',
+            fontWeight: 600,
+            color: 'white',
+            marginBottom: 16
+          }}>
             {user?.role === 'TEACHER' ? 
               (schoolSettings?.score_entry_mode === 'CLASS_TEACHER' ? 'Select Term & Subject' : 'Select Class, Term & Subject') 
               : 'Select Class, Term & Subject'}
           </h3>
           
           {schoolSettings?.score_entry_mode && (
-            <div style={{marginBottom:16, padding:'8px 12px', background:'#0b1220', borderRadius:'6px', fontSize:13}}>
-              <strong>School Mode:</strong> {schoolSettings.score_entry_mode === 'CLASS_TEACHER' ? 'Class Teacher Mode' : 'Subject Teacher Mode'}
+            <div style={{
+              marginBottom: 16, 
+              padding: '12px 16px', 
+              background: 'rgba(59, 130, 246, 0.1)', 
+              borderRadius: 10, 
+              fontSize: 13,
+              border: '1px solid rgba(59, 130, 246, 0.2)',
+              color: '#93c5fd'
+            }}>
+              <strong style={{color: 'white'}}>School Mode:</strong> {schoolSettings.score_entry_mode === 'CLASS_TEACHER' ? 'Class Teacher Mode' : 'Subject Teacher Mode'}
               <br />
-              <span className="muted">
+              <span style={{color: '#94a3b8', fontSize: '12px'}}>
                 {schoolSettings.score_entry_mode === 'CLASS_TEACHER' 
                   ? 'Class teachers enter scores for all subjects in their class'
                   : 'Subject teachers enter scores only for subjects they teach'}
@@ -910,10 +1028,22 @@ export default function EnterScores() {
             </div>
           )}
           
-          <div className="form two-col" style={{marginTop:16}}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: responsive.isDesktop ? 'repeat(2, 1fr)' : '1fr',
+            gap: responsive.isSmall ? 12 : responsive.isMobile ? 16 : 20,
+            width: '100%',
+            maxWidth: '100%'
+          }}>
             {(user?.role !== 'TEACHER' || schoolSettings?.score_entry_mode === 'SUBJECT_TEACHER') && (
-              <div className="field">
-                <label>Class</label>
+              <div className="field" style={{marginBottom: 20}}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: 'white'
+                }}>Class</label>
                 <ScrollableSelect
                   value={selectedClass}
                   onChange={setSelectedClass}
@@ -927,17 +1057,38 @@ export default function EnterScores() {
             )}
 
             {user?.role === 'TEACHER' && schoolSettings?.score_entry_mode === 'CLASS_TEACHER' && (
-              <div className="field">
-                <label>Your Class</label>
-                <div style={{padding:'10px 12px', background:'var(--card)', borderRadius:'8px', border:'1px solid #10b981', color:'#86efac'}}>
-                  <FaUser style={{marginRight:8}}/>
+              <div className="field" style={{marginBottom: 20}}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: 'white'
+                }}>Your Class</label>
+                <div style={{
+                  padding: '12px 16px', 
+                  background: 'rgba(16, 185, 129, 0.1)', 
+                  borderRadius: 10, 
+                  border: '1px solid rgba(16, 185, 129, 0.3)', 
+                  color: '#86efac',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8
+                }}>
+                  <FaUser style={{fontSize: 14}}/>
                   {classes[0] ? `${classes[0].level_display || classes[0].level}${classes[0].section ? ` ${classes[0].section}` : ''}` : 'Loading...'}
                 </div>
               </div>
             )}
 
-            <div className="field">
-              <label>Term</label>
+            <div className="field" style={{marginBottom: 20}}>
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: 'white'
+              }}>Term</label>
               <ScrollableSelect
                 value={selectedTerm}
                 onChange={setSelectedTerm}
@@ -949,11 +1100,11 @@ export default function EnterScores() {
               />
             </div>
 
-            <div className="field">
-              <label style={{marginBottom: '12px', display: 'block', fontWeight: '600', color: '#374151'}}>Subject Selection Mode</label>
+            <div className="field" style={{marginBottom: 20}}>
+              <label style={{marginBottom: '12px', display: 'block', fontWeight: '600', color: 'white'}}>Subject Selection Mode</label>
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                gridTemplateColumns: responsive.isDesktop ? '1fr 1fr' : '1fr',
                 gap: '12px',
                 marginBottom: '16px'
               }}>
@@ -1026,7 +1177,11 @@ export default function EnterScores() {
                   borderRadius: '12px',
                   padding: '20px',
                   border: '1px solid #cbd5e1',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
+                  overflowX: 'hidden'
                 }}>
                   <div style={{
                     display: 'flex',
@@ -1080,7 +1235,9 @@ export default function EnterScores() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '8px'
+                      gap: '8px',
+                      boxSizing: 'border-box',
+                      maxWidth: '100%'
                     }}
                   >
                     {selectedSubjects.length === classSubjects.length ? '❌ Deselect All' : '✅ Select All'} 
@@ -1091,9 +1248,11 @@ export default function EnterScores() {
                     maxHeight: '280px',
                     overflow: 'auto',
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                    gridTemplateColumns: responsive.isDesktop ? 'repeat(auto-fill, minmax(250px, 1fr))' : '1fr',
                     gap: '8px',
-                    padding: '4px'
+                    padding: '4px',
+                    width: '100%',
+                    boxSizing: 'border-box'
                   }}>
                     {classSubjects.map(cs => (
                       <div
@@ -1117,7 +1276,10 @@ export default function EnterScores() {
                           display: 'flex',
                           alignItems: 'center',
                           gap: '10px',
-                          position: 'relative'
+                          position: 'relative',
+                          width: '100%',
+                          maxWidth: '100%',
+                          boxSizing: 'border-box'
                         }}
                         onMouseEnter={(e) => {
                           if (!selectedSubjects.includes(String(cs.id))) {
@@ -1268,7 +1430,15 @@ export default function EnterScores() {
   }
 
   return (
-    <div className="container">
+    <div className="container" style={{
+      maxWidth: 1400,
+      margin: '0 auto',
+      padding: responsive.isSmall ? '16px 8px' : responsive.isMobile ? '20px 12px' : '24px 20px',
+      paddingTop: responsive.isSmall ? '80px' : responsive.isMobile ? '100px' : '24px',
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+      minHeight: '100vh',
+      color: 'white'
+    }}>
       {/* Header with pre-selected info if available */}
       {preSelectedData.className && (
         <div style={{
@@ -1330,12 +1500,21 @@ export default function EnterScores() {
       )}
 
       {/* Progress Bar */}
-      <div className="card" style={{marginBottom:16}}>
-        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8}}>
+      <div style={{
+        background: 'rgba(15, 23, 42, 0.8)',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+        border: '1px solid rgba(71, 85, 105, 0.3)',
+        marginBottom: '24px',
+        backdropFilter: 'blur(12px)',
+        padding: responsive.isSmall ? '12px 8px' : responsive.isMobile ? '16px 12px' : '20px 16px'
+      }}>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8, color: 'white'}}>
           <span>Progress: {savedStudents.size}/{students.length} students</span>
           <span>{progressPercent}% complete</span>
         </div>
-        <div style={{width:'100%', height:8, background:'#1f2937', borderRadius:4, overflow:'hidden'}}>
+        <div style={{width:'100%', height:8, background:'rgba(71, 85, 105, 0.3)', borderRadius:4, overflow:'hidden'}}>
           <div 
             style={{
               width:`${progressPercent}%`,
@@ -1349,16 +1528,25 @@ export default function EnterScores() {
 
       {/* Current Student Card */}
       {currentStudent && (
-        <div className="card">
+        <div style={{
+          background: 'rgba(15, 23, 42, 0.8)',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+          border: '1px solid rgba(71, 85, 105, 0.3)',
+          marginBottom: '24px',
+          backdropFilter: 'blur(12px)',
+          padding: responsive.isMobile ? '20px 16px' : '24px 20px'
+        }}>
           <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16}}>
-            <h3 style={{margin:0, display:'flex', alignItems:'center', gap:8}}>
+            <h3 style={{margin:0, display:'flex', alignItems:'center', gap:8, color: 'white'}}>
               <FaUser color="#93c5fd"/>
               {currentStudent.full_name}
               {savedStudents.has(currentStudent.id) && (
                 <FaCheck color="#10b981" style={{marginLeft:8}}/>
               )}
             </h3>
-            <div className="muted">
+            <div style={{color: '#94a3b8', fontSize: '14px'}}>
               Student {currentStudentIndex + 1} of {students.length}
               {multiSubjectMode && (
                 <div style={{fontSize: '12px', marginTop: '2px'}}>
@@ -1408,25 +1596,37 @@ export default function EnterScores() {
           )}
 
           {(message || error) && (
-            <div className={error ? 'alert' : 'success'} style={{marginBottom:16}}>
-              {error || message}
+            <div style={{
+              background: error ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+              border: error ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: 10,
+              padding: '12px 16px',
+              marginBottom: 16,
+              color: error ? '#fca5a5' : '#86efac',
+              fontSize: 14
+            }}>
+              {error ? '⚠️ ' : '✅ '}{error || message}
             </div>
           )}
 
           {/* Score Entry Form */}
-          <div style={{
-            background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-            borderRadius: '12px',
-            padding: '20px',
-            border: '1px solid #cbd5e1',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            marginBottom: '20px'
-          }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+          borderRadius: '12px',
+          padding: responsive.isSmall ? '12px' : responsive.isMobile ? '16px' : '20px',
+          border: '1px solid #cbd5e1',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          marginBottom: '20px',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          overflowX: 'hidden'
+        }}>
             <div style={{marginBottom: '16px', textAlign: 'center'}}>
               <h4 style={{
                 margin: '0 0 8px 0',
                 color: '#1e293b',
-                fontSize: '18px',
+                fontSize: responsive.isSmall ? '14px' : responsive.isMobile ? '16px' : '18px',
                 fontWeight: '600'
               }}>
                 Enter Scores for {currentStudent?.full_name}
@@ -1436,151 +1636,228 @@ export default function EnterScores() {
               </div>
             </div>
             
-            <div className="form two-col" style={{gap: '16px'}}>
-              <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
-                <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
-                  Task Score <span style={{color: '#6b7280'}}>(Max: 10)</span>
-                  {scores.task > 10 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
-                </label>
-                <input 
-                  type="number" 
-                  value={scores.task} 
-                  onChange={(e) => handleScoreChange('task', e.target.value)}
-                  min="0" max="10" step="0.5"
-                  placeholder="0.0"
-                  style={{
+            {responsive.isMobile ? (
+              // Mobile Layout - Single Column
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '100%' }}>
+                {[
+                  { key: 'task', label: 'Task Score', max: 10 },
+                  { key: 'homework', label: 'Homework', max: 10 },
+                  { key: 'group_work', label: 'Group Work', max: 10 },
+                  { key: 'project_work', label: 'Project Work', max: 10 },
+                  { key: 'class_test', label: 'Class Test', max: 10 },
+                  { key: 'exam_score', label: 'Exam Score', max: 50 }
+                ].map(field => (
+                  <div key={field.key} style={{
+                    background: 'white',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
                     width: '100%',
-                    padding: '8px 12px',
-                    border: `2px solid ${scores.task > 10 ? '#ef4444' : '#e5e7eb'}`,
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    transition: 'border-color 0.15s ease-in-out'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = scores.task > 10 ? '#ef4444' : '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = scores.task > 10 ? '#ef4444' : '#e5e7eb'}
-                />
+                    maxWidth: '100%',
+                    boxSizing: 'border-box'
+                  }}>
+                    <label style={{
+                      color: '#374151',
+                      fontWeight: '600',
+                      marginBottom: '8px',
+                      display: 'block',
+                      fontSize: '14px'
+                    }}>
+                      {field.label}
+                      <span style={{color: '#6b7280', fontWeight: '400'}}> (Max: {field.max})</span>
+                      {scores[field.key] > field.max && (
+                        <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>
+                      )}
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input 
+                        type="number" 
+                        value={scores[field.key]} 
+                        onChange={(e) => handleScoreChange(field.key, e.target.value)}
+                        min="0" 
+                        max={field.max} 
+                        step="0.5"
+                        placeholder="0.0"
+                        style={{
+                          width: '100%',
+                          padding: responsive.isSmall ? '12px 14px' : '14px 16px',
+                          border: `2px solid ${scores[field.key] > field.max ? '#ef4444' : '#e5e7eb'}`,
+                          borderRadius: '8px',
+                          fontSize: responsive.isSmall ? '16px' : '18px',
+                          fontWeight: '500',
+                          textAlign: 'center',
+                          transition: 'border-color 0.15s ease-in-out',
+                          outline: 'none',
+                          boxSizing: 'border-box',
+                          maxWidth: '100%'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = scores[field.key] > field.max ? '#ef4444' : '#3b82f6'}
+                        onBlur={(e) => e.target.style.borderColor = scores[field.key] > field.max ? '#ef4444' : '#e5e7eb'}
+                      />
+                      <div style={{
+                        position: 'absolute',
+                        right: '16px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: '#9ca3af',
+                        fontSize: '14px',
+                        pointerEvents: 'none'
+                      }}>
+                        /{field.max}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
+            ) : (
+              // Desktop Layout - Grid
+              <div className="form two-col" style={{gap: '16px'}}>
+                <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
+                  <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+                    Task Score <span style={{color: '#6b7280'}}>(Max: 10)</span>
+                    {scores.task > 10 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
+                  </label>
+                  <input 
+                    type="number" 
+                    value={scores.task} 
+                    onChange={(e) => handleScoreChange('task', e.target.value)}
+                    min="0" max="10" step="0.5"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: `2px solid ${scores.task > 10 ? '#ef4444' : '#e5e7eb'}`,
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      transition: 'border-color 0.15s ease-in-out'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = scores.task > 10 ? '#ef4444' : '#3b82f6'}
+                    onBlur={(e) => e.target.style.borderColor = scores.task > 10 ? '#ef4444' : '#e5e7eb'}
+                  />
+                </div>
 
-              <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
-                <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
-                  Homework <span style={{color: '#6b7280'}}>(Max: 10)</span>
-                  {scores.homework > 10 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
-                </label>
-                <input 
-                  type="number" 
-                  value={scores.homework} 
-                  onChange={(e) => handleScoreChange('homework', e.target.value)}
-                  min="0" max="10" step="0.5"
-                  placeholder="0.0"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: `2px solid ${scores.homework > 10 ? '#ef4444' : '#e5e7eb'}`,
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    transition: 'border-color 0.15s ease-in-out'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = scores.homework > 10 ? '#ef4444' : '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = scores.homework > 10 ? '#ef4444' : '#e5e7eb'}
-                />
-              </div>
+                <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
+                  <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+                    Homework <span style={{color: '#6b7280'}}>(Max: 10)</span>
+                    {scores.homework > 10 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
+                  </label>
+                  <input 
+                    type="number" 
+                    value={scores.homework} 
+                    onChange={(e) => handleScoreChange('homework', e.target.value)}
+                    min="0" max="10" step="0.5"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: `2px solid ${scores.homework > 10 ? '#ef4444' : '#e5e7eb'}`,
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      transition: 'border-color 0.15s ease-in-out'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = scores.homework > 10 ? '#ef4444' : '#3b82f6'}
+                    onBlur={(e) => e.target.style.borderColor = scores.homework > 10 ? '#ef4444' : '#e5e7eb'}
+                  />
+                </div>
 
-              <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
-                <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
-                  Group Work <span style={{color: '#6b7280'}}>(Max: 10)</span>
-                  {scores.group_work > 10 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
-                </label>
-                <input 
-                  type="number" 
-                  value={scores.group_work} 
-                  onChange={(e) => handleScoreChange('group_work', e.target.value)}
-                  min="0" max="10" step="0.5"
-                  placeholder="0.0"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: `2px solid ${scores.group_work > 10 ? '#ef4444' : '#e5e7eb'}`,
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    transition: 'border-color 0.15s ease-in-out'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = scores.group_work > 10 ? '#ef4444' : '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = scores.group_work > 10 ? '#ef4444' : '#e5e7eb'}
-                />
-              </div>
+                <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
+                  <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+                    Group Work <span style={{color: '#6b7280'}}>(Max: 10)</span>
+                    {scores.group_work > 10 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
+                  </label>
+                  <input 
+                    type="number" 
+                    value={scores.group_work} 
+                    onChange={(e) => handleScoreChange('group_work', e.target.value)}
+                    min="0" max="10" step="0.5"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: `2px solid ${scores.group_work > 10 ? '#ef4444' : '#e5e7eb'}`,
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      transition: 'border-color 0.15s ease-in-out'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = scores.group_work > 10 ? '#ef4444' : '#3b82f6'}
+                    onBlur={(e) => e.target.style.borderColor = scores.group_work > 10 ? '#ef4444' : '#e5e7eb'}
+                  />
+                </div>
 
-              <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
-                <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
-                  Project Work <span style={{color: '#6b7280'}}>(Max: 10)</span>
-                  {scores.project_work > 10 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
-                </label>
-                <input 
-                  type="number" 
-                  value={scores.project_work} 
-                  onChange={(e) => handleScoreChange('project_work', e.target.value)}
-                  min="0" max="10" step="0.5"
-                  placeholder="0.0"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: `2px solid ${scores.project_work > 10 ? '#ef4444' : '#e5e7eb'}`,
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    transition: 'border-color 0.15s ease-in-out'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = scores.project_work > 10 ? '#ef4444' : '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = scores.project_work > 10 ? '#ef4444' : '#e5e7eb'}
-                />
-              </div>
+                <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
+                  <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+                    Project Work <span style={{color: '#6b7280'}}>(Max: 10)</span>
+                    {scores.project_work > 10 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
+                  </label>
+                  <input 
+                    type="number" 
+                    value={scores.project_work} 
+                    onChange={(e) => handleScoreChange('project_work', e.target.value)}
+                    min="0" max="10" step="0.5"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: `2px solid ${scores.project_work > 10 ? '#ef4444' : '#e5e7eb'}`,
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      transition: 'border-color 0.15s ease-in-out'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = scores.project_work > 10 ? '#ef4444' : '#3b82f6'}
+                    onBlur={(e) => e.target.style.borderColor = scores.project_work > 10 ? '#ef4444' : '#e5e7eb'}
+                  />
+                </div>
 
-              <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
-                <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
-                  Class Test <span style={{color: '#6b7280'}}>(Max: 10)</span>
-                  {scores.class_test > 10 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
-                </label>
-                <input 
-                  type="number" 
-                  value={scores.class_test} 
-                  onChange={(e) => handleScoreChange('class_test', e.target.value)}
-                  min="0" max="10" step="0.5"
-                  placeholder="0.0"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: `2px solid ${scores.class_test > 10 ? '#ef4444' : '#e5e7eb'}`,
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    transition: 'border-color 0.15s ease-in-out'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = scores.class_test > 10 ? '#ef4444' : '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = scores.class_test > 10 ? '#ef4444' : '#e5e7eb'}
-                />
-              </div>
+                <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
+                  <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+                    Class Test <span style={{color: '#6b7280'}}>(Max: 10)</span>
+                    {scores.class_test > 10 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
+                  </label>
+                  <input 
+                    type="number" 
+                    value={scores.class_test} 
+                    onChange={(e) => handleScoreChange('class_test', e.target.value)}
+                    min="0" max="10" step="0.5"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: `2px solid ${scores.class_test > 10 ? '#ef4444' : '#e5e7eb'}`,
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      transition: 'border-color 0.15s ease-in-out'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = scores.class_test > 10 ? '#ef4444' : '#3b82f6'}
+                    onBlur={(e) => e.target.style.borderColor = scores.class_test > 10 ? '#ef4444' : '#e5e7eb'}
+                  />
+                </div>
 
-              <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
-                <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
-                  Exam Score <span style={{color: '#6b7280'}}>(Max: 50)</span>
-                  {scores.exam_score > 50 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
-                </label>
-                <input 
-                  type="number" 
-                  value={scores.exam_score} 
-                  onChange={(e) => handleScoreChange('exam_score', e.target.value)}
-                  min="0" max="50" step="0.5"
-                  placeholder="0.0"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: `2px solid ${scores.exam_score > 50 ? '#ef4444' : '#e5e7eb'}`,
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    transition: 'border-color 0.15s ease-in-out'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = scores.exam_score > 50 ? '#ef4444' : '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = scores.exam_score > 50 ? '#ef4444' : '#e5e7eb'}
-                />
+                <div className="field" style={{background: 'white', borderRadius: '8px', padding: '12px', border: '1px solid #e2e8f0'}}>
+                  <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+                    Exam Score <span style={{color: '#6b7280'}}>(Max: 50)</span>
+                    {scores.exam_score > 50 && <span style={{color: '#ef4444', fontSize: '12px', marginLeft: '8px'}}>⚠️ Exceeds limit</span>}
+                  </label>
+                  <input 
+                    type="number" 
+                    value={scores.exam_score} 
+                    onChange={(e) => handleScoreChange('exam_score', e.target.value)}
+                    min="0" max="50" step="0.5"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      border: `2px solid ${scores.exam_score > 50 ? '#ef4444' : '#e5e7eb'}`,
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      transition: 'border-color 0.15s ease-in-out'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = scores.exam_score > 50 ? '#ef4444' : '#3b82f6'}
+                    onBlur={(e) => e.target.style.borderColor = scores.exam_score > 50 ? '#ef4444' : '#e5e7eb'}
+                  />
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Total Score Display */}
@@ -1608,110 +1885,225 @@ export default function EnterScores() {
           {/* Navigation Controls */}
           <div style={{
             display: 'flex', 
+            flexDirection: responsive.isSmall || responsive.isMobile ? 'column' : 'row',
             justifyContent: 'space-between', 
-            alignItems: 'center', 
+            alignItems: responsive.isSmall || responsive.isMobile ? 'stretch' : 'center', 
             marginTop: '24px',
-            padding: '16px',
+            padding: responsive.isSmall ? '12px' : responsive.isMobile ? '16px' : '16px',
             background: 'white',
             borderRadius: '12px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+            gap: responsive.isSmall ? '8px' : responsive.isMobile ? '12px' : '0',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box'
           }}>
-            <button 
-              onClick={goToPreviousStudent}
-              disabled={currentStudentIndex === 0}
-              style={{
-                background: currentStudentIndex === 0 ? '#f3f4f6' : 'linear-gradient(135deg, #6b7280, #4b5563)',
-                color: currentStudentIndex === 0 ? '#9ca3af' : 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '10px 16px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: currentStudentIndex === 0 ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                transition: 'all 0.15s ease-in-out',
-                boxShadow: currentStudentIndex === 0 ? 'none' : '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              <FaChevronLeft style={{fontSize: '12px'}}/>
-              Previous
-            </button>
+            {responsive.isMobile ? (
+              // Mobile Layout - Stacked
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: responsive.isSmall ? '8px' : '12px' }}>
+                  <button 
+                    onClick={goToPreviousStudent}
+                    disabled={currentStudentIndex === 0}
+                    style={{
+                      flex: 1,
+                      background: currentStudentIndex === 0 ? '#f3f4f6' : 'linear-gradient(135deg, #6b7280, #4b5563)',
+                      color: currentStudentIndex === 0 ? '#9ca3af' : 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '12px 16px',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      cursor: currentStudentIndex === 0 ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      transition: 'all 0.15s ease-in-out',
+                      boxShadow: currentStudentIndex === 0 ? 'none' : '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
+                    <FaChevronLeft style={{fontSize: '12px'}}/>
+                    Previous
+                  </button>
 
-            <div style={{display: 'flex', gap: '12px'}}>
-              <button 
-                onClick={saveCurrentStudent}
-                disabled={saving}
-                style={{
-                  background: saving ? '#f59e0b' : 'linear-gradient(135deg, #059669, #047857)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '10px 20px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: saving ? 'wait' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  transition: 'all 0.15s ease-in-out',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                }}
-              >
-                <FaSave style={{fontSize: '12px'}}/>
-                {saving ? 'Saving...' : 'Save Scores'}
-              </button>
+                  <button 
+                    onClick={goToNextStudent}
+                    disabled={currentStudentIndex === students.length - 1}
+                    style={{
+                      flex: 1,
+                      background: currentStudentIndex === students.length - 1 ? '#f3f4f6' : 'linear-gradient(135deg, #6b7280, #4b5563)',
+                      color: currentStudentIndex === students.length - 1 ? '#9ca3af' : 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '12px 16px',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      cursor: currentStudentIndex === students.length - 1 ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      transition: 'all 0.15s ease-in-out',
+                      boxShadow: currentStudentIndex === students.length - 1 ? 'none' : '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
+                    Next
+                    <FaChevronRight style={{fontSize: '12px'}}/>
+                  </button>
+                </div>
 
-              {currentStudentIndex < students.length - 1 && (
+                  <button 
+                    onClick={saveCurrentStudent}
+                    disabled={saving}
+                    style={{
+                      background: saving ? '#f59e0b' : 'linear-gradient(135deg, #059669, #047857)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: responsive.isSmall ? '14px 18px' : '16px 20px',
+                      fontSize: responsive.isSmall ? '14px' : '16px',
+                      fontWeight: '600',
+                      cursor: saving ? 'wait' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      transition: 'all 0.15s ease-in-out',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
+                  <FaSave style={{fontSize: '14px'}}/>
+                  {saving ? 'Saving...' : 'Save Scores'}
+                </button>
+
+                {currentStudentIndex < students.length - 1 && (
+                  <button 
+                    onClick={saveAndNext}
+                    disabled={saving}
+                    style={{
+                      background: saving ? '#f3f4f6' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                      color: saving ? '#9ca3af' : 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: responsive.isSmall ? '14px 18px' : '16px 20px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: saving ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      transition: 'all 0.15s ease-in-out',
+                      boxShadow: saving ? 'none' : '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
+                    <FaSave style={{fontSize: '14px'}}/>
+                    Save & Next Student
+                  </button>
+                )}
+              </>
+            ) : (
+              // Desktop Layout - Horizontal
+              <>
                 <button 
-                  onClick={saveAndNext}
-                  disabled={saving}
+                  onClick={goToPreviousStudent}
+                  disabled={currentStudentIndex === 0}
                   style={{
-                    background: saving ? '#f3f4f6' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                    color: saving ? '#9ca3af' : 'white',
+                    background: currentStudentIndex === 0 ? '#f3f4f6' : 'linear-gradient(135deg, #6b7280, #4b5563)',
+                    color: currentStudentIndex === 0 ? '#9ca3af' : 'white',
                     border: 'none',
                     borderRadius: '8px',
                     padding: '10px 16px',
                     fontSize: '14px',
                     fontWeight: '500',
-                    cursor: saving ? 'not-allowed' : 'pointer',
+                    cursor: currentStudentIndex === 0 ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
                     transition: 'all 0.15s ease-in-out',
-                    boxShadow: saving ? 'none' : '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    boxShadow: currentStudentIndex === 0 ? 'none' : '0 2px 4px rgba(0, 0, 0, 0.1)'
                   }}
                 >
-                  <FaSave style={{fontSize: '12px'}}/>
-                  Save & Next
+                  <FaChevronLeft style={{fontSize: '12px'}}/>
+                  Previous
                 </button>
-              )}
-            </div>
 
-            <button 
-              onClick={goToNextStudent}
-              disabled={currentStudentIndex === students.length - 1}
-              style={{
-                background: currentStudentIndex === students.length - 1 ? '#f3f4f6' : 'linear-gradient(135deg, #6b7280, #4b5563)',
-                color: currentStudentIndex === students.length - 1 ? '#9ca3af' : 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '10px 16px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: currentStudentIndex === students.length - 1 ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                transition: 'all 0.15s ease-in-out',
-                boxShadow: currentStudentIndex === students.length - 1 ? 'none' : '0 2px 4px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              Next
-              <FaChevronRight style={{fontSize: '12px'}}/>
-            </button>
+                <div style={{display: 'flex', gap: '12px'}}>
+                  <button 
+                    onClick={saveCurrentStudent}
+                    disabled={saving}
+                    style={{
+                      background: saving ? '#f59e0b' : 'linear-gradient(135deg, #059669, #047857)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '10px 20px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: saving ? 'wait' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.15s ease-in-out',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
+                    <FaSave style={{fontSize: '12px'}}/>
+                    {saving ? 'Saving...' : 'Save Scores'}
+                  </button>
+
+                  {currentStudentIndex < students.length - 1 && (
+                    <button 
+                      onClick={saveAndNext}
+                      disabled={saving}
+                      style={{
+                        background: saving ? '#f3f4f6' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                        color: saving ? '#9ca3af' : 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '10px 16px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        cursor: saving ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        transition: 'all 0.15s ease-in-out',
+                        boxShadow: saving ? 'none' : '0 2px 4px rgba(0, 0, 0, 0.1)'
+                      }}
+                    >
+                      <FaSave style={{fontSize: '12px'}}/>
+                      Save & Next
+                    </button>
+                  )}
+                </div>
+
+                <button 
+                  onClick={goToNextStudent}
+                  disabled={currentStudentIndex === students.length - 1}
+                  style={{
+                    background: currentStudentIndex === students.length - 1 ? '#f3f4f6' : 'linear-gradient(135deg, #6b7280, #4b5563)',
+                    color: currentStudentIndex === students.length - 1 ? '#9ca3af' : 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '10px 16px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: currentStudentIndex === students.length - 1 ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.15s ease-in-out',
+                    boxShadow: currentStudentIndex === students.length - 1 ? 'none' : '0 2px 4px rgba(0, 0, 0, 0.1)'
+                  }}
+                >
+                  Next
+                  <FaChevronRight style={{fontSize: '12px'}}/>
+                </button>
+              </>
+            )}
           </div>
 
           {/* Terminal Report & PDF Generation Section */}

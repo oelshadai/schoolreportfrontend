@@ -16,18 +16,12 @@ const getApiBaseUrl = () => {
     return 'https://school-report-saas.onrender.com/api'
   }
   
-  // Development fallback
-  if (hostname !== 'localhost' && !hostname.startsWith('127.')) {
-    // Mobile development
-    return `http://${hostname}:8000/api`
-  }
-  
-  // Local development
+  // Development fallback - try localhost:8000 first
   return 'http://localhost:8000/api'
 }
 
 const base = getApiBaseUrl()
-console.log('API Base URL:', base) // Debug log
+console.log('API Base URL:', base) // Debug log for troubleshooting
 
 const api = axios.create({ baseURL: base })
 
@@ -117,21 +111,27 @@ api.interceptors.response.use(
       }
     }
     
-    // Enhanced error handling with CORS detection
+// Enhanced error handling with CORS detection
     let message = 'Request failed'
     
     if (error.response) {
       // Server responded with error status
       const data = error.response.data
-      message = data?.detail || data?.message || message
-      if (message === 'Request failed' && data && typeof data === 'object') {
-        const parts = []
-        for (const [k, v] of Object.entries(data)) {
-          if (k === 'detail' || k === 'message') continue
-          if (Array.isArray(v) && v.length) parts.push(`${k}: ${v[0]}`)
-          else if (typeof v === 'string') parts.push(`${k}: ${v}`)
+      
+      // Handle specific user validation errors
+      if (error.response.status === 404 && error.config.url?.includes('/auth/user/')) {
+        message = 'Student not found. Please check your username.'
+      } else {
+        message = data?.detail || data?.message || message
+        if (message === 'Request failed' && data && typeof data === 'object') {
+          const parts = []
+          for (const [k, v] of Object.entries(data)) {
+            if (k === 'detail' || k === 'message') continue
+            if (Array.isArray(v) && v.length) parts.push(`${k}: ${v[0]}`)
+            else if (typeof v === 'string') parts.push(`${k}: ${v}`)
+          }
+          if (parts.length) message = parts.join(' | ')
         }
-        if (parts.length) message = parts.join(' | ')
       }
       console.error('API Error Response:', {
         status: error.response.status,
@@ -163,5 +163,28 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// Utility function to validate user existence
+export const validateUser = async (userId, username) => {
+  try {
+    // For students, try the student-specific endpoint first
+    if (username && username.startsWith('std_')) {
+      const response = await api.get(`/students/profile/${username}/`)
+      return { success: true, user: response.data }
+    }
+    
+    // Fallback to general user endpoint
+    const response = await api.get(`/auth/user/${userId}/`)
+    return { success: true, user: response.data }
+  } catch (error) {
+    console.error('User validation failed:', error)
+    return {
+      success: false,
+      error: error.response?.status === 404 
+        ? `Student not found. Please check your username: ${username || 'Unknown'}`
+        : 'Unable to verify user credentials. Please try logging in again.'
+    }
+  }
+}
 
 export default api

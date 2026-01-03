@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../utils/api'
-import { FaFileInvoice, FaPlay, FaCalculator, FaListOl, FaEye, FaDownload, FaChartLine, FaUsers, FaFileAlt, FaGraduationCap } from 'react-icons/fa'
+import { FaFileInvoice, FaPlay, FaCalculator, FaListOl, FaEye, FaDownload, FaChartLine, FaUsers, FaFileAlt, FaGraduationCap, FaSync } from 'react-icons/fa'
 import ReportPreviewModal from '../components/ReportPreviewModal'
 import { useAuth } from '../state/AuthContext'
 
@@ -20,6 +20,31 @@ export default function Reports() {
   const [loadingPreview, setLoadingPreview] = useState(false)
   const [loading, setLoading] = useState(false)
   const [stats, setStats] = useState(null)
+  const [schoolInfo, setSchoolInfo] = useState(null)
+
+  // Enhanced responsive state management
+  const [screenSize, setScreenSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  })
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      })
+    }
+    
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Enhanced responsive design constants
+  const isSmallMobile = screenSize.width <= 480
+  const isMobile = screenSize.width <= 768
+  const isTablet = screenSize.width <= 1024
+  const isDesktop = screenSize.width > 1024
 
   const isAdmin = user?.role === 'SCHOOL_ADMIN' || user?.role === 'PRINCIPAL'
   const isClassTeacher = user?.role === 'TEACHER'
@@ -31,13 +56,19 @@ export default function Reports() {
   const loadInitialData = async () => {
     try {
       setLoading(true)
-      const [cls, trm] = await Promise.all([
+      const [cls, trm, school] = await Promise.all([
         api.get('/schools/classes/'),
-        api.get('/schools/terms/')
+        api.get('/schools/terms/'),
+        api.get('/schools/school-info/').catch(() => ({ data: null })) // Optional school info
       ])
       
       const allClasses = cls.data.results || cls.data
       const allTerms = trm.data.results || trm.data
+      
+      // Store school information
+      if (school.data) {
+        setSchoolInfo(school.data)
+      }
       
       // Filter classes for class teachers
       if (isClassTeacher) {
@@ -132,7 +163,57 @@ export default function Reports() {
   const handleGenerate = async () => {
     setResult(null)
     try {
-      const res = await api.post('/reports/report-cards/generate_report/', { student_id: Number(studentId), term_id: Number(termId) })
+      // Ensure we have all necessary data before generating
+      const selectedStudent = students.find(s => s.id === Number(studentId))
+      const selectedTerm = terms.find(t => t.id === Number(termId))
+      const selectedClass = classes.find(c => c.id === Number(classId))
+      
+      if (!selectedStudent || !selectedTerm) {
+        setResult({ error: 'Missing required student or term information' })
+        return
+      }
+      
+      // Include additional context data for the report
+      const reportData = {
+        student_id: Number(studentId),
+        term_id: Number(termId),
+        class_id: classId ? Number(classId) : null,
+        // Auto-populate student details
+        student_context: {
+          full_name: selectedStudent.full_name,
+          student_id: selectedStudent.student_id,
+          class_name: selectedStudent.class_name,
+          date_of_birth: selectedStudent.date_of_birth,
+          gender: selectedStudent.gender,
+          guardian_name: selectedStudent.guardian_name,
+          guardian_phone: selectedStudent.guardian_phone
+        },
+        // Auto-populate term details
+        term_context: {
+          name: selectedTerm.name_display || selectedTerm.name,
+          academic_year: selectedTerm.academic_year,
+          start_date: selectedTerm.start_date,
+          end_date: selectedTerm.end_date
+        },
+        // Auto-populate class details if available
+        class_context: selectedClass ? {
+          level: selectedClass.level_display || selectedClass.level,
+          section: selectedClass.section,
+          class_teacher_name: selectedClass.class_teacher_name
+        } : null,
+        // Auto-populate school information
+        school_context: schoolInfo ? {
+          name: schoolInfo.name,
+          address: schoolInfo.address,
+          phone: schoolInfo.phone,
+          email: schoolInfo.email,
+          logo: schoolInfo.logo,
+          motto: schoolInfo.motto,
+          principal_name: schoolInfo.principal_name
+        } : null
+      }
+      
+      const res = await api.post('/reports/report-cards/generate_report/', reportData)
       setResult(res.data)
     } catch (e) {
       setResult({ error: e?.response?.data?.error || 'Failed to generate' })
@@ -142,7 +223,55 @@ export default function Reports() {
   const handleBulkGenerate = async () => {
     setResult(null)
     try {
-      const res = await api.post('/reports/report-cards/bulk_generate/', { term_id: Number(termId), class_id: classId ? Number(classId) : undefined })
+      const selectedTerm = terms.find(t => t.id === Number(termId))
+      const selectedClass = classes.find(c => c.id === Number(classId))
+      
+      if (!selectedTerm) {
+        setResult({ error: 'Missing required term information' })
+        return
+      }
+      
+      // Include context data for bulk generation
+      const bulkData = {
+        term_id: Number(termId),
+        class_id: classId ? Number(classId) : undefined,
+        // Auto-populate term details
+        term_context: {
+          name: selectedTerm.name_display || selectedTerm.name,
+          academic_year: selectedTerm.academic_year,
+          start_date: selectedTerm.start_date,
+          end_date: selectedTerm.end_date
+        },
+        // Auto-populate class details if available
+        class_context: selectedClass ? {
+          level: selectedClass.level_display || selectedClass.level,
+          section: selectedClass.section,
+          class_teacher_name: selectedClass.class_teacher_name
+        } : null,
+        // Include all students data for context
+        students_context: students.map(student => ({
+          id: student.id,
+          full_name: student.full_name,
+          student_id: student.student_id,
+          class_name: student.class_name,
+          date_of_birth: student.date_of_birth,
+          gender: student.gender,
+          guardian_name: student.guardian_name,
+          guardian_phone: student.guardian_phone
+        })),
+        // Auto-populate school information
+        school_context: schoolInfo ? {
+          name: schoolInfo.name,
+          address: schoolInfo.address,
+          phone: schoolInfo.phone,
+          email: schoolInfo.email,
+          logo: schoolInfo.logo,
+          motto: schoolInfo.motto,
+          principal_name: schoolInfo.principal_name
+        } : null
+      }
+      
+      const res = await api.post('/reports/report-cards/bulk_generate/', bulkData)
       setResult(res.data)
     } catch (e) {
       setResult({ error: e?.response?.data?.error || 'Failed to bulk generate' })
@@ -172,54 +301,250 @@ export default function Reports() {
 
   const handlePreviewTemplate = async () => {
     setLoadingPreview(true)
+    setResult(null) // Clear any previous results
     try {
+      // First try to get preview data to validate the endpoint
       const response = await api.get('/reports/report-cards/preview_data/')
       setPreviewData(response.data)
       setShowPreview(true)
+      
+      // Show success message
+      setResult({ 
+        message: 'Template preview loaded successfully! You can now view your report template with sample data.',
+        preview_loaded: true
+      })
     } catch (error) {
       console.error('Error loading preview:', error)
-      setResult({ error: 'Failed to load template preview' })
+      
+      // Provide detailed error information
+      let errorMessage = 'Failed to load template preview'
+      
+      if (error.response) {
+        // Server responded with error status
+        if (error.response.status === 401) {
+          errorMessage = 'Authentication failed. Please log in again.'
+        } else if (error.response.status === 403) {
+          errorMessage = 'You do not have permission to preview templates.'
+        } else if (error.response.status === 404) {
+          errorMessage = 'Preview endpoint not found. Please contact support.'
+        } else if (error.response.data?.error) {
+          errorMessage = error.response.data.error
+        } else {
+          errorMessage = `Server error (${error.response.status}): ${error.response.statusText}`
+        }
+      } else if (error.request) {
+        // Network error
+        errorMessage = 'Network error. Please check your internet connection and try again.'
+      } else {
+        // Other error
+        errorMessage = error.message || 'An unexpected error occurred'
+      }
+      
+      setResult({ 
+        error: errorMessage,
+        error_details: {
+          status: error.response?.status,
+          message: error.message,
+          endpoint: '/reports/report-cards/preview_data/'
+        }
+      })
     } finally {
       setLoadingPreview(false)
     }
   }
 
   return (
-    <div className="container">
-      <div className="page-header">
-        <h1 style={{
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '12px',
-          background: 'linear-gradient(135deg, #fb7185, #f43f5e)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          fontSize: '28px',
-          fontWeight: '700'
-        }}>
-          <FaGraduationCap style={{color: '#fb7185'}}/> 
-          Report Generation
-        </h1>
+    <div 
+      className="container" 
+      style={{
+        maxWidth: 1400,
+        margin: '0 auto',
+        padding: isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
+        paddingTop: isMobile ? '60px' : '80px',
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+        minHeight: '100vh',
+        color: 'white',
+        width: '100%',
+        boxSizing: 'border-box'
+      }}
+    >
+      {/* Enhanced mobile-specific style injection */}
+      <style>
+        {`
+          @media screen and (max-width: 480px) {
+            .container { 
+              padding: 16px 10px !important; 
+              padding-top: 85px !important;
+            }
+            .page-header {
+              padding: 16px 14px !important;
+              gap: 14px !important;
+            }
+            .btn {
+              min-height: 50px !important;
+              font-size: 15px !important;
+            }
+          }
+          
+          @media screen and (max-width: 768px) {
+            .container { 
+              padding: 20px 12px !important; 
+              padding-top: 55px !important; 
+              background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+              color: white !important;
+            }
+            .page-header { 
+              flex-direction: column !important; 
+              background: rgba(15, 23, 42, 0.8) !important;
+              border-radius: 16px !important;
+              padding: 20px 16px !important;
+              gap: 16px !important;
+            }
+            .btn { 
+              width: 100% !important; 
+              min-height: 48px !important;
+              font-size: 16px !important;
+              margin-bottom: 12px !important;
+            }
+            .stats-grid { 
+              grid-template-columns: 1fr !important;
+              gap: 12px !important;
+            }
+            .form-grid {
+              grid-template-columns: 1fr !important;
+              gap: 16px !important;
+            }
+          }
+          
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+      
+      {/* Enhanced Header with Mobile-First Design */}
+      <div className="page-header" style={{
+        background: 'rgba(15, 23, 42, 0.8)',
+        backdropFilter: 'blur(16px)',
+        borderRadius: isMobile ? 16 : 20,
+        padding: isMobile ? '20px 16px' : isTablet ? '24px 20px' : '28px 24px',
+        marginBottom: isMobile ? 20 : 24,
+        border: '1px solid rgba(34, 197, 94, 0.2)',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center',
+        justifyContent: 'space-between',
+        gap: isMobile ? 16 : 12
+      }}>
         <div style={{
           display: 'flex',
-          gap: '8px',
+          alignItems: 'center',
+          gap: isMobile ? 12 : 16
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+            borderRadius: 12,
+            padding: isMobile ? '12px' : '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 8px 20px rgba(34, 197, 94, 0.4)'
+          }}>
+            <FaGraduationCap size={isMobile ? 20 : 24} color="white" />
+          </div>
+          <div>
+            <h1 style={{
+              margin: 0,
+              fontSize: isMobile ? 22 : isTablet ? 26 : 32,
+              fontWeight: 700,
+              background: 'linear-gradient(135deg, #86efac, #22c55e)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              lineHeight: 1.2
+            }}>Report Generation</h1>
+            <p style={{
+              margin: '4px 0 0 0',
+              fontSize: isMobile ? 13 : 14,
+              color: '#94a3b8',
+              fontWeight: 500
+            }}>
+              Generate and manage student reports
+            </p>
+          </div>
+        </div>
+        <div style={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? 12 : 8,
+          width: isMobile ? '100%' : 'auto',
           flexWrap: 'wrap'
         }}>
           <button 
             className="btn" 
             onClick={handlePreviewTemplate} 
             disabled={loadingPreview}
+            title="Preview how your report template will look with sample data"
             style={{
-              background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-              color: 'white',
-              border: 'none',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: 8,
+              padding: isMobile ? '14px 18px' : '12px 16px',
+              background: loadingPreview 
+                ? 'rgba(107, 114, 128, 0.3)' 
+                : 'rgba(139, 92, 246, 0.1)',
+              border: loadingPreview 
+                ? '1px solid rgba(107, 114, 128, 0.5)' 
+                : '1px solid rgba(139, 92, 246, 0.3)',
+              borderRadius: 10,
+              color: loadingPreview ? '#9ca3af' : '#c4b5fd',
+              fontWeight: 600,
+              fontSize: isMobile ? 14 : 15,
+              minHeight: isMobile ? 48 : 44,
+              justifyContent: 'center',
+              width: isMobile ? '100%' : 'auto',
+              transition: 'all 0.3s ease',
+              cursor: loadingPreview ? 'not-allowed' : 'pointer',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+            onMouseEnter={(e) => {
+              if (!loadingPreview) {
+                e.target.style.background = 'rgba(139, 92, 246, 0.2)'
+                e.target.style.borderColor = 'rgba(139, 92, 246, 0.5)'
+                e.target.style.color = '#ddd6fe'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loadingPreview) {
+                e.target.style.background = 'rgba(139, 92, 246, 0.1)'
+                e.target.style.borderColor = 'rgba(139, 92, 246, 0.3)'
+                e.target.style.color = '#c4b5fd'
+              }
             }}
           >
-            <FaEye/>
-            {loadingPreview ? 'Loading...' : 'Preview Template'}
+            {loadingPreview ? (
+              <>
+                <div 
+                  style={{
+                    width: 16,
+                    height: 16,
+                    border: '2px solid rgba(156, 163, 175, 0.3)',
+                    borderTop: '2px solid #9ca3af',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }}
+                />
+                Loading...
+              </>
+            ) : (
+              <>
+                <FaEye size={isMobile ? 16 : 14} />
+                {isMobile ? 'Preview' : 'Preview Template'}
+              </>
+            )}
           </button>
           
           {isAdmin && (
@@ -228,15 +553,23 @@ export default function Reports() {
                 className="btn" 
                 onClick={handleComputeResults}
                 style={{
-                  background: 'linear-gradient(135deg, #059669, #047857)',
-                  color: 'white',
-                  border: 'none',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: 8,
+                  padding: isMobile ? '14px 18px' : '12px 16px',
+                  background: 'rgba(5, 150, 105, 0.1)',
+                  border: '1px solid rgba(5, 150, 105, 0.3)',
+                  borderRadius: 10,
+                  color: '#6ee7b7',
+                  fontWeight: 600,
+                  fontSize: isMobile ? 14 : 15,
+                  minHeight: isMobile ? 48 : 44,
+                  justifyContent: 'center',
+                  width: isMobile ? '100%' : 'auto',
+                  transition: 'all 0.3s ease'
                 }}
               >
-                <FaCalculator/>
+                <FaCalculator size={isMobile ? 16 : 14} />
                 Compute Results
               </button>
               
@@ -244,81 +577,129 @@ export default function Reports() {
                 className="btn" 
                 onClick={handleCalculatePositions}
                 style={{
-                  background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
-                  color: 'white',
-                  border: 'none',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: 8,
+                  padding: isMobile ? '14px 18px' : '12px 16px',
+                  background: 'rgba(14, 165, 233, 0.1)',
+                  border: '1px solid rgba(14, 165, 233, 0.3)',
+                  borderRadius: 10,
+                  color: '#7dd3fc',
+                  fontWeight: 600,
+                  fontSize: isMobile ? 14 : 15,
+                  minHeight: isMobile ? 48 : 44,
+                  justifyContent: 'center',
+                  width: isMobile ? '100%' : 'auto',
+                  transition: 'all 0.3s ease'
                 }}
               >
-                <FaListOl/>
+                <FaListOl size={isMobile ? 16 : 14} />
                 Class Positions
               </button>
             </>
           )}
           
           <button 
-            className="btn" 
+            className="btn primary" 
             onClick={handleBulkGenerate}
             disabled={!termId || loading}
             style={{
-              background: !termId || loading ? '#9ca3af' : 'linear-gradient(135deg, #dc2626, #b91c1c)',
-              color: 'white',
-              border: 'none',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: 8,
+              padding: isMobile ? '14px 18px' : '12px 16px',
+              background: !termId || loading ? 'rgba(107, 114, 128, 0.5)' : 'linear-gradient(135deg, #22c55e, #16a34a)',
+              border: 'none',
+              borderRadius: 10,
+              color: 'white',
+              fontWeight: 600,
+              fontSize: isMobile ? 14 : 15,
+              minHeight: isMobile ? 48 : 44,
+              justifyContent: 'center',
+              width: isMobile ? '100%' : 'auto',
+              transition: 'all 0.3s ease',
+              boxShadow: !termId || loading ? 'none' : '0 4px 12px rgba(34, 197, 94, 0.3)',
+              cursor: !termId || loading ? 'not-allowed' : 'pointer'
             }}
           >
-            <FaPlay/>
+            <FaPlay size={isMobile ? 16 : 14} />
             {isClassTeacher ? 'Generate Class Reports' : 'Bulk Generate'}
+          </button>
+          
+          <button
+            className="btn"
+            onClick={loadInitialData}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: isMobile ? '14px 18px' : '12px 16px',
+              background: 'rgba(34, 197, 94, 0.1)',
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+              borderRadius: 10,
+              color: '#86efac',
+              fontWeight: 600,
+              fontSize: isMobile ? 14 : 15,
+              minHeight: isMobile ? 48 : 44,
+              justifyContent: 'center',
+              width: isMobile ? '100%' : 'auto',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <FaSync size={isMobile ? 16 : 14} />
+            Refresh
           </button>
         </div>
       </div>
 
       {/* Quick Stats */}
       {stats && (
-        <div style={{
+        <div className="stats-grid" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '16px',
-          marginBottom: '24px'
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: isMobile ? 12 : 16,
+          marginBottom: isMobile ? 12 : 24
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-            color: 'white',
-            padding: '16px',
-            borderRadius: '12px',
-            textAlign: 'center'
+            background: 'rgba(15, 23, 42, 0.8)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: isMobile ? 14 : 16,
+            padding: isMobile ? '16px 14px' : '20px 16px',
+            textAlign: 'center',
+            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3)'
           }}>
-            <FaUsers style={{fontSize: '24px', marginBottom: '8px'}}/>
-            <div style={{fontSize: '24px', fontWeight: 'bold'}}>{stats.totalStudents}</div>
-            <div style={{fontSize: '14px', opacity: 0.9}}>Total Students</div>
+            <FaUsers style={{fontSize: isMobile ? 20 : 24, marginBottom: 8, color: '#60a5fa'}}/>
+            <div style={{fontSize: isMobile ? 20 : 24, fontWeight: 'bold', color: 'white'}}>{stats.totalStudents}</div>
+            <div style={{fontSize: isMobile ? 12 : 14, color: '#94a3b8'}}>Total Students</div>
           </div>
           
           <div style={{
-            background: 'linear-gradient(135deg, #059669, #047857)',
-            color: 'white',
-            padding: '16px',
-            borderRadius: '12px',
-            textAlign: 'center'
+            background: 'rgba(15, 23, 42, 0.8)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(34, 197, 94, 0.3)',
+            borderRadius: isMobile ? 14 : 16,
+            padding: isMobile ? '16px 14px' : '20px 16px',
+            textAlign: 'center',
+            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3)'
           }}>
-            <FaFileAlt style={{fontSize: '24px', marginBottom: '8px'}}/>
-            <div style={{fontSize: '24px', fontWeight: 'bold'}}>{stats.generatedReports}</div>
-            <div style={{fontSize: '14px', opacity: 0.9}}>Generated Reports</div>
+            <FaFileAlt style={{fontSize: isMobile ? 20 : 24, marginBottom: 8, color: '#34d399'}}/>
+            <div style={{fontSize: isMobile ? 20 : 24, fontWeight: 'bold', color: 'white'}}>{stats.generatedReports}</div>
+            <div style={{fontSize: isMobile ? 12 : 14, color: '#94a3b8'}}>Generated Reports</div>
           </div>
           
           <div style={{
-            background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
-            color: 'white',
-            padding: '16px',
-            borderRadius: '12px',
-            textAlign: 'center'
+            background: 'rgba(15, 23, 42, 0.8)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: isMobile ? 14 : 16,
+            padding: isMobile ? '16px 14px' : '20px 16px',
+            textAlign: 'center',
+            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3)'
           }}>
-            <FaChartLine style={{fontSize: '24px', marginBottom: '8px'}}/>
-            <div style={{fontSize: '24px', fontWeight: 'bold'}}>{stats.completionRate}%</div>
-            <div style={{fontSize: '14px', opacity: 0.9}}>Completion Rate</div>
+            <FaChartLine style={{fontSize: isMobile ? 20 : 24, marginBottom: 8, color: '#f87171'}}/>
+            <div style={{fontSize: isMobile ? 20 : 24, fontWeight: 'bold', color: 'white'}}>{stats.completionRate}%</div>
+            <div style={{fontSize: isMobile ? 12 : 14, color: '#94a3b8'}}>Completion Rate</div>
           </div>
         </div>
       )}
@@ -345,10 +726,10 @@ export default function Reports() {
           {isClassTeacher ? 'Generate Individual Student Report' : 'Report Generation Settings'}
         </h3>
         
-        <div className="form" style={{
+        <div className="form-grid" style={{
           display: 'grid',
-          gridTemplateColumns: isAdmin ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)',
-          gap: '16px',
+          gridTemplateColumns: isMobile ? '1fr' : isAdmin ? 'repeat(3, 1fr) auto' : 'repeat(2, 1fr) auto',
+          gap: isMobile ? 16 : 20,
           alignItems: 'end'
         }}>
           {(isAdmin || classes.length > 1) && (
@@ -436,19 +817,20 @@ export default function Reports() {
               color: 'white',
               border: 'none',
               borderRadius: '8px',
-              padding: '12px 20px',
-              fontSize: '14px',
+              padding: isMobile ? '12px 16px' : '10px 14px',
+              fontSize: isMobile ? 14 : 13,
               fontWeight: '600',
               cursor: !studentId || !termId || loading ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              minHeight: '44px'
+              gap: '6px',
+              minHeight: isMobile ? 44 : 40,
+              whiteSpace: 'nowrap'
             }}
           >
-            <FaDownload/>
-            Generate PDF
+            <FaDownload size={12}/>
+            {isMobile ? 'Generate' : 'PDF'}
           </button>
         </div>
       </div>
@@ -467,16 +849,49 @@ export default function Reports() {
                 <span style={{fontSize: '20px'}}>⚠️</span>
                 Error
               </h4>
-              <p style={{margin: 0}}>{result.error}</p>
+              <p style={{margin: '0 0 8px 0'}}>{result.error}</p>
+              
+              {result.error_details && (
+                <details style={{marginTop: '12px'}}>
+                  <summary style={{cursor: 'pointer', fontSize: '14px', color: '#7f1d1d'}}>
+                    Technical Details
+                  </summary>
+                  <div style={{marginTop: '8px', padding: '8px', background: 'rgba(220, 38, 38, 0.1)', borderRadius: '6px', fontSize: '13px'}}>
+                    <div><strong>Status:</strong> {result.error_details.status || 'Unknown'}</div>
+                    <div><strong>Message:</strong> {result.error_details.message}</div>
+                    <div><strong>Endpoint:</strong> {result.error_details.endpoint}</div>
+                  </div>
+                </details>
+              )}
             </div>
           ) : (
             <div style={{color: '#166534'}}>
               <h4 style={{margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px'}}>
                 <span style={{fontSize: '20px'}}>✅</span>
-                Success
+                {result.preview_loaded ? 'Preview Ready' : 'Success'}
               </h4>
               
               {result.message && <p style={{margin: '0 0 12px 0'}}>{result.message}</p>}
+              
+              {result.preview_loaded && (
+                <div style={{
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  border: '1px solid rgba(34, 197, 94, 0.3)',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  marginTop: '12px'
+                }}>
+                  <div style={{fontSize: '14px', fontWeight: '500', marginBottom: '8px'}}>
+                    📋 Preview Features:
+                  </div>
+                  <ul style={{margin: '0', paddingLeft: '20px', fontSize: '13px', lineHeight: '1.6'}}>
+                    <li>View both PDF and HTML formats</li>
+                    <li>Sample data shows your current school settings</li>
+                    <li>Mobile-responsive preview modal</li>
+                    <li>Open in new tab for detailed review</li>
+                  </ul>
+                </div>
+              )}
               
               {result.generated_count !== undefined && (
                 <div style={{marginBottom: '12px'}}>

@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../state/AuthContext'
-import { FaSchool, FaEnvelope, FaUser, FaLock, FaRocket } from 'react-icons/fa'
+import EliteLogo from '../components/EliteLogo'
+import { FaEnvelope, FaUser, FaLock, FaRocket, FaArrowLeft } from 'react-icons/fa'
 
 export default function RegisterSchool() {
   const { registerSchool, loading } = useAuth()
@@ -32,8 +33,45 @@ export default function RegisterSchool() {
 
   return (
     <div className="centered">
+      {/* Back to Home */}
+      <Link 
+        to="/" 
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '10px',
+          color: '#94a3b8',
+          textDecoration: 'none',
+          fontSize: '14px',
+          fontWeight: '500',
+          marginBottom: '24px',
+          padding: '10px 16px',
+          borderRadius: '10px',
+          background: 'rgba(30, 41, 59, 0.6)',
+          border: '1px solid rgba(71, 85, 105, 0.3)',
+          transition: 'all 0.3s ease',
+          backdropFilter: 'blur(10px)'
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.background = 'rgba(30, 41, 59, 0.9)'
+          e.currentTarget.style.color = 'white'
+          e.currentTarget.style.transform = 'translateX(-2px)'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.background = 'rgba(30, 41, 59, 0.6)'
+          e.currentTarget.style.color = '#94a3b8'
+          e.currentTarget.style.transform = 'translateX(0)'
+        }}
+      >
+        <FaArrowLeft size={12} />
+        Back to Home
+      </Link>
+      
       <form className="card" onSubmit={handleSubmit} style={{width: 460}}>
-        <h2 style={{display:'flex',alignItems:'center',gap:10}}><FaSchool color="#60a5fa"/> Create School Account</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <EliteLogo size={40} />
+          <h2 style={{ margin: 0, color: '#1f2937' }}>Create School Account</h2>
+        </div>
         {error && <div className="alert">{error}</div>}
 
         <label>School Name</label>

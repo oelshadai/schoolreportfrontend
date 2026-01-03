@@ -1,25 +1,23 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../state/AuthContext'
-import ForgotPassword from '../components/ForgotPassword'
 import EliteLogo from '../components/EliteLogo'
-import { FaEye, FaEyeSlash, FaArrowLeft, FaUser, FaLock } from 'react-icons/fa'
+import { FaEye, FaEyeSlash, FaArrowLeft, FaUserGraduate, FaLock } from 'react-icons/fa'
 
-export default function Login() {
-  const [email, setEmail] = useState('')
+export default function StudentLogin() {
+  const [studentId, setStudentId] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [showForgotPassword, setShowForgotPassword] = useState(false)
   const { login, loading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const from = location.state?.from?.pathname || '/dashboard'
+  const from = location.state?.from?.pathname || '/student-dashboard'
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    const res = await login(email, password)
+    const res = await login(studentId, password, 'student')
     if (res.ok) navigate(from, { replace: true })
     else setError(res.message)
   }
@@ -106,13 +104,13 @@ export default function Login() {
             fontWeight: '700',
             color: 'white',
             lineHeight: '1.2'
-          }}>Staff Portal</h1>
+          }}>Student Portal</h1>
           <p style={{
             margin: 0,
             fontSize: '14px',
             color: '#94a3b8',
             fontWeight: '400'
-          }}>Sign in to your school admin portal</p>
+          }}>Sign in with your student credentials</p>
         </div>
 
         {/* Login Form */}
@@ -148,7 +146,7 @@ export default function Login() {
                 color: 'white',
                 fontSize: '13px',
                 fontWeight: '600'
-              }}>Email Address</label>
+              }}>Student ID</label>
               <div style={{ position: 'relative' }}>
                 <div style={{
                   position: 'absolute',
@@ -158,15 +156,15 @@ export default function Login() {
                   color: '#94a3b8',
                   zIndex: 1
                 }}>
-                  <FaUser size={12} />
+                  <FaUserGraduate size={12} />
                 </div>
                 <input 
-                  type="email" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
+                  type="text" 
+                  value={studentId} 
+                  onChange={(e) => setStudentId(e.target.value)} 
                   required 
-                  placeholder="Enter your email"
-                  autoComplete="email"
+                  placeholder="Enter your student ID"
+                  autoComplete="username"
                   style={{
                     width: '100%',
                     padding: '10px 12px 10px 32px',
@@ -306,34 +304,7 @@ export default function Login() {
               )}
               {loading ? 'Signing In...' : 'Sign In'}
             </button>
-            
-            <button
-              type="button"
-              onClick={() => setShowForgotPassword(true)}
-              style={{
-                width: '100%',
-                background: 'none',
-                border: 'none',
-                color: '#10b981',
-                cursor: 'pointer',
-                fontSize: '13px',
-                fontWeight: '500',
-                padding: '6px',
-                borderRadius: '4px',
-                transition: 'color 0.2s ease'
-              }}
-              onMouseEnter={e => e.currentTarget.style.color = '#059669'}
-              onMouseLeave={e => e.currentTarget.style.color = '#10b981'}
-            >
-              Forgot Password?
-            </button>
           </form>
-          
-          <ForgotPassword 
-            isOpen={showForgotPassword}
-            onClose={() => setShowForgotPassword(false)}
-            userType="admin"
-          />
 
           <div style={{
             textAlign: 'center',
@@ -342,33 +313,13 @@ export default function Login() {
             borderTop: '1px solid rgba(71, 85, 105, 0.3)'
           }}>
             <p style={{
-              margin: '0 0 12px 0',
-              fontSize: '13px',
-              color: '#94a3b8'
-            }}>
-              Are you a student?{' '}
-              <Link 
-                to="/student-portal" 
-                style={{
-                  color: '#10b981',
-                  textDecoration: 'none',
-                  fontWeight: '600',
-                  transition: 'color 0.2s ease'
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = '#059669'}
-                onMouseLeave={e => e.currentTarget.style.color = '#10b981'}
-              >
-                Go to Student Portal
-              </Link>
-            </p>
-            <p style={{
               margin: 0,
               fontSize: '13px',
               color: '#94a3b8'
             }}>
-              Don't have an account?{' '}
+              Need help?{' '}
               <Link 
-                to="/register-school" 
+                to="/login" 
                 style={{
                   color: '#10b981',
                   textDecoration: 'none',
@@ -378,7 +329,7 @@ export default function Login() {
                 onMouseEnter={e => e.currentTarget.style.color = '#059669'}
                 onMouseLeave={e => e.currentTarget.style.color = '#10b981'}
               >
-                Create School Account
+                Staff Login
               </Link>
             </p>
           </div>

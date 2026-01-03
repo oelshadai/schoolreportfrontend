@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import api from '../utils/api'
-import { FaBook, FaPlus, FaTrash, FaLayerGroup, FaCheck, FaTasks, FaGraduationCap, FaCog, FaUsers, FaBolt, FaList, FaSearch } from 'react-icons/fa'
+import { FaBook, FaPlus, FaTrash, FaLayerGroup, FaCheck, FaTasks, FaGraduationCap, FaCog, FaUsers, FaBolt, FaList, FaSearch, FaUser, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useAuth } from '../state/AuthContext'
 
 export default function Subjects() {
@@ -29,6 +29,7 @@ export default function Subjects() {
   // Search and filter
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('ALL')
+  const [showSubjects, setShowSubjects] = useState(true)
 
   useEffect(() => {
     (async () => {
@@ -85,6 +86,24 @@ export default function Subjects() {
       return true
     })
   }, [subjects, classAssignments, allowedCategory])
+
+  // Filter subjects based on search and category
+  const filteredSubjects = useMemo(() => {
+    return (subjects || []).filter(subject => {
+      const matchesSearch = !searchTerm || 
+        subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        subject.code.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      const matchesCategory = filterCategory === 'ALL' || subject.category === filterCategory
+      
+      return matchesSearch && matchesCategory
+    })
+  }, [subjects, searchTerm, filterCategory])
+
+  // Get unassigned subjects for the selected class
+  const unassignedSubjects = useMemo(() => {
+    return availableForClass
+  }, [availableForClass])
 
   const createSubject = async (e) => {
     e.preventDefault()
@@ -378,6 +397,7 @@ export default function Subjects() {
           max-width: 1400px;
           margin: 0 auto;
           padding: 16px;
+          padding-top: 120px;
           min-height: calc(100vh - 32px);
           overflow-y: auto;
         }
@@ -387,6 +407,7 @@ export default function Subjects() {
           backdrop-filter: blur(10px);
           border-radius: 16px;
           padding: 24px;
+          margin-top: 84px;
           margin-bottom: 24px;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.2);
@@ -603,12 +624,12 @@ export default function Subjects() {
           box-shadow: none !important;
         }
         
-        .checkbox-container {
+        .toggle-container {
           background: #f8fafc;
           border: 2px solid #e2e8f0;
           border-radius: 12px;
           padding: 16px;
-          max-height: 400px;
+          max-height: 250px;
           overflow-y: auto;
           overflow-x: hidden;
           -webkit-overflow-scrolling: touch;
@@ -616,66 +637,42 @@ export default function Subjects() {
           scrollbar-color: #cbd5e1 #f8fafc;
         }
         
-        .checkbox-container::-webkit-scrollbar {
+        .toggle-container::-webkit-scrollbar {
           width: 8px;
         }
         
-        .checkbox-container::-webkit-scrollbar-track {
+        .toggle-container::-webkit-scrollbar-track {
           background: #f8fafc;
           border-radius: 4px;
         }
         
-        .checkbox-container::-webkit-scrollbar-thumb {
+        .toggle-container::-webkit-scrollbar-thumb {
           background: #cbd5e1;
           border-radius: 4px;
         }
         
-        .checkbox-container::-webkit-scrollbar-thumb:hover {
+        .toggle-container::-webkit-scrollbar-thumb:hover {
           background: #94a3b8;
         }
         
-        .checkbox-header {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px;
-          background: white;
-          border-radius: 8px;
+        .toggle-header {
           margin-bottom: 12px;
-          font-weight: 600;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
-        .checkbox-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 10px 12px;
-          margin-bottom: 8px;
-          background: white;
-          border-radius: 8px;
-          cursor: pointer;
+        .toggle-grid {
+          display: grid;
+          gap: 8px;
+          grid-template-columns: 1fr;
+        }
+        
+        .toggle-grid .btn {
+          justify-content: flex-start;
+          width: 100%;
           transition: all 0.2s ease;
-          border: 1px solid #e2e8f0;
         }
         
-        .checkbox-item:hover {
-          background: #f1f5f9;
+        .toggle-grid .btn:hover {
           transform: translateX(4px);
-          border-color: #cbd5e1;
-        }
-        
-        .checkbox-input {
-          width: 18px;
-          height: 18px;
-          cursor: pointer;
-          accent-color: #6366f1;
-        }
-        
-        .checkbox-label {
-          flex: 1;
-          font-weight: 500;
-          color: #374151;
         }
         
         .checkbox-badge {
@@ -804,24 +801,137 @@ export default function Subjects() {
         /* Responsive Design - Mobile First */
         @media (max-width: 480px) {
           .subjects-container {
-            padding: 12px;
+            padding: 8px;
+            padding-top: 80px;
           }
           
           .subjects-header {
-            padding: 16px;
+            padding: 12px;
+            margin-bottom: 16px;
           }
           
           .subjects-title {
+            font-size: 20px;
+          }
+          
+          .subjects-title svg {
             font-size: 24px;
           }
           
           .search-filter-bar {
             grid-template-columns: 1fr;
-            gap: 12px;
+            gap: 8px;
+          }
+          
+          .search-input, .filter-select {
+            padding: 10px 12px;
+            font-size: 14px;
+          }
+          
+          .search-input {
+            padding-left: 36px;
+          }
+          
+          .search-icon {
+            left: 12px;
+            font-size: 14px;
           }
           
           .subjects-card {
+            padding: 12px;
+            margin-bottom: 16px;
+          }
+          
+          .card-title {
+            font-size: 16px;
+          }
+          
+          .form-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+          
+          .form-input {
+            padding: 10px 12px;
+            font-size: 14px;
+          }
+          
+          .btn {
+            padding: 12px 16px;
+            font-size: 14px;
+            width: 100%;
+          }
+          
+          .subjects-table {
+            font-size: 12px;
+          }
+          
+          .subjects-table th,
+          .subjects-table td {
+            padding: 8px 4px;
+          }
+          
+          .subjects-table th {
+            font-size: 11px;
+          }
+          
+          .toggle-container {
+            max-height: 180px;
+            padding: 12px;
+          }
+          
+          .toggle-grid .btn {
+            padding: 10px 12px;
+            font-size: 12px;
+          }
+          
+          .checkbox-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+          }
+          
+          .alert {
+            padding: 12px 16px;
+            font-size: 14px;
+          }
+          
+          .table-wrapper {
+            max-height: 300px;
+          }
+          
+          /* Mobile-specific button adjustments */
+          .btn[style*="font-size: 12px"] {
+            font-size: 11px !important;
+            padding: 8px 12px !important;
+            width: auto !important;
+          }
+          
+          .btn[style*="minWidth: 100px"] {
+            min-width: 80px !important;
+            width: auto !important;
+          }
+          
+          /* Stack action buttons vertically on mobile */
+          .subjects-table td[style*="text-align: center"] > div {
+            flex-direction: column !important;
+            gap: 4px !important;
+          }
+          
+          .subjects-table td[style*="text-align: center"] .btn {
+            width: 100% !important;
+            font-size: 11px !important;
+            padding: 6px 8px !important;
+          }
+        }
+        
+        @media (min-width: 481px) and (max-width: 768px) {
+          .subjects-container {
             padding: 16px;
+            padding-top: 100px;
+          }
+          
+          .subjects-grid {
+            grid-template-columns: 1fr;
           }
           
           .form-grid {
@@ -829,31 +939,12 @@ export default function Subjects() {
           }
           
           .btn {
-            padding: 14px 20px;
-            font-size: 16px;
-          }
-          
-          .subjects-table {
-            font-size: 14px;
+            padding: 12px 20px;
           }
           
           .subjects-table th,
           .subjects-table td {
             padding: 12px 8px;
-          }
-          
-          .checkbox-container {
-            max-height: 200px;
-          }
-        }
-        
-        @media (min-width: 481px) and (max-width: 768px) {
-          .subjects-grid {
-            grid-template-columns: 1fr;
-          }
-          
-          .form-grid {
-            grid-template-columns: repeat(2, 1fr);
           }
         }
         
@@ -885,6 +976,7 @@ export default function Subjects() {
           
           .subjects-container {
             padding: 20px;
+            padding-top: 120px;
             min-height: auto;
             overflow-y: visible;
           }
@@ -931,7 +1023,7 @@ export default function Subjects() {
           }
           
           .table-wrapper {
-            max-height: 500px;
+            max-height: 300px;
           }
         }
         
@@ -997,17 +1089,29 @@ export default function Subjects() {
                 aria-label="Search subjects"
               />
             </div>
-            <select
-              className="filter-select"
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              aria-label="Filter by category"
-            >
-              <option value="ALL">All Categories</option>
-              <option value="PRIMARY">Primary (1-6)</option>
-              <option value="JHS">JHS (7-9)</option>
-              <option value="BOTH">Both Levels</option>
-            </select>
+            <div style={{display: 'flex', gap: '12px', alignItems: 'center'}}>
+              <select
+                className="filter-select"
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                aria-label="Filter by category"
+              >
+                <option value="ALL">All Categories</option>
+                <option value="PRIMARY">Primary (1-6)</option>
+                <option value="JHS">JHS (7-9)</option>
+                <option value="BOTH">Both Levels</option>
+              </select>
+              <button
+                type="button"
+                onClick={() => setShowSubjects(!showSubjects)}
+                className="btn btn-secondary"
+                style={{fontSize: '12px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px'}}
+                title={showSubjects ? 'Hide subjects list' : 'Show subjects list'}
+              >
+                {showSubjects ? <FaEyeSlash /> : <FaEye />}
+                {showSubjects ? 'Hide' : 'Show'}
+              </button>
+            </div>
           </div>
         </header>
 
@@ -1112,48 +1216,50 @@ export default function Subjects() {
           </div>
 
           {/* All Subjects Card */}
-          <div className="subjects-card">
-            <div className="card-header">
-              <FaList className="card-icon" />
-              <h2 className="card-title">
-                All Subjects ({filteredSubjects.length})
-              </h2>
-            </div>
-            
-            <div className="table-wrapper">
-              <table className="subjects-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Code</th>
-                    <th>Category</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSubjects.map(subject => (
-                    <tr key={subject.id}>
-                      <td style={{fontWeight: '500'}}>{subject.name}</td>
-                      <td style={{fontFamily: 'monospace', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px', display: 'inline-block'}}>{subject.code}</td>
-                      <td>
-                        <span className="checkbox-badge">
-                          {subject.category}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredSubjects.length === 0 && (
+          {showSubjects && (
+            <div className="subjects-card">
+              <div className="card-header">
+                <FaList className="card-icon" />
+                <h2 className="card-title">
+                  All Subjects ({filteredSubjects.length})
+                </h2>
+              </div>
+              
+              <div className="table-wrapper">
+                <table className="subjects-table">
+                  <thead>
                     <tr>
-                      <td colSpan="3" className="empty-state">
-                        <FaBook />
-                        <div>No subjects found</div>
-                        <small>Try adjusting your search or filter criteria</small>
-                      </td>
+                      <th>Name</th>
+                      <th>Code</th>
+                      <th>Category</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredSubjects.map(subject => (
+                      <tr key={subject.id}>
+                        <td style={{fontWeight: '500'}}>{subject.name}</td>
+                        <td style={{fontFamily: 'monospace', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px', display: 'inline-block'}}>{subject.code}</td>
+                        <td>
+                          <span className="checkbox-badge">
+                            {subject.category}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredSubjects.length === 0 && (
+                      <tr>
+                        <td colSpan="3" className="empty-state">
+                          <FaBook />
+                          <div>No subjects found</div>
+                          <small>Try adjusting your search or filter criteria</small>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Class Assignment Card */}
           <div className="subjects-card" style={{gridColumn: '1 / -1'}}>
@@ -1213,13 +1319,12 @@ export default function Subjects() {
                 <div style={{gridColumn: '1 / -1'}}>
                   <div className="form-group">
                     <label className="form-label" htmlFor="subject-select">Select Subject</label>
-                    <div style={{display: 'flex', gap: '12px'}}>
+                    <div style={{display: 'flex', gap: '8px', flexDirection: 'column'}}>
                       <select
                         id="subject-select"
                         className="form-input"
                         value={assignSubjectId}
                         onChange={(e) => setAssignSubjectId(e.target.value)}
-                        style={{flex: 1}}
                       >
                         <option value="">Choose a subject...</option>
                         {unassignedSubjects.map(s => (
@@ -1233,6 +1338,7 @@ export default function Subjects() {
                         className="btn btn-primary"
                         onClick={assignToClass}
                         disabled={!assignSubjectId || !selectedClass}
+                        style={{alignSelf: 'flex-start', minWidth: '100px'}}
                       >
                         <FaCheck />
                         Assign
@@ -1246,40 +1352,43 @@ export default function Subjects() {
                     <label className="form-label">
                       Select Subjects ({selectedSubjectIds.length} selected)
                     </label>
-                    <div className="checkbox-container">
-                      <div className="checkbox-header">
-                        <input
-                          type="checkbox"
-                          className="checkbox-input"
-                          checked={selectedSubjectIds.length === unassignedSubjects.length && unassignedSubjects.length > 0}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedSubjectIds(unassignedSubjects.map(s => String(s.id)))
-                            } else {
+                    <div className="toggle-container">
+                      <div className="toggle-header">
+                        <button
+                          type="button"
+                          className={`btn ${selectedSubjectIds.length === unassignedSubjects.length && unassignedSubjects.length > 0 ? 'btn-primary' : 'btn-secondary'}`}
+                          onClick={() => {
+                            if (selectedSubjectIds.length === unassignedSubjects.length && unassignedSubjects.length > 0) {
                               setSelectedSubjectIds([])
+                            } else {
+                              setSelectedSubjectIds(unassignedSubjects.map(s => String(s.id)))
                             }
                           }}
-                        />
-                        <span>Select All ({unassignedSubjects.length} available)</span>
+                          style={{fontSize: '12px', padding: '8px 12px'}}
+                        >
+                          {selectedSubjectIds.length === unassignedSubjects.length && unassignedSubjects.length > 0 ? 'Deselect All' : 'Select All'} ({unassignedSubjects.length})
+                        </button>
                       </div>
-                      {unassignedSubjects.map(s => (
-                        <div key={s.id} className="checkbox-item">
-                          <input
-                            type="checkbox"
-                            className="checkbox-input"
-                            checked={selectedSubjectIds.includes(String(s.id))}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedSubjectIds(prev => [...prev, String(s.id)])
-                              } else {
+                      <div className="toggle-grid">
+                        {unassignedSubjects.map(s => (
+                          <button
+                            key={s.id}
+                            type="button"
+                            className={`btn ${selectedSubjectIds.includes(String(s.id)) ? 'btn-primary' : 'btn-secondary'}`}
+                            onClick={() => {
+                              if (selectedSubjectIds.includes(String(s.id))) {
                                 setSelectedSubjectIds(prev => prev.filter(id => id !== String(s.id)))
+                              } else {
+                                setSelectedSubjectIds(prev => [...prev, String(s.id)])
                               }
                             }}
-                          />
-                          <span className="checkbox-label">{s.name}</span>
-                          <span className="checkbox-badge">{s.category}</span>
-                        </div>
-                      ))}
+                            style={{fontSize: '12px', padding: '8px 12px', textAlign: 'left'}}
+                          >
+                            <span style={{fontWeight: '500'}}>{s.name}</span>
+                            <span className="checkbox-badge" style={{marginLeft: '8px'}}>{s.category}</span>
+                          </button>
+                        ))}
+                      </div>
                       {unassignedSubjects.length === 0 && (
                         <div className="empty-state">
                           <FaCheck />
@@ -1346,15 +1455,26 @@ export default function Subjects() {
                         <td style={{fontWeight: '500'}}>{assignment.subject_name || assignment.subject?.name}</td>
                         <td>{assignment.teacher_name || <span style={{color: '#6b7280', fontStyle: 'italic'}}>No teacher assigned</span>}</td>
                         <td style={{textAlign: 'center'}}>
-                          <button
-                            type="button"
-                            className="btn btn-danger"
-                            onClick={() => removeAssignment(assignment.id)}
-                            style={{fontSize: '12px', padding: '8px 12px'}}
-                          >
-                            <FaTrash />
-                            Remove
-                          </button>
+                          <div style={{display: 'flex', gap: '8px', justifyContent: 'center'}}>
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              onClick={() => {/* TODO: Add assign teacher functionality */}}
+                              style={{fontSize: '12px', padding: '6px 10px'}}
+                            >
+                              <FaUser />
+                              {assignment.teacher_name ? 'Change' : 'Assign'}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-danger"
+                              onClick={() => removeAssignment(assignment.id)}
+                              style={{fontSize: '12px', padding: '6px 10px'}}
+                            >
+                              <FaTrash />
+                              Remove
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

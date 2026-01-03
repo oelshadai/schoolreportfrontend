@@ -49,19 +49,40 @@ export default function Teachers() {
   const [subjects, setSubjects] = useState([])
   const [selectedTeacher, setSelectedTeacher] = useState(null)
   const [showSchedule, setShowSchedule] = useState(false)
+  const [showClassDropdown, setShowClassDropdown] = useState(false)
   
-  // Dynamic responsive state with resize listener
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth)
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showClassDropdown && !event.target.closest('.class-dropdown')) {
+        setShowClassDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showClassDropdown])
+  
+  // Enhanced responsive state management with resize listener
+  const [screenSize, setScreenSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  })
   
   useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth)
+    const handleResize = () => {
+      setScreenSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      })
+    }
+    
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   // Prevent body scroll when modal is open on mobile
   useEffect(() => {
-    if (showCreate && windowWidth <= 768) {
+    if ((showCreate || showAddStudent) && screenSize.width <= 768) {
       document.body.style.overflow = 'hidden'
       document.body.style.position = 'fixed'
       document.body.style.width = '100%'
@@ -79,12 +100,13 @@ export default function Teachers() {
       document.body.style.width = ''
       document.body.style.height = ''
     }
-  }, [showCreate, windowWidth])
+  }, [showCreate, showAddStudent, screenSize.width])
 
-  // Responsive design constants
-  const isMobile = windowWidth <= 768
-  const isTablet = windowWidth <= 1024
-  const isSmallMobile = windowWidth <= 480
+  // Enhanced responsive design constants
+  const isSmallMobile = screenSize.width <= 480
+  const isMobile = screenSize.width <= 768
+  const isTablet = screenSize.width <= 1024
+  const isDesktop = screenSize.width > 1024
 
   const load = async () => {
     try {
@@ -240,19 +262,31 @@ export default function Teachers() {
         last_name: form.last_name.trim(),
         password: form.password,
         employee_id: form.employee_id.trim(),
-        phone_number: form.phone_number?.trim() || '',
+        phone_number: form.phone_number?.trim() || null,
         hire_date: form.hire_date,
-        qualification: form.qualification?.trim() || '',
+        qualification: form.qualification?.trim() || null,
         experience_years: parseInt(form.experience_years) || 0,
-        emergency_contact: form.emergency_contact?.trim() || '',
-        address: form.address?.trim() || '',
-        specializations: form.specializations || [],
-        class_id: form.class_id || null
+        emergency_contact: form.emergency_contact?.trim() || null,
+        address: form.address?.trim() || null,
+        specializations: Array.isArray(form.specializations) ? form.specializations : [],
+        class_id: form.class_id ? parseInt(form.class_id) : null,
+        school: user?.school_id || user?.school || 1 // Add school field
       }
       
-      console.log('Sending teacher data:', teacherData)
+      // Remove null values to avoid backend issues
+      Object.keys(teacherData).forEach(key => {
+        if (teacherData[key] === null || teacherData[key] === '') {
+          delete teacherData[key]
+        }
+      })
       
-      const response = await api.post('/teachers/', teacherData)
+      console.log('Sending teacher data:', JSON.stringify(teacherData, null, 2))
+      
+      const response = await api.post('/teachers/', teacherData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
       
       console.log('Teacher creation successful:', response.data)
       
@@ -266,11 +300,31 @@ export default function Teachers() {
       console.error('Error response:', error?.response)
       console.error('Error data:', error?.response?.data)
       
+      // Log validation details specifically
+      if (error?.response?.data?.details) {
+        console.error('Validation details:', error.response.data.details)
+      }
+      
       let errorMessage = 'Failed to create teacher'
       
       if (error?.response?.status === 400) {
         const errorData = error?.response?.data
-        if (errorData && typeof errorData === 'object') {
+        if (errorData?.details) {
+          // Handle validation details
+          const validationErrors = []
+          Object.entries(errorData.details).forEach(([field, messages]) => {
+            if (Array.isArray(messages)) {
+              validationErrors.push(`${field}: ${messages.join(', ')}`)
+            } else if (typeof messages === 'string') {
+              validationErrors.push(`${field}: ${messages}`)
+            } else {
+              validationErrors.push(`${field}: ${JSON.stringify(messages)}`)
+            }
+          })
+          if (validationErrors.length > 0) {
+            errorMessage = validationErrors.join('\n')
+          }
+        } else if (errorData && typeof errorData === 'object') {
           // Handle field-specific errors
           const fieldErrors = []
           Object.entries(errorData).forEach(([field, messages]) => {
@@ -285,6 +339,8 @@ export default function Teachers() {
           }
         } else if (errorData?.detail) {
           errorMessage = errorData.detail
+        } else if (errorData?.error) {
+          errorMessage = errorData.error
         }
       } else if (error?.response?.status === 401) {
         errorMessage = 'Authentication failed. Please login again.'
@@ -320,35 +376,59 @@ export default function Teachers() {
         boxSizing: 'border-box'
       }}
     >
-      {/* Add mobile-specific style injection */}
-      {isMobile && (
-        <style>
-          {`
-            @media screen and (max-width: 768px) {
-              .container { 
-                padding: 20px 12px !important; 
-                padding-top: 90px !important; 
-                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-                color: white !important;
-              }
-              .page-header { 
-                flex-direction: column !important; 
-                background: rgba(15, 23, 42, 0.8) !important;
-                border-radius: 16px !important;
-                padding: 20px 16px !important;
-                gap: 16px !important;
-              }
-              .btn { 
-                width: 100% !important; 
-                min-height: 48px !important;
-                font-size: 16px !important;
-                margin-bottom: 12px !important;
-              }
-              table { display: none !important; }
+      {/* Enhanced mobile-specific style injection */}
+      <style>
+        {`
+          @media screen and (max-width: 480px) {
+            .container { 
+              padding: 16px 10px !important; 
+              padding-top: 85px !important;
             }
-          `}
-        </style>
-      )}
+            .page-header {
+              padding: 16px 14px !important;
+              gap: 14px !important;
+            }
+            .btn {
+              min-height: 50px !important;
+              font-size: 15px !important;
+            }
+          }
+          
+          @media screen and (max-width: 768px) {
+            .container { 
+              padding: 20px 12px !important; 
+              padding-top: 90px !important; 
+              background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+              color: white !important;
+            }
+            .page-header { 
+              flex-direction: column !important; 
+              background: rgba(15, 23, 42, 0.8) !important;
+              border-radius: 16px !important;
+              padding: 20px 16px !important;
+              gap: 16px !important;
+            }
+            .btn { 
+              width: 100% !important; 
+              min-height: 48px !important;
+              font-size: 16px !important;
+              margin-bottom: 12px !important;
+            }
+            .desktop-table { display: none !important; }
+            .mobile-cards { display: block !important; }
+          }
+          
+          @media screen and (min-width: 769px) {
+            .desktop-table { display: block !important; }
+            .mobile-cards { display: none !important; }
+          }
+          
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
       {/* Enhanced Header with Mobile-First Design */}
       <div className="page-header" style={{
         background: 'rgba(15, 23, 42, 0.8)',
@@ -502,30 +582,50 @@ export default function Teachers() {
           backdropFilter: 'blur(12px)'
         }}>
           <table className="table" style={{ margin: 0 }}>
-            <thead style={{ background: 'linear-gradient(135deg, #1e293b, #334155)' }}>
+            <thead style={{ background: 'linear-gradient(135deg, #1e40af, #3b82f6)' }}>
               <tr>
-                <th style={{ padding: '16px 20px', color: 'white', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13 }}>Email</th>
-                <th style={{ padding: '16px 20px', color: 'white', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13 }}>Name</th>
-                <th style={{ padding: '16px 20px', color: 'white', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, textAlign: 'center' }}>Role</th>
+                <th style={{ padding: '16px 20px', color: '#000000', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, borderBottom: '2px solid rgba(34, 197, 94, 0.3)' }}>📧 Email</th>
+                <th style={{ padding: '16px 20px', color: '#000000', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, borderBottom: '2px solid rgba(34, 197, 94, 0.3)' }}>👤 Full Name</th>
+                <th style={{ padding: '16px 20px', color: '#000000', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, textAlign: 'center', borderBottom: '2px solid rgba(34, 197, 94, 0.3)' }}>🎯 Role</th>
+                <th style={{ padding: '16px 20px', color: '#000000', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, textAlign: 'center', borderBottom: '2px solid rgba(34, 197, 94, 0.3)' }}>⚡ Status</th>
               </tr>
             </thead>
             <tbody>
-              {teachers.map(t => (
-                <tr key={t.id} style={{ borderBottom: '1px solid rgba(71, 85, 105, 0.3)' }}>
-                  <td style={{ padding: '16px 20px', color: 'white' }}>{t.email}</td>
-                  <td style={{ padding: '16px 20px', color: 'white', fontWeight: 500 }}>{t.first_name} {t.last_name}</td>
+              {teachers.map((t, index) => (
+                <tr key={t.id} style={{ 
+                  borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
+                  background: index % 2 === 0 ? 'rgba(15, 23, 42, 0.4)' : 'rgba(30, 41, 59, 0.2)',
+                  transition: 'all 0.3s ease'
+                }}>
+                  <td style={{ padding: '16px 20px', color: '#e2e8f0', fontSize: 14, fontWeight: 500 }}>{t.email}</td>
+                  <td style={{ padding: '16px 20px', color: '#ffffff', fontWeight: 600, fontSize: 14 }}>{t.first_name} {t.last_name}</td>
                   <td style={{ padding: '16px 20px', textAlign: 'center' }}>
                     <span style={{
                       background: 'linear-gradient(135deg, #22c55e, #16a34a)',
                       color: 'white',
-                      padding: '4px 12px',
+                      padding: '6px 12px',
                       borderRadius: 12,
                       fontSize: 11,
                       fontWeight: 600,
                       textTransform: 'uppercase',
-                      letterSpacing: '0.5px'
+                      letterSpacing: '0.5px',
+                      boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)'
                     }}>
-                      {t.role}
+                      {t.role || 'Teacher'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                    <span style={{
+                      background: t.is_active !== false ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                      color: 'white',
+                      padding: '4px 8px',
+                      borderRadius: 8,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.3px'
+                    }}>
+                      {t.is_active !== false ? '✓ Active' : '✗ Inactive'}
                     </span>
                   </td>
                 </tr>
@@ -698,41 +798,60 @@ export default function Teachers() {
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 {process.env.NODE_ENV === 'development' && (
-                  <button 
-                    type="button"
-                    onClick={testTeacherCreation}
-                    style={{
-                      background: 'rgba(59, 130, 246, 0.15)',
-                      border: '2px solid rgba(59, 130, 246, 0.4)',
-                      color: '#93c5fd',
-                      padding: isMobile ? '8px 12px' : '6px 10px',
-                      borderRadius: 8,
-                      fontSize: isMobile ? 14 : 12,
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    Fill Test Data
-                  </button>
+                  <>
+                    <button 
+                      type="button"
+                      onClick={testAPIEndpoint}
+                      style={{
+                        background: 'rgba(168, 85, 247, 0.15)',
+                        border: '2px solid rgba(168, 85, 247, 0.4)',
+                        color: '#c4b5fd',
+                        padding: isMobile ? '8px 12px' : '6px 10px',
+                        borderRadius: 8,
+                        fontSize: isMobile ? 14 : 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Test API
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={testTeacherCreation}
+                      style={{
+                        background: 'rgba(59, 130, 246, 0.15)',
+                        border: '2px solid rgba(59, 130, 246, 0.4)',
+                        color: '#93c5fd',
+                        padding: isMobile ? '8px 12px' : '6px 10px',
+                        borderRadius: 8,
+                        fontSize: isMobile ? 14 : 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Fill Test Data
+                    </button>
+                  </>
                 )}
                 <button 
                   className="btn" 
                   onClick={()=>setShowCreate(false)}
                 style={{
-                  background: 'rgba(239, 68, 68, 0.15)',
-                  border: '2px solid rgba(239, 68, 68, 0.4)',
-                  color: '#fca5a5',
-                  padding: isMobile ? '12px 14px' : '8px 12px',
-                  borderRadius: 10,
-                  fontSize: isMobile ? 18 : 16,
-                  fontWeight: 700,
-                  minHeight: isMobile ? 44 : 'auto',
-                  minWidth: isMobile ? 44 : 'auto',
+                  background: 'rgba(71, 85, 105, 0.1)',
+                  border: '1px solid rgba(71, 85, 105, 0.3)',
+                  color: '#94a3b8',
+                  padding: '6px',
+                  borderRadius: 6,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  width: 28,
+                  height: 28,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  transition: 'all 0.3s ease',
+                  transition: 'all 0.2s ease',
                   cursor: 'pointer'
                 }}
               >
@@ -933,19 +1052,77 @@ export default function Teachers() {
                   }}>
                     Assign Class (Optional)
                   </label>
-                  <ScrollableSelect
-                    name="class_id"
-                    value={form.class_id}
-                    onChange={(v)=>setForm(f=>({...f,class_id:v}))}
-                    options={[{value:'',label:'None'}, ...classes.map(c=>({
-                      value:String(c.id),
-                      label:`${c.level_display || c.level}${c.section?` ${c.section}`:''}`
-                    }))]}
-                    sizeThreshold={8}
-                    style={{
-                      height: isMobile ? 48 : 44
-                    }}
-                  />
+                  <div className="class-dropdown" style={{ position: 'relative' }}>
+                    <div
+                      onClick={() => setShowClassDropdown(!showClassDropdown)}
+                      style={{
+                        width: '100%',
+                        padding: isMobile ? '16px' : '12px',
+                        fontSize: isMobile ? 16 : 15,
+                        border: '2px solid rgba(71, 85, 105, 0.4)',
+                        borderRadius: isMobile ? 12 : 8,
+                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
+                        color: 'white',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        minHeight: isMobile ? '52px' : '44px',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <span>{form.class_id ? classes.find(c => String(c.id) === form.class_id)?.level_display || classes.find(c => String(c.id) === form.class_id)?.level : 'None'}</span>
+                      <span style={{ transform: showClassDropdown ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+                    </div>
+                    {showClassDropdown && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        background: 'rgba(30, 41, 59, 0.95)',
+                        border: '2px solid rgba(71, 85, 105, 0.4)',
+                        borderRadius: 8,
+                        maxHeight: '200px',
+                        overflowY: 'auto',
+                        zIndex: 1000,
+                        marginTop: 4
+                      }}>
+                        <div
+                          onClick={() => {
+                            setForm(f => ({...f, class_id: ''}))
+                            setShowClassDropdown(false)
+                          }}
+                          style={{
+                            padding: '12px 16px',
+                            cursor: 'pointer',
+                            borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
+                            color: '#94a3b8'
+                          }}
+                        >
+                          None
+                        </div>
+                        {classes.map(c => (
+                          <div
+                            key={c.id}
+                            onClick={() => {
+                              setForm(f => ({...f, class_id: String(c.id)}))
+                              setShowClassDropdown(false)
+                            }}
+                            style={{
+                              padding: '12px 16px',
+                              cursor: 'pointer',
+                              borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
+                              backgroundColor: String(c.id) === form.class_id ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
+                              color: 'white'
+                            }}
+                          >
+                            {c.level_display || c.level}{c.section ? ` ${c.section}` : ''}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Password */}
@@ -1378,7 +1555,7 @@ export default function Teachers() {
                     fontWeight: 600,
                     fontSize: isMobile ? 15 : 15,
                     minHeight: isMobile ? 54 : 40,
-                    width: isMobile ? '100%' : 'auto',
+                    width: isMobile ? '40%' : 'auto',
                     transition: 'all 0.3s ease'
                   }}
                 >
