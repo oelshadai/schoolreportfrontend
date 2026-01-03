@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { 
-  FaRocket, FaUserShield, FaCheckCircle, FaCloud, FaSchool, 
-  FaChartLine, FaUsers, FaFileAlt, FaCog, FaShieldAlt,
-  FaArrowRight, FaStar, FaGraduationCap, FaTrophy, FaAward,
-  FaBookOpen, FaClipboardList, FaUserGraduate, FaChalkboardTeacher, FaBars, FaTimes
+  FaRocket, FaCheckCircle, FaCloud, FaSchool, 
+  FaChartLine, FaUsers, FaFileAlt, FaShieldAlt,
+  FaArrowRight, FaStar, FaGraduationCap, FaChalkboardTeacher, 
+  FaUserGraduate, FaBars, FaTimes, FaPlay, FaQuoteLeft
 } from 'react-icons/fa'
 
 export default function Landing() {
   const [isMobile, setIsMobile] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -23,363 +24,309 @@ export default function Landing() {
     {
       icon: FaCloud,
       title: 'Cloud-Based Platform',
-      description: 'Access your school data anywhere, anytime with our secure cloud infrastructure',
-      color: '#10b981'
+      description: 'Access your school data anywhere, anytime with our secure cloud infrastructure'
     },
     {
       icon: FaUsers,
       title: 'Multi-User Management',
-      description: 'Seamlessly manage teachers, students, and administrators with role-based access',
-      color: '#3b82f6'
+      description: 'Seamlessly manage teachers, students, and administrators with role-based access'
     },
     {
       icon: FaChartLine,
       title: 'Advanced Analytics',
-      description: 'Get insights into student performance with comprehensive reporting and analytics',
-      color: '#8b5cf6'
+      description: 'Get insights into student performance with comprehensive reporting and analytics'
     },
     {
       icon: FaShieldAlt,
       title: 'Secure & Compliant',
-      description: 'Enterprise-grade security with data encryption and privacy compliance',
-      color: '#f59e0b'
+      description: 'Enterprise-grade security with data encryption and privacy compliance'
     }
   ]
 
-  const steps = [
+  const testimonials = [
     {
-      number: '01',
-      title: 'Create School Account',
-      description: 'Set up your school profile and configure basic settings in minutes',
-      color: '#10b981'
+      name: 'Dr. Sarah Johnson',
+      role: 'Principal, Greenwood Academy',
+      content: 'This platform has revolutionized how we handle student reports. What used to take weeks now takes minutes.',
+      rating: 5
     },
     {
-      number: '02', 
-      title: 'Add Teachers & Students',
-      description: 'Invite staff and upload student data via Excel or manual entry',
-      color: '#3b82f6'
+      name: 'Michael Chen',
+      role: 'IT Director, Riverside School',
+      content: 'The security and reliability of this system gives us complete peace of mind. Highly recommended.',
+      rating: 5
     },
     {
-      number: '03',
-      title: 'Enter Scores & Data',
-      description: 'Teachers input assessments, attendance, and behavioral records',
-      color: '#8b5cf6'
-    },
-    {
-      number: '04',
-      title: 'Generate Reports',
-      description: 'Create beautiful, branded PDF report cards with one click',
-      color: '#f59e0b'
+      name: 'Emma Williams',
+      role: 'Vice Principal, Oak Hill High',
+      content: 'Our teachers love how easy it is to input grades and generate professional reports instantly.',
+      rating: 5
     }
   ]
 
   return (
-    <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)', minHeight: '100vh' }}>
+    <div style={{ background: '#ffffff', minHeight: '100vh' }}>
+      {/* Navigation */}
+      <nav style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid #e5e7eb',
+        zIndex: 1000,
+        padding: '0 20px'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          height: '70px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              borderRadius: 8,
+              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <FaSchool size={20} color="white" />
+            </div>
+            <span style={{
+              fontSize: 24,
+              fontWeight: 700,
+              color: '#1f2937'
+            }}>
+              EduReport
+            </span>
+          </div>
+
+          {!isMobile && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
+              <a href="#features" style={{ color: '#6b7280', textDecoration: 'none', fontWeight: 500 }}>Features</a>
+              <a href="#testimonials" style={{ color: '#6b7280', textDecoration: 'none', fontWeight: 500 }}>Testimonials</a>
+              <a href="#pricing" style={{ color: '#6b7280', textDecoration: 'none', fontWeight: 500 }}>Pricing</a>
+              <Link to="/login" style={{ color: '#6b7280', textDecoration: 'none', fontWeight: 500 }}>Login</Link>
+              <Link 
+                to="/register-school" 
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: 8,
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
+
+          {isMobile && (
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#1f2937',
+                fontSize: 24,
+                cursor: 'pointer'
+              }}
+            >
+              {isMenuOpen ? <FaTimes /> : <FaBars />}
+            </button>
+          )}
+        </div>
+
+        {/* Mobile Menu */}
+        {isMobile && isMenuOpen && (
+          <div style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            background: 'white',
+            borderBottom: '1px solid #e5e7eb',
+            padding: '20px'
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <a href="#features" style={{ color: '#6b7280', textDecoration: 'none', fontWeight: 500 }}>Features</a>
+              <a href="#testimonials" style={{ color: '#6b7280', textDecoration: 'none', fontWeight: 500 }}>Testimonials</a>
+              <Link to="/login" style={{ color: '#6b7280', textDecoration: 'none', fontWeight: 500 }}>Login</Link>
+              <Link 
+                to="/register-school" 
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: 8,
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                  textAlign: 'center'
+                }}
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        )}
+      </nav>
 
       {/* Hero Section */}
       <section style={{
-        padding: isMobile ? '20px 0 30px' : '60px 0 80px',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-        position: 'relative',
-        overflow: 'hidden'
+        padding: isMobile ? '100px 20px 60px' : '140px 20px 100px',
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        textAlign: 'center'
       }}>
-        <div className="container" style={{ maxWidth: '1280px', position: 'relative', zIndex: 1, margin: '0 auto', padding: '0 16px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-            gap: isMobile ? 20 : 60,
-            alignItems: 'center'
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: '#dbeafe',
+            color: '#1d4ed8',
+            padding: '8px 16px',
+            borderRadius: 20,
+            fontSize: 14,
+            fontWeight: 600,
+            marginBottom: 32
           }}>
-            <div style={{ textAlign: isMobile ? 'center' : 'left' }}>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                background: 'rgba(16, 185, 129, 0.1)',
-                color: '#10b981',
-                padding: isMobile ? '6px 12px' : '8px 16px',
-                borderRadius: 20,
-                fontSize: isMobile ? 10 : 12,
-                fontWeight: 600,
-                marginBottom: isMobile ? 12 : 16,
-                border: '1px solid rgba(16, 185, 129, 0.3)'
-              }}>
-                <FaStar size={isMobile ? 12 : 14} />
-                Modern School Management
-              </div>
-              
-              <h1 style={{
-                fontSize: isMobile ? (window.innerWidth < 400 ? 22 : 28) : 48,
-                fontWeight: 800,
-                lineHeight: 1.2,
-                color: 'white',
-                margin: isMobile ? '0 0 12px' : '0 0 24px',
-                letterSpacing: '-0.02em'
-              }}>
-                Transform Your School's
-                <span style={{
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  display: 'block'
-                }}>
-                  Report Generation
-                </span>
-              </h1>
-              
-              <p style={{
-                fontSize: isMobile ? (window.innerWidth < 400 ? 14 : 16) : 18,
-                color: '#94a3b8',
-                lineHeight: 1.6,
-                margin: isMobile ? '0 0 20px' : '0 0 32px',
-                maxWidth: '100%'
-              }}>
-                Streamline your academic reporting with our comprehensive SaaS platform. 
-                Generate professional report cards, track student progress, and manage 
-                school data with ease.
-              </p>
-              
-              <div style={{
-                display: 'flex',
-                gap: isMobile ? 12 : 16,
-                flexDirection: isMobile ? 'column' : 'row',
-                alignItems: 'stretch'
-              }}>
-                <Link 
-                  to="/register-school" 
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    background: 'linear-gradient(135deg, #10b981, #059669)',
-                    color: 'white',
-                    fontWeight: 700,
-                    width: isMobile ? '100%' : 'auto'
-                  }}
-                >
-                  <FaRocket size={isMobile ? 14 : 16} />
-                  Start Free Trial
-                  <FaArrowRight size={12} />
-                </Link>
-                <Link 
-                  to="/login" 
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    background: 'rgba(15, 23, 42, 0.8)',
-                    color: '#10b981',
-                    fontWeight: 700,
-                    width: isMobile ? '100%' : 'auto'
-                  }}
-                >
-                  <FaChalkboardTeacher size={isMobile ? 14 : 16} />
-                  Staff Login
-                </Link>
-              </div>
-            </div>
-            
-            <div style={{
-              display: isMobile ? 'none' : 'flex',
-              flexDirection: 'column',
-              gap: 16
-            }}>
-              <Link 
-                to="/student-portal" 
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 12,
-                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                  color: 'white',
-                  fontWeight: 700,
-                }}
-              >
-                <FaUserGraduate size={20} />
-                Student Portal
-                <FaArrowRight size={16} />
-              </Link>
-              
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.8)',
-                padding: 24,
-                borderRadius: 16,
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                boxShadow: '0 6px 24px rgba(0, 0, 0, 0.2)'
-              }}>
-                <h3 style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: 'white',
-                  margin: '0 0 12px'
-                }}>
-                  Quick Access
-                </h3>
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 8
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    color: '#94a3b8',
-                    fontSize: 14
-                  }}>
-                    <FaCheckCircle size={14} style={{ color: '#10b981' }} />
-                    Generate Reports Instantly
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    color: '#94a3b8',
-                    fontSize: 14
-                  }}>
-                    <FaCheckCircle size={14} style={{ color: '#10b981' }} />
-                    Track Student Progress
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    color: '#94a3b8',
-                    fontSize: 14
-                  }}>
-                    <FaCheckCircle size={14} style={{ color: '#10b981' }} />
-                    Secure Cloud Storage
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section style={{ padding: isMobile ? '20px 0' : '30px 0', background: 'rgba(30, 41, 59, 0.5)' }}>
-        <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 16px' }}>
-          <div style={{ textAlign: 'center', marginBottom: isMobile ? 32 : 40 }}>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              background: 'rgba(16, 185, 129, 0.1)',
-              color: '#10b981',
-              padding: isMobile ? '6px 16px' : '8px 20px',
-              borderRadius: 25,
-              fontSize: isMobile ? 10 : 12,
-              fontWeight: 700,
-              marginBottom: 16,
-              border: '1px solid rgba(16, 185, 129, 0.3)'
-            }}>
-              <FaTrophy size={isMobile ? 12 : 14} />
-              Trusted by Schools Worldwide
-            </div>
-            <h2 style={{
-              fontSize: isMobile ? (window.innerWidth < 400 ? 20 : 24) : 24,
-              fontWeight: 900,
-              color: 'white',
-              margin: '0 0 8px',
-              letterSpacing: '-0.02em'
-            }}>
-              Platform Statistics
-            </h2>
-            <p style={{
-              fontSize: isMobile ? 14 : 12,
-              color: '#94a3b8',
-              maxWidth: '400px',
-              margin: '0 auto',
-              lineHeight: 1.5
-            }}>
-              Real numbers from schools using our platform every day
-            </p>
+            <FaStar size={14} />
+            Trusted by 500+ Schools Worldwide
           </div>
           
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: isMobile ? (window.innerWidth < 400 ? 12 : 16) : 12
+          <h1 style={{
+            fontSize: isMobile ? 36 : 64,
+            fontWeight: 800,
+            lineHeight: 1.1,
+            color: '#1f2937',
+            margin: '0 0 24px',
+            letterSpacing: '-0.02em'
           }}>
-            {[
-              { icon: FaSchool, number: '500+', label: 'Schools', color: '#10b981' },
-              { icon: FaUserGraduate, number: '125K+', label: 'Students', color: '#3b82f6' },
-              { icon: FaChalkboardTeacher, number: '8,500+', label: 'Teachers', color: '#8b5cf6' },
-              { icon: FaFileAlt, number: '2.5M+', label: 'Reports', color: '#f59e0b' }
-            ].map((stat, index) => (
-              <div key={index} style={{
-                background: 'rgba(15, 23, 42, 0.8)',
-                padding: isMobile ? (window.innerWidth < 400 ? 16 : 20) : 16,
+            Modern School
+            <span style={{ color: '#3b82f6' }}> Report Cards</span>
+            <br />Made Simple
+          </h1>
+          
+          <p style={{
+            fontSize: isMobile ? 18 : 22,
+            color: '#6b7280',
+            lineHeight: 1.6,
+            margin: '0 0 48px',
+            maxWidth: '700px',
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }}>
+            Generate professional report cards in minutes, not hours. 
+            Streamline your school's academic reporting with our intuitive platform.
+          </p>
+          
+          <div style={{
+            display: 'flex',
+            gap: 16,
+            justifyContent: 'center',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: 'center',
+            maxWidth: isMobile ? '300px' : 'none',
+            margin: '0 auto'
+          }}>
+            <Link 
+              to="/register-school" 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                color: 'white',
+                padding: '16px 32px',
                 borderRadius: 12,
-                textAlign: 'center',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                boxShadow: '0 6px 24px rgba(0, 0, 0, 0.2)',
+                textDecoration: 'none',
+                fontWeight: 700,
+                fontSize: 18,
+                boxShadow: '0 10px 25px rgba(59, 130, 246, 0.3)',
                 transition: 'all 0.3s ease',
-                position: 'relative',
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  width: isMobile ? (window.innerWidth < 400 ? 32 : 40) : 36,
-                  height: isMobile ? (window.innerWidth < 400 ? 32 : 40) : 36,
-                  borderRadius: 10,
-                  background: `linear-gradient(135deg, ${stat.color}, ${stat.color}dd)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: `0 auto ${isMobile ? 10 : 12}px`,
-                  boxShadow: `0 4px 16px ${stat.color}40`,
-                  position: 'relative',
-                  zIndex: 1
-                }}>
-                  <stat.icon size={isMobile ? (window.innerWidth < 400 ? 14 : 16) : 16} style={{ color: 'white', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
-                </div>
-                <div style={{
-                  fontSize: isMobile ? (window.innerWidth < 400 ? 16 : 20) : 20,
-                  fontWeight: 900,
-                  color: 'white',
-                  marginBottom: 4,
-                  textShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                }}>
-                  {stat.number}
-                </div>
-                <div style={{
-                  fontSize: isMobile ? (window.innerWidth < 400 ? 10 : 12) : 12,
-                  color: '#94a3b8',
-                  fontWeight: 600,
-                  letterSpacing: '0.025em'
-                }}>
-                  {stat.label}
-                </div>
-              </div>
-            ))}
+                width: isMobile ? '100%' : 'auto',
+                justifyContent: 'center'
+              }}
+            >
+              <FaRocket size={18} />
+              Start Free Trial
+            </Link>
+            <button style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              background: 'white',
+              color: '#374151',
+              padding: '16px 32px',
+              borderRadius: 12,
+              border: '2px solid #e5e7eb',
+              fontWeight: 600,
+              fontSize: 18,
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              width: isMobile ? '100%' : 'auto',
+              justifyContent: 'center'
+            }}>
+              <FaPlay size={16} />
+              Watch Demo
+            </button>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 32,
+            marginTop: 64,
+            flexWrap: 'wrap'
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 32, fontWeight: 800, color: '#1f2937' }}>500+</div>
+              <div style={{ fontSize: 14, color: '#6b7280', fontWeight: 500 }}>Schools</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 32, fontWeight: 800, color: '#1f2937' }}>125K+</div>
+              <div style={{ fontSize: 14, color: '#6b7280', fontWeight: 500 }}>Students</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 32, fontWeight: 800, color: '#1f2937' }}>2.5M+</div>
+              <div style={{ fontSize: 14, color: '#6b7280', fontWeight: 500 }}>Reports Generated</div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section style={{ padding: isMobile ? '20px 0' : '30px 0', background: 'rgba(15, 23, 42, 0.8)' }}>
-        <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 16px' }}>
-          <div style={{ textAlign: 'center', marginBottom: isMobile ? 16 : 40 }}>
+      <section id="features" style={{
+        padding: isMobile ? '60px 20px' : '100px 20px',
+        background: 'white'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 80 }}>
             <h2 style={{
-              fontSize: isMobile ? 18 : 28,
+              fontSize: isMobile ? 32 : 48,
               fontWeight: 800,
-              color: 'white',
-              margin: isMobile ? '0 0 8px' : '0 0 12px',
+              color: '#1f2937',
+              margin: '0 0 16px',
               letterSpacing: '-0.02em'
             }}>
-              Everything you need to manage your school
+              Everything you need to succeed
             </h2>
             <p style={{
-              fontSize: isMobile ? 13 : 14,
-              color: '#94a3b8',
-              maxWidth: '500px',
+              fontSize: 20,
+              color: '#6b7280',
+              maxWidth: '600px',
               margin: '0 auto',
-              lineHeight: isMobile ? 1.4 : 1.5
+              lineHeight: 1.6
             }}>
               Comprehensive tools designed specifically for modern educational institutions
             </p>
@@ -388,47 +335,40 @@ export default function Landing() {
           <div style={{
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
-            gap: isMobile ? 12 : 24
+            gap: 40
           }}>
             {features.map((feature, index) => (
               <div key={index} style={{
-                background: 'rgba(30, 41, 59, 0.8)',
-                padding: isMobile ? 12 : 24,
-                borderRadius: isMobile ? 8 : 16,
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                boxShadow: '0 6px 24px rgba(0, 0, 0, 0.2)',
-                transition: 'all 0.3s ease',
-                cursor: 'default',
-                position: 'relative',
-                overflow: 'hidden'
+                background: '#f8fafc',
+                padding: 40,
+                borderRadius: 16,
+                border: '1px solid #e5e7eb',
+                transition: 'all 0.3s ease'
               }}>
                 <div style={{
-                  width: isMobile ? 32 : 48,
-                  height: isMobile ? 32 : 48,
-                  borderRadius: isMobile ? 8 : 12,
-                  background: `linear-gradient(135deg, ${feature.color}, ${feature.color}dd)`,
+                  width: 64,
+                  height: 64,
+                  borderRadius: 16,
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: isMobile ? 8 : 16,
-                  boxShadow: `0 4px 16px ${feature.color}30`,
-                  position: 'relative',
-                  zIndex: 1
+                  marginBottom: 24
                 }}>
-                  <feature.icon size={isMobile ? 14 : 20} style={{ color: 'white', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
+                  <feature.icon size={28} color="white" />
                 </div>
                 <h3 style={{
-                  fontSize: isMobile ? 14 : 18,
-                  fontWeight: 800,
-                  color: 'white',
-                  margin: isMobile ? '0 0 6px' : '0 0 8px'
+                  fontSize: 24,
+                  fontWeight: 700,
+                  color: '#1f2937',
+                  margin: '0 0 12px'
                 }}>
                   {feature.title}
                 </h3>
                 <p style={{
-                  fontSize: isMobile ? 12 : 14,
-                  color: '#94a3b8',
-                  lineHeight: isMobile ? 1.4 : 1.5,
+                  fontSize: 16,
+                  color: '#6b7280',
+                  lineHeight: 1.6,
                   margin: 0
                 }}>
                   {feature.description}
@@ -439,92 +379,82 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* How it Works Section */}
-      <section style={{
-        padding: isMobile ? '20px 0' : '30px 0',
-        background: 'rgba(30, 41, 59, 0.5)'
+      {/* Testimonials Section */}
+      <section id="testimonials" style={{
+        padding: isMobile ? '60px 20px' : '100px 20px',
+        background: '#f8fafc'
       }}>
-        <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 16px' }}>
-          <div style={{ textAlign: 'center', marginBottom: isMobile ? 16 : 40 }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 80 }}>
             <h2 style={{
-              fontSize: isMobile ? 18 : 28,
+              fontSize: isMobile ? 32 : 48,
               fontWeight: 800,
-              color: 'white',
-              margin: isMobile ? '0 0 8px' : '0 0 12px',
+              color: '#1f2937',
+              margin: '0 0 16px',
               letterSpacing: '-0.02em'
             }}>
-              Get started in 4 simple steps
+              Loved by educators worldwide
             </h2>
             <p style={{
-              fontSize: isMobile ? 13 : 14,
-              color: '#94a3b8',
-              maxWidth: '500px',
+              fontSize: 20,
+              color: '#6b7280',
+              maxWidth: '600px',
               margin: '0 auto',
-              lineHeight: isMobile ? 1.4 : 1.5
+              lineHeight: 1.6
             }}>
-              From setup to report generation in minutes, not hours
+              See what school administrators and teachers are saying about our platform
             </p>
           </div>
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
-            gap: isMobile ? 12 : 24
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+            gap: 32
           }}>
-            {steps.map((step, index) => (
+            {testimonials.map((testimonial, index) => (
               <div key={index} style={{
-                background: 'rgba(15, 23, 42, 0.8)',
-                padding: isMobile ? 12 : 24,
-                borderRadius: isMobile ? 8 : 12,
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                textAlign: 'center',
-                position: 'relative',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+                background: 'white',
+                padding: 32,
+                borderRadius: 16,
+                border: '1px solid #e5e7eb',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
               }}>
                 <div style={{
-                  width: isMobile ? 40 : 48,
-                  height: isMobile ? 40 : 48,
-                  borderRadius: '50%',
-                  background: `linear-gradient(135deg, ${step.color}, ${step.color}dd)`,
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: `0 auto ${isMobile ? 8 : 16}px`,
-                  color: 'white',
-                  fontSize: isMobile ? 14 : 16,
-                  fontWeight: 800,
-                  boxShadow: `0 4px 16px ${step.color}40`
+                  gap: 4,
+                  marginBottom: 16
                 }}>
-                  {step.number}
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <FaStar key={i} size={16} color="#fbbf24" />
+                  ))}
                 </div>
-                <h3 style={{
-                  fontSize: isMobile ? 13 : 16,
-                  fontWeight: 700,
-                  color: 'white',
-                  margin: isMobile ? '0 0 6px' : '0 0 8px'
-                }}>
-                  {step.title}
-                </h3>
+                <FaQuoteLeft size={24} color="#e5e7eb" style={{ marginBottom: 16 }} />
                 <p style={{
-                  fontSize: isMobile ? 11 : 12,
-                  color: '#94a3b8',
-                  lineHeight: isMobile ? 1.3 : 1.4,
-                  margin: 0
+                  fontSize: 16,
+                  color: '#374151',
+                  lineHeight: 1.6,
+                  margin: '0 0 24px',
+                  fontStyle: 'italic'
                 }}>
-                  {step.description}
+                  "{testimonial.content}"
                 </p>
-                
-                {index < steps.length - 1 && !isMobile && (
+                <div>
                   <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    right: -12,
-                    transform: 'translateY(-50%)',
-                    color: '#475569'
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: '#1f2937',
+                    marginBottom: 4
                   }}>
-                    <FaArrowRight size={16} />
+                    {testimonial.name}
                   </div>
-                )}
+                  <div style={{
+                    fontSize: 14,
+                    color: '#6b7280'
+                  }}>
+                    {testimonial.role}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -533,189 +463,155 @@ export default function Landing() {
 
       {/* CTA Section */}
       <section style={{
-        padding: isMobile ? '40px 0' : '50px 0',
-        background: 'linear-gradient(135deg, #10b981, #059669)',
+        padding: isMobile ? '60px 20px' : '100px 20px',
+        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
         color: 'white',
         textAlign: 'center'
       }}>
-        <div className="container" style={{ maxWidth: '800px', margin: '0 auto', padding: '0 16px' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <h2 style={{
-            fontSize: isMobile ? 28 : 30,
+            fontSize: isMobile ? 32 : 48,
             fontWeight: 800,
-            margin: '0 0 16px',
-            letterSpacing: '-0.02em',
-            lineHeight: 1.2
+            margin: '0 0 24px',
+            letterSpacing: '-0.02em'
           }}>
-            Ready to transform your school's reporting?
+            Ready to transform your school?
           </h2>
           <p style={{
-            fontSize: isMobile ? 16 : 14,
+            fontSize: 20,
             opacity: 0.9,
-            margin: '0 0 32px',
-            lineHeight: 1.6,
-            maxWidth: isMobile ? '100%' : '80%',
-            marginLeft: 'auto',
-            marginRight: 'auto'
+            margin: '0 0 48px',
+            lineHeight: 1.6
           }}>
             Join hundreds of schools already using our platform to streamline 
             their academic reporting and improve student outcomes.
           </p>
-          <Link 
-            to="/register-school" 
-            style={{
-              background: 'white',
-              color: '#10b981',
-              fontWeight: 'bold',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              padding: isMobile ? (window.innerWidth < 400 ? '16px 24px' : '18px 32px') : '12px 24px',
-              borderRadius: isMobile ? '14px' : '12px',
-              textDecoration: 'none',
-              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
-              transition: 'all 0.3s ease',
-              fontSize: isMobile ? (window.innerWidth < 400 ? 16 : 18) : 16,
-              minWidth: isMobile ? (window.innerWidth < 400 ? '200px' : '240px') : 'auto'
-            }}
-          >
-            <FaRocket size={isMobile ? 14 : 16} />
-            Start Your Free Trial
-            <FaArrowRight size={12} />
-          </Link>
-        </div>
-      </section>
-
-      {/* Mobile Navigation Footer */}
-      {isMobile && (
-        <div style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: 'rgba(15, 23, 42, 0.98)',
-          backdropFilter: 'blur(20px)',
-          borderTop: '1px solid rgba(71, 85, 105, 0.3)',
-          padding: window.innerWidth < 400 ? '8px 12px' : '10px 16px',
-          zIndex: 50,
-          boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)'
-        }}>
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: window.innerWidth < 400 ? 4 : 6,
-            maxWidth: window.innerWidth < 400 ? '320px' : '380px',
+            display: 'flex',
+            gap: 16,
+            justifyContent: 'center',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: 'center',
+            maxWidth: isMobile ? '300px' : 'none',
             margin: '0 auto'
           }}>
             <Link 
-              to="/student-login" 
+              to="/register-school" 
               style={{
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
-                gap: window.innerWidth < 400 ? 2 : 3,
-                padding: window.innerWidth < 400 ? '6px 2px' : '8px 4px',
-                borderRadius: '6px',
+                gap: 12,
+                background: 'white',
+                color: '#3b82f6',
+                padding: '16px 32px',
+                borderRadius: 12,
                 textDecoration: 'none',
-                color: '#10b981',
-                fontSize: window.innerWidth < 400 ? '8px' : '9px',
-                fontWeight: '600',
-                transition: 'all 0.2s ease'
+                fontWeight: 700,
+                fontSize: 18,
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+                transition: 'all 0.3s ease',
+                width: isMobile ? '100%' : 'auto',
+                justifyContent: 'center'
               }}
             >
-              <FaUserGraduate size={window.innerWidth < 400 ? 16 : 18} />
-              <span>Student</span>
+              <FaRocket size={18} />
+              Start Free Trial
             </Link>
             <Link 
               to="/login" 
               style={{
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
-                gap: window.innerWidth < 400 ? 2 : 3,
-                padding: window.innerWidth < 400 ? '6px 2px' : '8px 4px',
-                borderRadius: '6px',
+                gap: 12,
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                padding: '16px 32px',
+                borderRadius: 12,
+                border: '2px solid rgba(255, 255, 255, 0.2)',
                 textDecoration: 'none',
-                color: '#3b82f6',
-                fontSize: window.innerWidth < 400 ? '8px' : '9px',
-                fontWeight: '600',
-                transition: 'all 0.2s ease'
+                fontWeight: 600,
+                fontSize: 18,
+                transition: 'all 0.3s ease',
+                width: isMobile ? '100%' : 'auto',
+                justifyContent: 'center'
               }}
             >
-              <FaChalkboardTeacher size={window.innerWidth < 400 ? 16 : 18} />
-              <span>Staff</span>
+              <FaChalkboardTeacher size={18} />
+              Staff Login
             </Link>
-            <Link 
-              to="/register-school" 
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: window.innerWidth < 400 ? 2 : 3,
-                padding: window.innerWidth < 400 ? '6px 2px' : '8px 4px',
-                borderRadius: '6px',
-                textDecoration: 'none',
-                color: '#8b5cf6',
-                fontSize: window.innerWidth < 400 ? '8px' : '9px',
-                fontWeight: '600',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <FaRocket size={window.innerWidth < 400 ? 16 : 18} />
-              <span>Start</span>
-            </Link>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: window.innerWidth < 400 ? 2 : 3,
-              padding: window.innerWidth < 400 ? '6px 2px' : '8px 4px',
-              color: '#94a3b8',
-              fontSize: window.innerWidth < 400 ? '8px' : '9px',
-              fontWeight: '600'
-            }}>
-              <FaSchool size={window.innerWidth < 400 ? 16 : 18} />
-              <span>Home</span>
-            </div>
           </div>
         </div>
-      )}
+      </section>
 
       {/* Footer */}
       <footer style={{
-        padding: isMobile ? '24px 0 80px' : '30px 0',
-        background: '#0f172a',
-        color: '#94a3b8',
-        textAlign: 'center'
+        padding: isMobile ? '40px 20px' : '60px 20px',
+        background: '#1f2937',
+        color: '#9ca3af'
       }}>
-        <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 16px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: isMobile ? 8 : 12,
-            marginBottom: isMobile ? 8 : 16,
-            flexDirection: isMobile ? 'row' : 'row'
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
+            gap: 40,
+            marginBottom: 40
           }}>
-            <div style={{
-              width: isMobile ? (window.innerWidth < 400 ? 32 : 40) : 32,
-              height: isMobile ? (window.innerWidth < 400 ? 32 : 40) : 32,
-              borderRadius: isMobile ? (window.innerWidth < 400 ? 8 : 12) : 8,
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white'
-            }}>
-              <FaSchool size={isMobile ? (window.innerWidth < 400 ? 14 : 18) : 16} />
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <div style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 6,
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <FaSchool size={16} color="white" />
+                </div>
+                <span style={{ fontSize: 20, fontWeight: 700, color: 'white' }}>EduReport</span>
+              </div>
+              <p style={{ fontSize: 14, lineHeight: 1.6, margin: 0 }}>
+                Modern school report card generation made simple and professional.
+              </p>
             </div>
-            <span style={{ fontSize: isMobile ? (window.innerWidth < 400 ? 16 : 20) : 18, fontWeight: 600, color: 'white' }}>
-              School Report SaaS
-            </span>
+            
+            <div>
+              <h4 style={{ fontSize: 16, fontWeight: 600, color: 'white', marginBottom: 16 }}>Product</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <a href="#features" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14 }}>Features</a>
+                <a href="#pricing" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14 }}>Pricing</a>
+                <Link to="/register-school" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14 }}>Get Started</Link>
+              </div>
+            </div>
+            
+            <div>
+              <h4 style={{ fontSize: 16, fontWeight: 600, color: 'white', marginBottom: 16 }}>Access</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Link to="/login" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14 }}>Staff Login</Link>
+                <Link to="/student-login" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14 }}>Student Portal</Link>
+              </div>
+            </div>
+            
+            <div>
+              <h4 style={{ fontSize: 16, fontWeight: 600, color: 'white', marginBottom: 16 }}>Support</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <a href="#" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14 }}>Help Center</a>
+                <a href="#" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14 }}>Contact Us</a>
+                <a href="#" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14 }}>Privacy Policy</a>
+              </div>
+            </div>
           </div>
-          <p style={{ margin: 0, fontSize: isMobile ? (window.innerWidth < 400 ? 12 : 14) : 14 }}>
-            © {new Date().getFullYear()} School Report SaaS. All rights reserved.
-          </p>
+          
+          <div style={{
+            borderTop: '1px solid #374151',
+            paddingTop: 32,
+            textAlign: 'center'
+          }}>
+            <p style={{ margin: 0, fontSize: 14 }}>
+              © {new Date().getFullYear()} EduReport. All rights reserved.
+            </p>
+          </div>
         </div>
       </footer>
     </div>

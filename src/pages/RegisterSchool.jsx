@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../state/AuthContext'
 import EliteLogo from '../components/EliteLogo'
-import { FaEnvelope, FaUser, FaLock, FaRocket, FaArrowLeft } from 'react-icons/fa'
+import { FaEnvelope, FaUser, FaLock, FaRocket, FaArrowLeft, FaSchool } from 'react-icons/fa'
 
 export default function RegisterSchool() {
   const { registerSchool, loading } = useAuth()
