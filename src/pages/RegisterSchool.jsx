@@ -151,6 +151,7 @@ export default function RegisterSchool() {
                   value={form.school_name} 
                   onChange={handleChange} 
                   required 
+                  autoComplete="organization"
                   style={{
                     width: '100%',
                     padding: '16px 16px 16px 48px',
@@ -229,6 +230,7 @@ export default function RegisterSchool() {
                     name="first_name" 
                     value={form.first_name} 
                     onChange={handleChange} 
+                    autoComplete="given-name"
                     style={{
                       width: '100%',
                       padding: '16px 16px 16px 48px',
@@ -266,6 +268,7 @@ export default function RegisterSchool() {
                     name="last_name" 
                     value={form.last_name} 
                     onChange={handleChange} 
+                    autoComplete="family-name"
                     style={{
                       width: '100%',
                       padding: '16px 16px 16px 48px',
