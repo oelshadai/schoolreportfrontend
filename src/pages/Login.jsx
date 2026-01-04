@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../state/AuthContext'
 import ForgotPassword from '../components/ForgotPassword'
-import EliteLogo from '../components/EliteLogo'
-import { FaEye, FaEyeSlash, FaArrowLeft, FaUser, FaLock } from 'react-icons/fa'
+import { FaEye, FaEyeSlash, FaArrowLeft, FaUser, FaLock, FaMicrochip } from 'react-icons/fa'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -27,7 +26,7 @@ export default function Login() {
   return (
     <div style={{
       height: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
+      background: '#0a0a0a',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -40,9 +39,9 @@ export default function Login() {
         position: 'absolute',
         inset: 0,
         backgroundImage: `
-          radial-gradient(circle at 25% 25%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 50%)
+          radial-gradient(circle at 25% 25%, rgba(62, 207, 142, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 75% 75%, rgba(45, 212, 191, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 50% 50%, rgba(6, 214, 160, 0.05) 0%, transparent 50%)
         `,
         animation: 'pulse 4s ease-in-out infinite'
       }} />
@@ -61,7 +60,28 @@ export default function Login() {
           marginBottom: '32px'
         }}>
           {/* Elite Logo - Top Left */}
-          <EliteLogo size={48} />
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
+          }}>
+            <div style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              background: 'linear-gradient(135deg, #3ecf8e, #2dd4bf)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <FaMicrochip size={24} color="white" />
+            </div>
+            <span style={{
+              fontSize: 24,
+              fontWeight: 700,
+              color: 'white'
+            }}>Elite Tech</span>
+          </div>
           
           {/* Back to Home - Top Right */}
           <Link 
@@ -70,24 +90,24 @@ export default function Login() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              color: '#94a3b8',
+              color: '#a1a1aa',
               textDecoration: 'none',
               fontSize: '14px',
               fontWeight: '500',
               padding: '8px 16px',
               borderRadius: '8px',
-              background: 'rgba(30, 41, 59, 0.6)',
-              border: '1px solid rgba(71, 85, 105, 0.3)',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               transition: 'all 0.3s ease',
               backdropFilter: 'blur(10px)'
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(30, 41, 59, 0.9)'
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
               e.currentTarget.style.color = 'white'
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(30, 41, 59, 0.6)'
-              e.currentTarget.style.color = '#94a3b8'
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+              e.currentTarget.style.color = '#a1a1aa'
             }}
           >
             <FaArrowLeft size={12} />
@@ -110,19 +130,19 @@ export default function Login() {
           <p style={{
             margin: 0,
             fontSize: '14px',
-            color: '#94a3b8',
+            color: '#a1a1aa',
             fontWeight: '400'
           }}>Sign in to your school admin portal</p>
         </div>
 
         {/* Login Form */}
         <div style={{
-          background: 'rgba(15, 23, 42, 0.9)',
+          background: 'rgba(255, 255, 255, 0.05)',
           backdropFilter: 'blur(20px)',
           borderRadius: '12px',
           padding: '24px',
-          border: '1px solid rgba(71, 85, 105, 0.3)',
-          boxShadow: '0 16px 48px rgba(0, 0, 0, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 16px 48px rgba(0, 0, 0, 0.5)',
           marginBottom: '40px'
         }}>
           {error && (
@@ -155,7 +175,7 @@ export default function Login() {
                   left: '10px',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  color: '#94a3b8',
+                  color: '#a1a1aa',
                   zIndex: 1
                 }}>
                   <FaUser size={12} />
@@ -170,19 +190,19 @@ export default function Login() {
                   style={{
                     width: '100%',
                     padding: '10px 12px 10px 32px',
-                    border: '1px solid rgba(71, 85, 105, 0.3)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '6px',
                     fontSize: '13px',
-                    background: 'rgba(30, 41, 59, 0.8)',
+                    background: 'rgba(255, 255, 255, 0.05)',
                     color: 'white',
                     transition: 'all 0.2s ease'
                   }}
                   onFocus={e => {
-                    e.target.style.borderColor = '#10b981'
-                    e.target.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.1)'
+                    e.target.style.borderColor = '#3ecf8e'
+                    e.target.style.boxShadow = '0 0 0 2px rgba(62, 207, 142, 0.1)'
                   }}
                   onBlur={e => {
-                    e.target.style.borderColor = 'rgba(71, 85, 105, 0.3)'
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'
                     e.target.style.boxShadow = 'none'
                   }}
                 />
@@ -203,7 +223,7 @@ export default function Login() {
                   left: '10px',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  color: '#94a3b8',
+                  color: '#a1a1aa',
                   zIndex: 1
                 }}>
                   <FaLock size={12} />
@@ -218,19 +238,19 @@ export default function Login() {
                   style={{
                     width: '100%',
                     padding: '10px 36px 10px 32px',
-                    border: '1px solid rgba(71, 85, 105, 0.3)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '6px',
                     fontSize: '13px',
-                    background: 'rgba(30, 41, 59, 0.8)',
+                    background: 'rgba(255, 255, 255, 0.05)',
                     color: 'white',
                     transition: 'all 0.2s ease'
                   }}
                   onFocus={e => {
-                    e.target.style.borderColor = '#10b981'
-                    e.target.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.1)'
+                    e.target.style.borderColor = '#3ecf8e'
+                    e.target.style.boxShadow = '0 0 0 2px rgba(62, 207, 142, 0.1)'
                   }}
                   onBlur={e => {
-                    e.target.style.borderColor = 'rgba(71, 85, 105, 0.3)'
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'
                     e.target.style.boxShadow = 'none'
                   }}
                 />
@@ -244,7 +264,7 @@ export default function Login() {
                     transform: 'translateY(-50%)',
                     background: 'none',
                     border: 'none',
-                    color: '#94a3b8',
+                    color: '#a1a1aa',
                     cursor: 'pointer',
                     padding: '3px',
                     borderRadius: '3px',
@@ -254,7 +274,7 @@ export default function Login() {
                     transition: 'color 0.2s ease'
                   }}
                   onMouseEnter={e => e.currentTarget.style.color = 'white'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#a1a1aa'}
                 >
                   {showPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
                 </button>
@@ -267,7 +287,7 @@ export default function Login() {
               style={{
                 width: '100%',
                 padding: '10px 20px',
-                background: loading ? '#6b7280' : 'linear-gradient(135deg, #10b981, #059669)',
+                background: loading ? '#6b7280' : 'linear-gradient(135deg, #3ecf8e, #2dd4bf)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
@@ -284,7 +304,7 @@ export default function Login() {
               onMouseEnter={e => {
                 if (!loading) {
                   e.currentTarget.style.transform = 'translateY(-1px)'
-                  e.currentTarget.style.boxShadow = '0 3px 10px rgba(16, 185, 129, 0.3)'
+                  e.currentTarget.style.boxShadow = '0 3px 10px rgba(62, 207, 142, 0.3)'
                 }
               }}
               onMouseLeave={e => {
@@ -314,7 +334,7 @@ export default function Login() {
                 width: '100%',
                 background: 'none',
                 border: 'none',
-                color: '#10b981',
+                color: '#3ecf8e',
                 cursor: 'pointer',
                 fontSize: '13px',
                 fontWeight: '500',
@@ -322,8 +342,8 @@ export default function Login() {
                 borderRadius: '4px',
                 transition: 'color 0.2s ease'
               }}
-              onMouseEnter={e => e.currentTarget.style.color = '#059669'}
-              onMouseLeave={e => e.currentTarget.style.color = '#10b981'}
+              onMouseEnter={e => e.currentTarget.style.color = '#2dd4bf'}
+              onMouseLeave={e => e.currentTarget.style.color = '#3ecf8e'}
             >
               Forgot Password?
             </button>
@@ -339,24 +359,24 @@ export default function Login() {
             textAlign: 'center',
             marginTop: '20px',
             paddingTop: '16px',
-            borderTop: '1px solid rgba(71, 85, 105, 0.3)'
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)'
           }}>
             <p style={{
               margin: '0 0 12px 0',
               fontSize: '13px',
-              color: '#94a3b8'
+              color: '#a1a1aa'
             }}>
               Are you a student?{' '}
               <Link 
                 to="/student-portal" 
                 style={{
-                  color: '#10b981',
+                  color: '#3ecf8e',
                   textDecoration: 'none',
                   fontWeight: '600',
                   transition: 'color 0.2s ease'
                 }}
-                onMouseEnter={e => e.currentTarget.style.color = '#059669'}
-                onMouseLeave={e => e.currentTarget.style.color = '#10b981'}
+                onMouseEnter={e => e.currentTarget.style.color = '#2dd4bf'}
+                onMouseLeave={e => e.currentTarget.style.color = '#3ecf8e'}
               >
                 Go to Student Portal
               </Link>
@@ -364,19 +384,19 @@ export default function Login() {
             <p style={{
               margin: 0,
               fontSize: '13px',
-              color: '#94a3b8'
+              color: '#a1a1aa'
             }}>
               Don't have an account?{' '}
               <Link 
                 to="/register-school" 
                 style={{
-                  color: '#10b981',
+                  color: '#3ecf8e',
                   textDecoration: 'none',
                   fontWeight: '600',
                   transition: 'color 0.2s ease'
                 }}
-                onMouseEnter={e => e.currentTarget.style.color = '#059669'}
-                onMouseLeave={e => e.currentTarget.style.color = '#10b981'}
+                onMouseEnter={e => e.currentTarget.style.color = '#2dd4bf'}
+                onMouseLeave={e => e.currentTarget.style.color = '#3ecf8e'}
               >
                 Create School Account
               </Link>
