@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sr-cache-v1';
+const CACHE_NAME = 'sr-cache-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -17,7 +17,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Network-first for API, cache-first for static
+// Network-first for all requests
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -25,17 +25,13 @@ self.addEventListener('fetch', (event) => {
   // Only same-origin
   if (url.origin !== location.origin) return;
 
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(request).then((res) => {
+  event.respondWith(
+    fetch(request).then((res) => {
+      if (res.ok) {
         const copy = res.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-        return res;
-      }).catch(() => caches.match(request))
-    );
-  } else {
-    event.respondWith(
-      caches.match(request).then((cached) => cached || fetch(request))
-    );
-  }
+      }
+      return res;
+    }).catch(() => caches.match(request))
+  );
 });
