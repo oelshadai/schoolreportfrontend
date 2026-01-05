@@ -1004,7 +1004,7 @@ export default function Reports() {
                       transition: 'background-color 0.15s ease'
                     }}
                     onMouseEnter={(e) => e.target.closest('tr').style.backgroundColor = 'rgba(30, 41, 59, 0.5)'}
-                    onMouseLeave={(e) => e.target.closest('tr').style.backgroundColor = 'transparent'}}
+                    onMouseLeave={(e) => e.target.closest('tr').style.backgroundColor = 'transparent'}
                     >
                       <td style={{padding: '12px', fontWeight: '500', color: '#e2e8f0'}}>
                         {rc.student_obj?.full_name || `Student ID: ${rc.student}`}
