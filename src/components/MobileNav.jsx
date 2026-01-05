@@ -1,79 +1,19 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../state/AuthContext'
+import { useState } from 'react'
 import { 
   FaTachometerAlt, FaUserGraduate, FaBookOpen, FaFileInvoice, 
-  FaChalkboardTeacher, FaLayerGroup, FaCog, FaVideo, FaComments, FaUserCheck, FaChartBar 
+  FaChalkboardTeacher, FaLayerGroup, FaCog, FaVideo, FaComments, FaUserCheck, FaChartBar, FaBars, FaTimes 
 } from 'react-icons/fa'
 
 export default function MobileNav() {
   const { user } = useAuth()
   const location = useLocation()
-
-  const NavItem = ({ to, Icon, label, badge }) => {
-    const isActive = location.pathname.startsWith(to)
-    return (
-      <Link 
-        to={to} 
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 4,
-          color: isActive ? 'var(--primary)' : 'var(--gray-500)',
-          textDecoration: 'none',
-          padding: '12px 8px',
-          borderRadius: 12,
-          minWidth: 60,
-          transition: 'all 0.2s ease',
-          position: 'relative',
-          background: isActive 
-            ? 'rgba(79, 70, 229, 0.1)' 
-            : 'transparent',
-          transform: isActive ? 'translateY(-2px)' : 'translateY(0)'
-        }}
-      >
-        <div style={{
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <Icon size={isActive ? 22 : 20} />
-          {badge && (
-            <span style={{
-              position: 'absolute',
-              top: -6,
-              right: -6,
-              background: 'var(--error)',
-              color: 'white',
-              borderRadius: 10,
-              padding: '2px 6px',
-              fontSize: 10,
-              fontWeight: 600,
-              minWidth: 16,
-              textAlign: 'center',
-              boxShadow: 'var(--shadow-sm)'
-            }}>
-              {badge}
-            </span>
-          )}
-        </div>
-        <span style={{
-          fontSize: 11,
-          lineHeight: 1,
-          fontWeight: isActive ? 600 : 500,
-          textAlign: 'center',
-          opacity: isActive ? 1 : 0.8
-        }}>
-          {label}
-        </span>
-      </Link>
-    )
-  }
+  const [isOpen, setIsOpen] = useState(false)
 
   const getNavItems = () => {
     const baseItems = [
-      { to: "/dashboard", Icon: FaTachometerAlt, label: "Home" }
+      { to: "/dashboard", Icon: FaTachometerAlt, label: "Dashboard" }
     ]
 
     if (user?.role === 'TEACHER') {
@@ -89,8 +29,8 @@ export default function MobileNav() {
         ...baseItems,
         { to: "/students", Icon: FaUserGraduate, label: "Students" },
         { to: "/attendance-dashboard", Icon: FaChartBar, label: "Attendance" },
-        { to: "/classroom", Icon: FaVideo, label: "Classroom" },
         { to: "/teachers", Icon: FaChalkboardTeacher, label: "Teachers" },
+        { to: "/subjects", Icon: FaBookOpen, label: "Subjects" },
         { to: "/reports", Icon: FaFileInvoice, label: "Reports" },
         { to: "/settings", Icon: FaCog, label: "Settings" }
       ]
@@ -99,27 +39,142 @@ export default function MobileNav() {
     return baseItems
   }
 
+  const currentPage = getNavItems().find(item => location.pathname.startsWith(item.to))
+
   // Only show on mobile
   if (window.innerWidth > 768) return null
 
   return (
-    <nav style={{
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: 40,
-      background: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(20px)',
-      borderTop: '1px solid var(--gray-200)',
-      display: 'flex',
-      padding: '8px 6px calc(8px + env(safe-area-inset-bottom))',
-      justifyContent: 'space-around',
-      boxShadow: '0 -4px 20px rgba(0,0,0,0.1)'
-    }}>
-      {getNavItems().map(item => (
-        <NavItem key={item.to} {...item} />
-      ))}
-    </nav>
+    <>
+      {/* Mobile Navigation Bar */}
+      <nav style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 40,
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(20px)',
+        borderTop: '1px solid var(--gray-200)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '12px 16px calc(12px + env(safe-area-inset-bottom))',
+        boxShadow: '0 -4px 20px rgba(0,0,0,0.1)'
+      }}>
+        {/* Current Page Indicator */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          flex: 1
+        }}>
+          {currentPage && (
+            <>
+              <currentPage.Icon size={20} style={{ color: 'var(--primary)' }} />
+              <span style={{
+                fontSize: '16px',
+                fontWeight: '600',
+                color: 'var(--gray-900)'
+              }}>
+                {currentPage.label}
+              </span>
+            </>
+          )}
+        </div>
+
+        {/* Menu Toggle Button */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            background: 'var(--primary)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '12px',
+            padding: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          {isOpen ? <FaTimes size={18} /> : <FaBars size={18} />}
+        </button>
+      </nav>
+
+      {/* Dropdown Menu */}
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.5)',
+              zIndex: 35,
+              backdropFilter: 'blur(4px)'
+            }}
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Menu */}
+          <div style={{
+            position: 'fixed',
+            bottom: '80px',
+            right: '16px',
+            zIndex: 45,
+            background: 'white',
+            borderRadius: '16px',
+            padding: '8px',
+            minWidth: '200px',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
+            border: '1px solid var(--gray-200)',
+            animation: 'slideUp 0.2s ease-out'
+          }}>
+            <style>{`
+              @keyframes slideUp {
+                from {
+                  opacity: 0;
+                  transform: translateY(10px);
+                }
+                to {
+                  opacity: 1;
+                  transform: translateY(0);
+                }
+              }
+            `}</style>
+            
+            {getNavItems().map(item => {
+              const isActive = location.pathname.startsWith(item.to)
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setIsOpen(false)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px 16px',
+                    borderRadius: '12px',
+                    textDecoration: 'none',
+                    color: isActive ? 'var(--primary)' : 'var(--gray-700)',
+                    background: isActive ? 'rgba(79, 70, 229, 0.1)' : 'transparent',
+                    fontWeight: isActive ? '600' : '500',
+                    fontSize: '15px',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <item.Icon size={18} />
+                  {item.label}
+                </Link>
+              )
+            })}
+          </div>
+        </>
+      )}
+    </>
   )
 }
