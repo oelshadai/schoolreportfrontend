@@ -54,6 +54,7 @@ export default function AttendanceDashboard() {
       const params = new URLSearchParams({ date: selectedDate })
       if (selectedClass) params.append('class_id', selectedClass)
       
+      console.log('Loading attendance with params:', params.toString())
       const response = await api.get(`/students/attendance/?${params}`)
       const attendanceRecords = response.data.results || response.data || []
       
