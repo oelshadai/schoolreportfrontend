@@ -16,7 +16,7 @@ const getApiBaseUrl = () => {
     return 'https://school-report-saas.onrender.com/api'
   }
   
-  // Development fallback - try localhost:8000 first
+  // Development fallback - use localhost:8000
   return 'http://localhost:8000/api'
 }
 

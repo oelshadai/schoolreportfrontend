@@ -4,12 +4,16 @@ import { FaRocket, FaChartLine, FaUsers, FaShieldAlt, FaGraduationCap, FaChalkbo
 
 export default function Landing() {
   const [isMobile, setIsMobile] = useState(false)
+  const [isTablet, setIsTablet] = useState(false)
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 640)
+      setIsTablet(window.innerWidth >= 640 && window.innerWidth < 1024)
+    }
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+    return () => window.removeEventListener('resize', checkScreenSize)
   }, [])
 
   const userTypes = [
@@ -120,7 +124,7 @@ export default function Landing() {
         <div style={{
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '16px 20px',
+          padding: isMobile ? '12px 16px' : '16px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
@@ -244,7 +248,7 @@ export default function Landing() {
           </div>
 
           <h1 style={{
-            fontSize: isMobile ? 48 : 80,
+            fontSize: isMobile ? 36 : isTablet ? 56 : 80,
             fontWeight: 700,
             margin: '0 0 24px',
             letterSpacing: '-0.02em',
@@ -265,12 +269,13 @@ export default function Landing() {
           </h1>
           
           <p style={{
-            fontSize: isMobile ? 18 : 20,
+            fontSize: isMobile ? 16 : isTablet ? 18 : 20,
             color: '#a1a1aa',
-            maxWidth: '600px',
-            margin: '0 auto 48px',
+            maxWidth: isMobile ? '100%' : '600px',
+            margin: isMobile ? '0 auto 32px' : '0 auto 48px',
             lineHeight: 1.6,
-            fontWeight: 400
+            fontWeight: 400,
+            padding: isMobile ? '0 16px' : 0
           }}>
             Complete school management platform with report card generation, virtual classroom, 
             assignments, grade tracking, and interactive learning tools.
@@ -356,8 +361,8 @@ export default function Landing() {
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 24
+            gridTemplateColumns: isMobile ? '1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: isMobile ? 16 : 24
           }}>
             {userTypes.map((user, index) => (
               <Link
@@ -367,7 +372,7 @@ export default function Landing() {
                   background: 'rgba(255, 255, 255, 0.03)',
                   border: `1px solid rgba(62, 207, 142, 0.2)`,
                   borderRadius: 16,
-                  padding: 32,
+                  padding: isMobile ? 24 : 32,
                   textDecoration: 'none',
                   color: 'white',
                   transition: 'all 0.3s ease',
@@ -390,7 +395,7 @@ export default function Landing() {
                   {user.icon}
                 </div>
                 <h3 style={{
-                  fontSize: 20,
+                  fontSize: isMobile ? 18 : 20,
                   fontWeight: 600,
                   margin: '0 0 12px',
                   color: user.color
@@ -445,15 +450,15 @@ export default function Landing() {
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-            gap: 40,
+            gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr' : '1fr 1fr',
+            gap: isMobile ? 24 : 40,
             alignItems: 'start'
           }}>
             <div style={{
               background: 'rgba(255, 255, 255, 0.03)',
               border: '1px solid rgba(45, 212, 191, 0.2)',
               borderRadius: 16,
-              padding: 32
+              padding: isMobile ? 20 : 32
             }}>
               <div style={{
                 display: 'flex',
@@ -535,7 +540,7 @@ export default function Landing() {
               background: 'rgba(255, 255, 255, 0.03)',
               border: '1px solid rgba(6, 214, 160, 0.2)',
               borderRadius: 16,
-              padding: 32
+              padding: isMobile ? 20 : 32
             }}>
               <div style={{
                 display: 'flex',
@@ -616,62 +621,62 @@ export default function Landing() {
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)',
-            gap: 24,
-            marginTop: 60,
-            padding: '32px',
+            gridTemplateColumns: isMobile ? '1fr 1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+            gap: isMobile ? 16 : 24,
+            marginTop: isMobile ? 40 : 60,
+            padding: isMobile ? '20px' : '32px',
             background: 'rgba(255, 255, 255, 0.02)',
             borderRadius: 16,
             border: '1px solid rgba(255, 255, 255, 0.1)'
           }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{
-                fontSize: isMobile ? 28 : 36,
+                fontSize: isMobile ? 24 : isTablet ? 32 : 36,
                 fontWeight: 700,
                 color: '#3ecf8e',
                 marginBottom: 8
               }}>500+</div>
               <div style={{
-                fontSize: 14,
+                fontSize: isMobile ? 12 : 14,
                 color: '#a1a1aa'
               }}>Assignments Created</div>
             </div>
             
             <div style={{ textAlign: 'center' }}>
               <div style={{
-                fontSize: isMobile ? 28 : 36,
+                fontSize: isMobile ? 24 : isTablet ? 32 : 36,
                 fontWeight: 700,
                 color: '#2dd4bf',
                 marginBottom: 8
               }}>1,200+</div>
               <div style={{
-                fontSize: 14,
+                fontSize: isMobile ? 12 : 14,
                 color: '#a1a1aa'
               }}>Quizzes Completed</div>
             </div>
             
             <div style={{ textAlign: 'center' }}>
               <div style={{
-                fontSize: isMobile ? 28 : 36,
+                fontSize: isMobile ? 24 : isTablet ? 32 : 36,
                 fontWeight: 700,
                 color: '#06d6a0',
                 marginBottom: 8
               }}>95%</div>
               <div style={{
-                fontSize: 14,
+                fontSize: isMobile ? 12 : 14,
                 color: '#a1a1aa'
               }}>Student Engagement</div>
             </div>
             
             <div style={{ textAlign: 'center' }}>
               <div style={{
-                fontSize: isMobile ? 28 : 36,
+                fontSize: isMobile ? 24 : isTablet ? 32 : 36,
                 fontWeight: 700,
                 color: '#4ecdc4',
                 marginBottom: 8
               }}>24/7</div>
               <div style={{
-                fontSize: 14,
+                fontSize: isMobile ? 12 : 14,
                 color: '#a1a1aa'
               }}>Platform Access</div>
             </div>
@@ -681,13 +686,13 @@ export default function Landing() {
 
       {/* Features Section */}
       <section id="features" style={{
-        padding: '80px 20px',
+        padding: isMobile ? '60px 16px' : '80px 20px',
         background: 'rgba(62, 207, 142, 0.02)'
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 60 }}>
             <h2 style={{
-              fontSize: isMobile ? 32 : 48,
+              fontSize: isMobile ? 28 : isTablet ? 36 : 48,
               fontWeight: 700,
               margin: '0 0 16px',
               background: 'linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%)',
@@ -705,15 +710,15 @@ export default function Landing() {
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(350px, 1fr))',
-            gap: 32
+            gridTemplateColumns: isMobile ? '1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(350px, 1fr))',
+            gap: isMobile ? 20 : 32
           }}>
             {features.map((feature, index) => (
               <div key={index} style={{
                 background: 'rgba(255, 255, 255, 0.03)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 borderRadius: 16,
-                padding: 32,
+                padding: isMobile ? 20 : 32,
                 transition: 'all 0.3s ease'
               }}>
                 <div style={{
@@ -748,13 +753,13 @@ export default function Landing() {
 
       {/* Testimonials Section */}
       <section id="testimonials" style={{
-        padding: '80px 20px',
+        padding: isMobile ? '60px 16px' : '80px 20px',
         background: 'rgba(255, 255, 255, 0.02)'
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 60 }}>
             <h2 style={{
-              fontSize: isMobile ? 32 : 48,
+              fontSize: isMobile ? 28 : isTablet ? 36 : 48,
               fontWeight: 700,
               margin: '0 0 16px',
               background: 'linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%)',
@@ -772,15 +777,15 @@ export default function Landing() {
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(350px, 1fr))',
-            gap: 32
+            gridTemplateColumns: isMobile ? '1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(350px, 1fr))',
+            gap: isMobile ? 20 : 32
           }}>
             {testimonials.map((testimonial, index) => (
               <div key={index} style={{
                 background: 'rgba(255, 255, 255, 0.03)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 borderRadius: 16,
-                padding: 32,
+                padding: isMobile ? 20 : 32,
                 position: 'relative'
               }}>
                 <div style={{

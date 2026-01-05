@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react'
 import { FaBell, FaTimes, FaCheck, FaExclamationTriangle, FaInfo } from 'react-icons/fa'
 import { useAuth } from '../state/AuthContext'
-import api from '../utils/api'
+import { apiGet, apiPatch } from '../utils/apiWithRetry'
 
 const NotificationContext = createContext()
 
@@ -22,22 +22,27 @@ export function NotificationProvider({ children }) {
 
   const loadNotifications = async () => {
     try {
-      const response = await api.get('/notifications/')
+      // Skip notification loading if no backend server is available
+      if (!user || window.location.hostname === 'localhost') {
+        return
+      }
+      const response = await apiGet('/notifications/')
       const notifs = response.data.results || response.data
       setNotifications(notifs)
       setUnreadCount(notifs.filter(n => !n.read).length)
     } catch (error) {
-      console.error('Error loading notifications:', error)
+      console.error('Error loading notifications:', error.normalizedMessage || error.message)
+      // Don't show error to user for background notification loading
     }
   }
 
   const markAsRead = async (id) => {
     try {
-      await api.patch(`/notifications/${id}/`, { read: true })
+      await apiPatch(`/notifications/${id}/`, { read: true })
       setNotifications(prev => prev.map(n => n.id === id ? {...n, read: true} : n))
       setUnreadCount(prev => Math.max(0, prev - 1))
     } catch (error) {
-      console.error('Error marking notification as read:', error)
+      console.error('Error marking notification as read:', error.normalizedMessage || error.message)
     }
   }
 
