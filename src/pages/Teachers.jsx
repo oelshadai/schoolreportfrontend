@@ -368,7 +368,7 @@ export default function Teachers() {
         maxWidth: 1400,
         margin: '0 auto',
         padding: isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
-        paddingTop: isMobile ? '90px' : '24px',
+        paddingTop: isMobile ? '90px' : '80px',
         background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
         minHeight: '100vh',
         color: 'white',

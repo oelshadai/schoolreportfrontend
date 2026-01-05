@@ -109,29 +109,49 @@ export default function Subjects() {
     e.preventDefault()
     setError(''); setMsg(''); setCreating(true)
     try {
+      console.log('Creating subject:', newSubj)
       const res = await api.post('/schools/subjects/', newSubj)
+      console.log('Subject created:', res.data)
       setSubjects(prev => [res.data, ...prev])
       setNewSubj({ name: '', code: '', category: 'BOTH', description: '' })
-      setMsg('Subject created')
+      setMsg('Subject created successfully')
+      // Clear message after 3 seconds
+      setTimeout(() => setMsg(''), 3000)
     } catch (e) {
+      console.error('Subject creation error:', e)
       const msg = e?.response?.data?.detail || Object.values(e?.response?.data || {})?.[0] || 'Failed to create subject'
       setError(String(msg))
+      // Clear error after 5 seconds
+      setTimeout(() => setError(''), 5000)
     } finally {
       setCreating(false)
     }
   }
 
   const assignToClass = async () => {
-    if (!assignSubjectId || !selectedClass) return
+    if (!assignSubjectId || !selectedClass) {
+      setError('Please select both a subject and a class')
+      return
+    }
     setError(''); setMsg('')
     try {
-      const res = await api.post('/schools/class-subjects/', { class_instance: Number(selectedClass), subject: Number(assignSubjectId) })
+      console.log('Assigning subject:', { class_instance: Number(selectedClass), subject: Number(assignSubjectId) })
+      const res = await api.post('/schools/class-subjects/', { 
+        class_instance: Number(selectedClass), 
+        subject: Number(assignSubjectId) 
+      })
+      console.log('Assignment successful:', res.data)
       setClassAssignments(prev => [...prev, res.data])
       setAssignSubjectId('')
-      setMsg('Assigned to class')
+      setMsg('Subject assigned to class successfully')
+      // Clear message after 3 seconds
+      setTimeout(() => setMsg(''), 3000)
     } catch (e) {
-      const msg = e?.response?.data?.detail || e?.response?.data?.error || 'Failed to assign (check category compatibility)'
+      console.error('Assignment error:', e)
+      const msg = e?.response?.data?.detail || e?.response?.data?.error || 'Failed to assign subject to class'
       setError(String(msg))
+      // Clear error after 5 seconds
+      setTimeout(() => setError(''), 5000)
     }
   }
 
@@ -385,7 +405,7 @@ export default function Subjects() {
         .subjects-page {
           min-height: 100vh;
           max-height: 100vh;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
           padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
           -webkit-overflow-scrolling: touch;
           overscroll-behavior: contain;
@@ -403,14 +423,14 @@ export default function Subjects() {
         }
         
         .subjects-header {
-          background: rgba(255, 255, 255, 0.95);
+          background: rgba(15, 23, 42, 0.8);
           backdrop-filter: blur(10px);
           border-radius: 16px;
           padding: 24px;
           margin-top: 84px;
           margin-bottom: 24px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba(71, 85, 105, 0.3);
         }
         
         .subjects-title {
@@ -419,15 +439,15 @@ export default function Subjects() {
           gap: 12px;
           font-size: 28px;
           font-weight: 700;
-          color: #1f2937;
+          color: #e2e8f0;
           margin: 0;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         .subjects-title svg {
           font-size: 32px;
-          color: #6366f1;
-          filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.3));
+          color: #22c55e;
+          filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.3));
         }
         
         .search-filter-bar {
@@ -493,12 +513,12 @@ export default function Subjects() {
         }
         
         .subjects-card {
-          background: rgba(255, 255, 255, 0.95);
+          background: rgba(15, 23, 42, 0.8);
           backdrop-filter: blur(10px);
           border-radius: 16px;
           padding: 24px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba(71, 85, 105, 0.3);
           transition: all 0.3s ease;
         }
         
@@ -519,13 +539,13 @@ export default function Subjects() {
         .card-title {
           font-size: 20px;
           font-weight: 600;
-          color: #1f2937;
+          color: #e2e8f0;
           margin: 0;
         }
         
         .card-icon {
           font-size: 20px;
-          color: #6366f1;
+          color: #22c55e;
         }
         
         .form-grid {
@@ -542,23 +562,24 @@ export default function Subjects() {
         
         .form-label {
           font-weight: 600;
-          color: #374151;
+          color: #e2e8f0;
           font-size: 14px;
         }
         
         .form-input {
           padding: 12px 16px;
-          border: 2px solid #e5e7eb;
+          border: 2px solid rgba(71, 85, 105, 0.4);
           border-radius: 8px;
           font-size: 16px;
           transition: all 0.3s ease;
-          background: white;
+          background: rgba(30, 41, 59, 0.8);
+          color: white;
         }
         
         .form-input:focus {
           outline: none;
-          border-color: #6366f1;
-          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+          border-color: #22c55e;
+          box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
         }
         
         .form-textarea {
@@ -585,24 +606,24 @@ export default function Subjects() {
         }
         
         .btn-primary {
-          background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
           color: white;
-          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+          box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
         }
         
         .btn-primary:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+          box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
         }
         
         .btn-secondary {
-          background: #f3f4f6;
-          color: #374151;
-          border: 2px solid #e5e7eb;
+          background: rgba(71, 85, 105, 0.3);
+          color: #d1d5db;
+          border: 2px solid rgba(71, 85, 105, 0.5);
         }
         
         .btn-secondary:hover {
-          background: #e5e7eb;
+          background: rgba(71, 85, 105, 0.5);
           transform: translateY(-1px);
         }
         
@@ -689,8 +710,8 @@ export default function Subjects() {
           border-collapse: collapse;
           border-radius: 12px;
           overflow: hidden;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          background: white;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          background: rgba(15, 23, 42, 0.8);
         }
         
         .table-wrapper {
@@ -724,7 +745,7 @@ export default function Subjects() {
         }
         
         .subjects-table th {
-          background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
           color: white;
           padding: 16px;
           text-align: left;
@@ -736,12 +757,12 @@ export default function Subjects() {
         
         .subjects-table td {
           padding: 16px;
-          border-bottom: 1px solid #e5e7eb;
-          color: #374151;
+          border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+          color: #d1d5db;
         }
         
         .subjects-table tr:hover {
-          background: #f8fafc;
+          background: rgba(30, 41, 59, 0.5);
         }
         
         .subjects-table tr:last-child td {
@@ -1117,14 +1138,36 @@ export default function Subjects() {
 
         {/* Alerts */}
         {error && (
-          <div className="alert alert-error" role="alert">
+          <div className="alert alert-error" role="alert" style={{
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            marginBottom: '20px',
+            color: '#fca5a5',
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
             <FaBolt />
             {error}
           </div>
         )}
         
         {msg && (
-          <div className="alert alert-success" role="alert">
+          <div className="alert alert-success" role="alert" style={{
+            background: 'rgba(34, 197, 94, 0.1)',
+            border: '1px solid rgba(34, 197, 94, 0.3)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            marginBottom: '20px',
+            color: '#86efac',
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
             <FaCheck />
             {msg}
           </div>
@@ -1238,9 +1281,16 @@ export default function Subjects() {
                     {filteredSubjects.map(subject => (
                       <tr key={subject.id}>
                         <td style={{fontWeight: '500'}}>{subject.name}</td>
-                        <td style={{fontFamily: 'monospace', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px', display: 'inline-block'}}>{subject.code}</td>
+                        <td style={{fontFamily: 'monospace', background: 'rgba(71, 85, 105, 0.3)', color: '#d1d5db', padding: '4px 8px', borderRadius: '4px', display: 'inline-block'}}>{subject.code}</td>
                         <td>
-                          <span className="checkbox-badge">
+                          <span style={{
+                            background: 'rgba(34, 197, 94, 0.2)',
+                            color: '#86efac',
+                            padding: '4px 8px',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}>
                             {subject.category}
                           </span>
                         </td>
@@ -1453,7 +1503,7 @@ export default function Subjects() {
                     {classAssignments.map(assignment => (
                       <tr key={assignment.id}>
                         <td style={{fontWeight: '500'}}>{assignment.subject_name || assignment.subject?.name}</td>
-                        <td>{assignment.teacher_name || <span style={{color: '#6b7280', fontStyle: 'italic'}}>No teacher assigned</span>}</td>
+                        <td>{assignment.teacher_name || <span style={{color: '#94a3b8', fontStyle: 'italic'}}>No teacher assigned</span>}</td>
                         <td style={{textAlign: 'center'}}>
                           <div style={{display: 'flex', gap: '8px', justifyContent: 'center'}}>
                             <button

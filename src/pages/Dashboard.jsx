@@ -171,7 +171,7 @@ export default function Dashboard() {
         <style>{`
           .dashboard-page {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             padding: ${isTinyMobile ? '4px' : isSmallMobile ? '6px' : isMobile ? '8px' : '16px'};
             padding-top: ${isTinyMobile ? '70px' : isSmallMobile ? '75px' : isMobile ? '80px' : '120px'};
           }
@@ -185,13 +185,13 @@ export default function Dashboard() {
         <div className="dashboard-container">
         {/* Teacher Hero Section */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.95)',
+          background: 'rgba(15, 23, 42, 0.8)',
           backdropFilter: 'blur(10px)',
           borderRadius: isMobile ? 12 : 16,
           padding: isTinyMobile ? '12px 8px' : isSmallMobile ? '14px 10px' : isMobile ? '16px 12px' : '28px 32px',
           marginBottom: isMobile ? 12 : 24,
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+          border: '1px solid rgba(71, 85, 105, 0.3)',
           position: 'relative',
           overflow: 'hidden'
         }}>
@@ -740,7 +740,7 @@ export default function Dashboard() {
       <style>{`
         .dashboard-page {
           min-height: 100vh;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
           padding: ${isDesktop ? '24px' : '16px'};
           padding-top: ${isDesktop ? '140px' : '120px'};
         }
@@ -789,13 +789,13 @@ export default function Dashboard() {
       <div className="dashboard-container">
       {/* Admin Hero Section */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'rgba(15, 23, 42, 0.8)',
         backdropFilter: 'blur(10px)',
         borderRadius: isDesktop ? 24 : 16,
         padding: isMobile ? '20px 16px' : isTablet ? '24px 20px' : isDesktop ? '40px 48px' : '28px 32px',
         marginBottom: isMobile ? 16 : isDesktop ? 32 : 24,
-        boxShadow: isDesktop ? '0 20px 60px rgba(0, 0, 0, 0.15)' : '0 8px 32px rgba(0, 0, 0, 0.1)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
+        boxShadow: isDesktop ? '0 20px 60px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.3)',
+        border: '1px solid rgba(71, 85, 105, 0.3)',
         position: 'relative',
         overflow: 'hidden'
       }}>
@@ -848,7 +848,7 @@ export default function Dashboard() {
               margin: 0, 
               fontSize: isMobile ? 20 : isTablet ? 24 : isDesktop ? 36 : 28, 
               fontWeight: 700, 
-              color: '#1f2937',
+              color: '#e2e8f0',
               letterSpacing: '-0.02em',
               lineHeight: 1.2
             }}>
@@ -862,8 +862,8 @@ export default function Dashboard() {
               flexWrap: 'wrap'
             }}>
               <span style={{ 
-                background: 'rgba(99, 102, 241, 0.1)', 
-                color: '#6366f1',
+                background: 'rgba(34, 197, 94, 0.2)', 
+                color: '#86efac',
                 padding: isMobile ? '4px 10px' : isDesktop ? '8px 16px' : '6px 12px', 
                 borderRadius: 20,
                 fontSize: isMobile ? 11 : isDesktop ? 14 : 12,

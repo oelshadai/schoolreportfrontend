@@ -706,23 +706,23 @@ export default function Reports() {
 
       {/* Report Generation Form */}
       <div style={{
-        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        background: 'rgba(15, 23, 42, 0.8)',
         borderRadius: '16px',
         padding: '24px',
         marginBottom: '24px',
-        border: '1px solid #cbd5e1',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+        border: '1px solid rgba(71, 85, 105, 0.3)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
       }}>
         <h3 style={{
           margin: '0 0 20px 0',
-          color: '#1e293b',
+          color: '#e2e8f0',
           fontSize: '18px',
           fontWeight: '600',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
         }}>
-          <FaFileInvoice style={{color: '#fb7185'}}/>
+          <FaFileInvoice style={{color: '#22c55e'}}/>
           {isClassTeacher ? 'Generate Individual Student Report' : 'Report Generation Settings'}
         </h3>
         
@@ -734,7 +734,7 @@ export default function Reports() {
         }}>
           {(isAdmin || classes.length > 1) && (
             <div className="field">
-              <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+              <label style={{color: '#e2e8f0', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
                 Class {isClassTeacher && '(Your Classes)'}
               </label>
               <select 
@@ -743,10 +743,11 @@ export default function Reports() {
                 style={{
                   width: '100%',
                   padding: '10px 12px',
-                  border: '2px solid #e5e7eb',
+                  border: '2px solid rgba(71, 85, 105, 0.4)',
                   borderRadius: '8px',
                   fontSize: '14px',
-                  background: 'white'
+                  background: 'rgba(30, 41, 59, 0.8)',
+                  color: 'white'
                 }}
               >
                 <option value="">{isAdmin ? 'All classes' : 'Select class'}</option>
@@ -761,7 +762,7 @@ export default function Reports() {
           )}
           
           <div className="field">
-            <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+            <label style={{color: '#e2e8f0', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
               Student (Optional)
             </label>
             <select 
@@ -771,10 +772,11 @@ export default function Reports() {
               style={{
                 width: '100%',
                 padding: '10px 12px',
-                border: '2px solid #e5e7eb',
+                border: '2px solid rgba(71, 85, 105, 0.4)',
                 borderRadius: '8px',
                 fontSize: '14px',
-                background: !classId && isClassTeacher ? '#f3f4f6' : 'white'
+                background: !classId && isClassTeacher ? 'rgba(71, 85, 105, 0.3)' : 'rgba(30, 41, 59, 0.8)',
+                color: 'white'
               }}
             >
               <option value="">Select for individual report</option>
@@ -785,7 +787,7 @@ export default function Reports() {
           </div>
           
           <div className="field">
-            <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+            <label style={{color: '#e2e8f0', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
               Term
             </label>
             <select 
@@ -794,10 +796,11 @@ export default function Reports() {
               style={{
                 width: '100%',
                 padding: '10px 12px',
-                border: '2px solid #e5e7eb',
+                border: '2px solid rgba(71, 85, 105, 0.4)',
                 borderRadius: '8px',
                 fontSize: '14px',
-                background: 'white'
+                background: 'rgba(30, 41, 59, 0.8)',
+                color: 'white'
               }}
             >
               <option value="">Select term</option>
@@ -813,7 +816,7 @@ export default function Reports() {
             onClick={handleGenerate}
             disabled={!studentId || !termId || loading}
             style={{
-              background: !studentId || !termId || loading ? '#9ca3af' : 'linear-gradient(135deg, #fb7185, #f43f5e)',
+              background: !studentId || !termId || loading ? 'rgba(107, 114, 128, 0.5)' : 'linear-gradient(135deg, #22c55e, #16a34a)',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
@@ -937,22 +940,22 @@ export default function Reports() {
 
       {/* Generated Reports List */}
       <div style={{
-        background: 'white',
+        background: 'rgba(15, 23, 42, 0.8)',
         borderRadius: '16px',
         padding: '24px',
-        border: '1px solid #e2e8f0',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+        border: '1px solid rgba(71, 85, 105, 0.3)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
       }}>
         <h3 style={{
           margin: '0 0 20px 0',
-          color: '#1e293b',
+          color: '#e2e8f0',
           fontSize: '18px',
           fontWeight: '600',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
         }}>
-          <FaFileAlt style={{color: '#059669'}}/>
+          <FaFileAlt style={{color: '#22c55e'}}/>
           Generated Reports {termId && reportCards.length > 0 && `(${reportCards.length})`}
         </h3>
         
@@ -960,7 +963,7 @@ export default function Reports() {
           <div style={{
             textAlign: 'center',
             padding: '40px 20px',
-            color: '#64748b',
+            color: '#94a3b8',
             fontSize: '16px'
           }}>
             📋 Select a term to view generated reports
@@ -972,7 +975,7 @@ export default function Reports() {
             <div style={{
               textAlign: 'center',
               padding: '40px 20px',
-              color: '#64748b'
+              color: '#94a3b8'
             }}>
               <div>Loading reports...</div>
             </div>
@@ -984,27 +987,29 @@ export default function Reports() {
                 fontSize: '14px'
               }}>
                 <thead>
-                  <tr style={{borderBottom: '2px solid #e2e8f0'}}>
-                    <th style={{padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151'}}>Student</th>
-                    <th style={{padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151'}}>Class</th>
-                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151'}}>Status</th>
-                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151'}}>Generated</th>
-                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151'}}>Action</th>
+                  <tr style={{
+                    borderBottom: '2px solid rgba(71, 85, 105, 0.3)'
+                  }}>
+                    <th style={{padding: '12px', textAlign: 'left', fontWeight: '600', color: '#e2e8f0'}}>Student</th>
+                    <th style={{padding: '12px', textAlign: 'left', fontWeight: '600', color: '#e2e8f0'}}>Class</th>
+                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#e2e8f0'}}>Status</th>
+                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#e2e8f0'}}>Generated</th>
+                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#e2e8f0'}}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {reportCards.map(rc => (
                     <tr key={rc.id} style={{
-                      borderBottom: '1px solid #f1f5f9',
+                      borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
                       transition: 'background-color 0.15s ease'
                     }}
-                    onMouseEnter={(e) => e.target.closest('tr').style.backgroundColor = '#f8fafc'}
-                    onMouseLeave={(e) => e.target.closest('tr').style.backgroundColor = 'transparent'}
+                    onMouseEnter={(e) => e.target.closest('tr').style.backgroundColor = 'rgba(30, 41, 59, 0.5)'}
+                    onMouseLeave={(e) => e.target.closest('tr').style.backgroundColor = 'transparent'}}
                     >
-                      <td style={{padding: '12px', fontWeight: '500'}}>
+                      <td style={{padding: '12px', fontWeight: '500', color: '#e2e8f0'}}>
                         {rc.student_obj?.full_name || `Student ID: ${rc.student}`}
                       </td>
-                      <td style={{padding: '12px', color: '#64748b'}}>
+                      <td style={{padding: '12px', color: '#94a3b8'}}>
                         {rc.student_obj?.class_name || '-'}
                       </td>
                       <td style={{padding: '12px', textAlign: 'center'}}>
@@ -1019,7 +1024,7 @@ export default function Reports() {
                           {rc.status}
                         </span>
                       </td>
-                      <td style={{padding: '12px', textAlign: 'center', color: '#64748b', fontSize: '12px'}}>
+                      <td style={{padding: '12px', textAlign: 'center', color: '#94a3b8', fontSize: '12px'}}>
                         {rc.generated_at ? new Date(rc.generated_at).toLocaleDateString() : '-'}
                       </td>
                       <td style={{padding: '12px', textAlign: 'center'}}>
@@ -1045,7 +1050,7 @@ export default function Reports() {
                             Download
                           </button>
                         ) : (
-                          <span style={{color: '#9ca3af', fontSize: '12px'}}>Not available</span>
+                          <span style={{color: '#6b7280', fontSize: '12px'}}>Not available</span>
                         )}
                       </td>
                     </tr>
@@ -1057,7 +1062,7 @@ export default function Reports() {
             <div style={{
               textAlign: 'center',
               padding: '40px 20px',
-              color: '#64748b',
+              color: '#94a3b8',
               fontSize: '16px'
             }}>
               📄 No reports found for this selection

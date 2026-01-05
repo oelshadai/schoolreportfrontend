@@ -365,12 +365,13 @@ export default function Classes() {
         .classes-page {
           min-height: 100vh;
           max-height: 100vh;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
           padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
           -webkit-overflow-scrolling: touch;
           overscroll-behavior: contain;
           overflow-y: auto;
           overflow-x: hidden;
+          color: white;
         }
         
         .classes-container {
@@ -383,44 +384,158 @@ export default function Classes() {
         }
         
         .classes-header {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          border-radius: 12px;
-          padding: 16px;
-          margin-bottom: 20px;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: rgba(15, 23, 42, 0.8);
+          backdrop-filter: blur(16px);
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 24px;
+          border: 1px solid rgba(34, 197, 94, 0.2);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
         
         .classes-title {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-size: 22px;
-          font-weight: 600;
-          color: #1f2937;
+          gap: 12px;
+          font-size: 28px;
+          font-weight: 700;
+          background: linear-gradient(135deg, #86efac, #22c55e);
+          background-clip: text;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
           margin: 0;
         }
         
         .classes-title svg {
-          font-size: 24px;
-          color: #6366f1;
+          font-size: 28px;
+          color: #22c55e;
         }
         
         .classes-card {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          border-radius: 12px;
-          padding: 16px;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: rgba(15, 23, 42, 0.8);
+          backdrop-filter: blur(12px);
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba(71, 85, 105, 0.3);
           transition: all 0.3s ease;
-          margin-bottom: 16px;
+          margin-bottom: 24px;
         }
         
         .classes-card:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+        
+        .classes-card h3 {
+          color: #e2e8f0;
+          margin-bottom: 16px;
+        }
+        
+        .classes-card label {
+          color: #d1d5db;
+          font-weight: 600;
+          margin-bottom: 8px;
+          display: block;
+        }
+        
+        .classes-card input, .classes-card select, .classes-card textarea {
+          background: rgba(30, 41, 59, 0.8);
+          border: 2px solid rgba(71, 85, 105, 0.4);
+          border-radius: 8px;
+          color: white;
+          padding: 12px;
+          width: 100%;
+          box-sizing: border-box;
+          transition: all 0.3s ease;
+        }
+        
+        .classes-card input:focus, .classes-card select:focus, .classes-card textarea:focus {
+          outline: none;
+          border-color: #22c55e;
+          box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+        
+        .btn {
+          background: rgba(34, 197, 94, 0.1);
+          border: 1px solid rgba(34, 197, 94, 0.3);
+          color: #86efac;
+          padding: 10px 16px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        
+        .btn:hover {
+          background: rgba(34, 197, 94, 0.2);
+          transform: translateY(-1px);
+        }
+        
+        .btn.primary {
+          background: linear-gradient(135deg, #22c55e, #16a34a);
+          border: none;
+          color: white;
+          box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+        
+        .btn.primary:hover {
+          background: linear-gradient(135deg, #16a34a, #15803d);
+          box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+        }
+        
+        .table {
+          width: 100%;
+          border-collapse: collapse;
+          background: rgba(30, 41, 59, 0.5);
+          border-radius: 12px;
+          overflow: hidden;
+        }
+        
+        .table th {
+          background: linear-gradient(135deg, #1e40af, #3b82f6);
+          color: white;
+          padding: 16px;
+          text-align: left;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          font-size: 13px;
+        }
+        
+        .table td {
+          padding: 16px;
+          border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+          color: #e2e8f0;
+        }
+        
+        .table tr:hover {
+          background: rgba(34, 197, 94, 0.05);
+        }
+        
+        .table tr.selected {
+          background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .alert {
+          padding: 12px 16px;
+          border-radius: 8px;
+          margin: 12px 0;
+          font-weight: 500;
+        }
+        
+        .grid.form {
+          display: grid;
+          gap: 16px;
+          grid-template-columns: 1fr;
+        }
+        
+        .table-wrap {
+          overflow-x: auto;
+          border-radius: 12px;
         }
         
         /* Responsive Design - Mobile First */
@@ -635,7 +750,7 @@ export default function Classes() {
                       display: 'block',
                       fontSize: '16px',
                       fontWeight: '600',
-                      color: 'var(--text)',
+                      color: '#e2e8f0',
                       marginBottom: '12px'
                     }}>
                       Your Assigned Classes ({Array.from(new Set(teacherAssignments.map(a => a.class.id))).length}):
@@ -665,13 +780,13 @@ export default function Classes() {
                             }}
                             className="mobile-card"
                             style={{
-                              border: isSelected ? '2px solid var(--green)' : '2px solid #374151',
-                              background: isSelected ? 'linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(5, 150, 105, 0.05))' : 'var(--card)',
+                              border: isSelected ? '2px solid #22c55e' : '2px solid #374151',
+                              background: isSelected ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05))' : 'rgba(15, 23, 42, 0.8)',
                               cursor: 'pointer',
                               textAlign: 'center',
                               boxShadow: isSelected 
-                                ? '0 8px 25px rgba(5, 150, 105, 0.25)' 
-                                : '0 4px 12px rgba(0, 0, 0, 0.1)',
+                                ? '0 8px 25px rgba(34, 197, 94, 0.25)' 
+                                : '0 4px 12px rgba(0, 0, 0, 0.3)',
                               transform: isSelected ? 'translateY(-2px) scale(1.02)' : 'translateY(0) scale(1)',
                               transition: 'all 0.3s ease',
                               padding: window.innerWidth <= 768 ? '10px' : '16px',
@@ -682,15 +797,15 @@ export default function Classes() {
                             }}
                             onMouseEnter={(e) => {
                               if (!isSelected) {
-                                e.target.style.borderColor = '#059669'
-                                e.target.style.background = '#f0fdf4'
+                                e.target.style.borderColor = '#22c55e'
+                                e.target.style.background = 'rgba(34, 197, 94, 0.1)'
                                 e.target.style.transform = 'translateY(-2px)'
                               }
                             }}
                             onMouseLeave={(e) => {
                               if (!isSelected) {
-                                e.target.style.borderColor = '#e5e7eb'
-                                e.target.style.background = 'white'
+                                e.target.style.borderColor = '#374151'
+                                e.target.style.background = 'rgba(15, 23, 42, 0.8)'
                                 e.target.style.transform = 'translateY(0)'
                               }
                             }}
@@ -698,7 +813,7 @@ export default function Classes() {
                             <div style={{
                               fontSize: window.innerWidth <= 768 ? '16px' : '18px', 
                               fontWeight: '700', 
-                              color: isSelected ? 'var(--green)' : 'var(--text)', 
+                              color: isSelected ? '#22c55e' : '#e2e8f0', 
                               marginBottom: window.innerWidth <= 768 ? '8px' : '12px'
                             }}>
                               {classObj.name}

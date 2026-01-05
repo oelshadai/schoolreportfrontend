@@ -79,7 +79,7 @@ export default function AttendanceAnalytics() {
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
       padding: isMobile ? '20px 12px' : '24px 20px',
-      paddingTop: isMobile ? '100px' : '24px'
+      paddingTop: isMobile ? '100px' : '80px'
     }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header */}
