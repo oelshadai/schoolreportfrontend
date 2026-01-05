@@ -90,7 +90,9 @@ export default function AttendanceDashboard() {
       setAttendanceData(Object.values(groupedData))
     } catch (error) {
       console.error('Error loading attendance data:', error)
-      setError('Failed to load attendance data')
+      console.error('Error response:', error.response?.data)
+      console.error('Error status:', error.response?.status)
+      setError(`Failed to load attendance data: ${error.response?.data?.detail || error.message}`)
     } finally {
       setLoading(false)
     }
