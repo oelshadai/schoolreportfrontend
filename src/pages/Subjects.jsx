@@ -26,6 +26,11 @@ export default function Subjects() {
   // Bulk remove state
   const [removeSubjectId, setRemoveSubjectId] = useState('')
   const [removeRunning, setRemoveRunning] = useState(false)
+  // Bulk multi-subject to multi-class assignment
+  const [bulkMultiMode, setBulkMultiMode] = useState(false)
+  const [bulkMultiSubjects, setBulkMultiSubjects] = useState([])
+  const [bulkMultiLevel, setBulkMultiLevel] = useState('PRIMARY')
+  const [bulkMultiRunning, setBulkMultiRunning] = useState(false)
   // Search and filter
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('ALL')
@@ -286,6 +291,42 @@ export default function Subjects() {
     }
   }
 
+  const bulkAssignMultiToMulti = async () => {
+    if (!bulkMultiSubjects.length) { setError('Choose subjects for bulk assignment'); return }
+    setError(''); setMsg(''); setBulkMultiRunning(true)
+    try {
+      const targetClasses = (classes || []).filter(c => {
+        const level = c.level || ''
+        const n = level.startsWith('BASIC_') ? parseInt(level.split('_')[1], 10) : undefined
+        if (isNaN(n)) return false
+        if (bulkMultiLevel === 'PRIMARY') return n >= 1 && n <= 6
+        return n >= 7 && n <= 9
+      })
+      let totalAssigned = 0, totalSkipped = 0
+      for (const subjectId of bulkMultiSubjects) {
+        for (const cls of targetClasses) {
+          try {
+            await api.post('/schools/class-subjects/', { class_instance: Number(cls.id), subject: Number(subjectId) })
+            totalAssigned += 1
+          } catch (e) {
+            totalSkipped += 1
+          }
+        }
+      }
+      setMsg(`Bulk assignment complete: ${totalAssigned} assignments created, ${totalSkipped} skipped (already assigned)`)
+      setBulkMultiSubjects([])
+      // Refresh current class assignments
+      if (selectedClass) {
+        try {
+          const res = await api.get(`/schools/class-subjects/?class_instance=${selectedClass}`)
+          setClassAssignments(res.data.results || res.data)
+        } catch {}
+      }
+    } finally {
+      setBulkMultiRunning(false)
+    }
+  }
+
   const bulkRemove = async () => {
     if (!removeSubjectId) { setError('Choose a subject to remove from all classes'); return }
     setError(''); setMsg(''); setRemoveRunning(true)
@@ -493,11 +534,17 @@ export default function Subjects() {
           border: 2px solid #e5e7eb;
           border-radius: 12px;
           background: white;
+          color: black;
           font-size: 16px;
           min-width: 150px;
           cursor: pointer;
           transition: all 0.3s ease;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-select option {
+          color: black;
+          background: white;
         }
         
         .filter-select:focus {
@@ -576,6 +623,11 @@ export default function Subjects() {
           color: white;
         }
         
+        .form-input option {
+          color: black;
+          background: white;
+        }
+        
         .form-input:focus {
           outline: none;
           border-color: #22c55e;
@@ -646,8 +698,8 @@ export default function Subjects() {
         }
         
         .toggle-container {
-          background: #f8fafc;
-          border: 2px solid #e2e8f0;
+          background: rgba(30, 41, 59, 0.8);
+          border: 2px solid rgba(71, 85, 105, 0.4);
           border-radius: 12px;
           padding: 16px;
           max-height: 250px;
@@ -655,7 +707,7 @@ export default function Subjects() {
           overflow-x: hidden;
           -webkit-overflow-scrolling: touch;
           scrollbar-width: thin;
-          scrollbar-color: #cbd5e1 #f8fafc;
+          scrollbar-color: #cbd5e1 rgba(30, 41, 59, 0.8);
         }
         
         .toggle-container::-webkit-scrollbar {
@@ -663,7 +715,7 @@ export default function Subjects() {
         }
         
         .toggle-container::-webkit-scrollbar-track {
-          background: #f8fafc;
+          background: rgba(30, 41, 59, 0.8);
           border-radius: 4px;
         }
         
@@ -697,8 +749,8 @@ export default function Subjects() {
         }
         
         .checkbox-badge {
-          background: #e0e7ff;
-          color: #3730a3;
+          background: rgba(34, 197, 94, 0.2);
+          color: #86efac;
           padding: 4px 8px;
           border-radius: 6px;
           font-size: 12px;
@@ -793,9 +845,9 @@ export default function Subjects() {
         }
         
         .alert-info {
-          background: #eff6ff;
-          color: #2563eb;
-          border: 1px solid #bfdbfe;
+          background: rgba(59, 130, 246, 0.1);
+          color: #93c5fd;
+          border: 1px solid rgba(59, 130, 246, 0.3);
         }
         
         .loading-spinner {
@@ -810,12 +862,12 @@ export default function Subjects() {
         .empty-state {
           text-align: center;
           padding: 40px 20px;
-          color: #6b7280;
+          color: #94a3b8;
         }
         
         .empty-state svg {
           font-size: 48px;
-          color: #d1d5db;
+          color: #64748b;
           margin-bottom: 16px;
         }
         
@@ -1311,6 +1363,106 @@ export default function Subjects() {
             </div>
           )}
 
+          {/* Bulk Multi-Subject to Multi-Class Assignment Card */}
+          <div className="subjects-card" style={{gridColumn: '1 / -1'}}>
+            <div className="card-header">
+              <FaBolt className="card-icon" />
+              <h2 className="card-title">Bulk Assignment: Multiple Subjects to Multiple Classes</h2>
+            </div>
+            
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="form-label">Target Level</label>
+                <select
+                  className="form-input"
+                  value={bulkMultiLevel}
+                  onChange={(e) => setBulkMultiLevel(e.target.value)}
+                >
+                  <option value="PRIMARY">PRIMARY (Basic 1-6)</option>
+                  <option value="JHS">JHS (Basic 7-9)</option>
+                </select>
+              </div>
+              
+              <div className="form-group" style={{gridColumn: '1 / -1'}}>
+                <label className="form-label">
+                  Select Subjects ({bulkMultiSubjects.length} selected)
+                </label>
+                <div className="toggle-container">
+                  <div className="toggle-header">
+                    <button
+                      type="button"
+                      className={`btn ${bulkMultiSubjects.length === subjects.filter(s => s.category === bulkMultiLevel || s.category === 'BOTH').length ? 'btn-primary' : 'btn-secondary'}`}
+                      onClick={() => {
+                        const compatibleSubjects = subjects.filter(s => s.category === bulkMultiLevel || s.category === 'BOTH')
+                        if (bulkMultiSubjects.length === compatibleSubjects.length) {
+                          setBulkMultiSubjects([])
+                        } else {
+                          setBulkMultiSubjects(compatibleSubjects.map(s => String(s.id)))
+                        }
+                      }}
+                      style={{fontSize: '12px', padding: '8px 12px'}}
+                    >
+                      {bulkMultiSubjects.length === subjects.filter(s => s.category === bulkMultiLevel || s.category === 'BOTH').length ? 'Deselect All' : 'Select All Compatible'}
+                    </button>
+                  </div>
+                  <div className="toggle-grid">
+                    {subjects.filter(s => s.category === bulkMultiLevel || s.category === 'BOTH').map(s => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        className={`btn ${bulkMultiSubjects.includes(String(s.id)) ? 'btn-primary' : 'btn-secondary'}`}
+                        onClick={() => {
+                          if (bulkMultiSubjects.includes(String(s.id))) {
+                            setBulkMultiSubjects(prev => prev.filter(id => id !== String(s.id)))
+                          } else {
+                            setBulkMultiSubjects(prev => [...prev, String(s.id)])
+                          }
+                        }}
+                        style={{fontSize: '12px', padding: '8px 12px', textAlign: 'left'}}
+                      >
+                        <span style={{fontWeight: '500'}}>{s.name}</span>
+                        <span className="checkbox-badge" style={{marginLeft: '8px'}}>{s.category}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <div style={{gridColumn: '1 / -1', display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px'}}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setBulkMultiSubjects([])}
+                  disabled={bulkMultiSubjects.length === 0}
+                >
+                  Clear Selection
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={bulkAssignMultiToMulti}
+                  disabled={bulkMultiSubjects.length === 0 || bulkMultiRunning}
+                >
+                  <FaBolt />
+                  {bulkMultiRunning ? 'Assigning...' : `Assign ${bulkMultiSubjects.length} Subjects to All ${bulkMultiLevel} Classes`}
+                </button>
+              </div>
+              
+              <div style={{gridColumn: '1 / -1'}}>
+                <div className="alert alert-info">
+                  <FaTasks />
+                  This will assign selected subjects to all {bulkMultiLevel} classes ({classes.filter(c => {
+                    const level = c.level || ''
+                    const n = level.startsWith('BASIC_') ? parseInt(level.split('_')[1], 10) : undefined
+                    if (isNaN(n)) return false
+                    if (bulkMultiLevel === 'PRIMARY') return n >= 1 && n <= 6
+                    return n >= 7 && n <= 9
+                  }).length} classes). Existing assignments will be skipped.
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Class Assignment Card */}
           <div className="subjects-card" style={{gridColumn: '1 / -1'}}>
             <div className="card-header">
@@ -1338,7 +1490,7 @@ export default function Subjects() {
               <div className="form-group">
                 <label className="form-label">Assignment Mode</label>
                 <div style={{display: 'flex', gap: '16px', marginTop: '8px'}}>
-                  <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer'}}>
+                  <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#e2e8f0'}}>
                     <input
                       type="radio"
                       className="checkbox-input"
@@ -1350,7 +1502,7 @@ export default function Subjects() {
                     />
                     <span>Single Subject</span>
                   </label>
-                  <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer'}}>
+                  <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#e2e8f0'}}>
                     <input
                       type="radio"
                       className="checkbox-input"
@@ -1486,7 +1638,7 @@ export default function Subjects() {
 
             {/* Assigned Subjects Table */}
             <div style={{marginTop: '32px'}}>
-              <h3 style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px'}}>
+              <h3 style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: '#e2e8f0'}}>
                 <FaCheck style={{color: '#16a34a'}} />
                 Assigned Subjects ({classAssignments.length})
               </h3>
@@ -1503,7 +1655,7 @@ export default function Subjects() {
                     {classAssignments.map(assignment => (
                       <tr key={assignment.id}>
                         <td style={{fontWeight: '500'}}>{assignment.subject_name || assignment.subject?.name}</td>
-                        <td>{assignment.teacher_name || <span style={{color: '#94a3b8', fontStyle: 'italic'}}>No teacher assigned</span>}</td>
+                        <td>{assignment.teacher_name || <span style={{color: '#64748b', fontStyle: 'italic'}}>No teacher assigned</span>}</td>
                         <td style={{textAlign: 'center'}}>
                           <div style={{display: 'flex', gap: '8px', justifyContent: 'center'}}>
                             <button
