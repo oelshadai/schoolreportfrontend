@@ -58,6 +58,8 @@ export default function AttendanceDashboard() {
       const response = await api.get(`/students/attendance/?${params}`)
       const attendanceRecords = response.data.results || response.data || []
       
+      console.log('Attendance records received:', attendanceRecords)
+      
       // Group by class and calculate stats
       const groupedData = {}
       
@@ -67,9 +69,17 @@ export default function AttendanceDashboard() {
             String(record.class_instance) === String(cls.id)
           )
           
+          console.log(`Processing class ${cls.level} ${cls.section}:`, {
+            totalRecords: classAttendance.length,
+            records: classAttendance.map(r => ({ student: r.student_name, status: r.status }))
+          })
+          
           const present = classAttendance.filter(record => record.status === 'present').length
           const absent = classAttendance.filter(record => record.status === 'absent').length
-          const total = present + absent
+          const late = classAttendance.filter(record => record.status === 'late').length
+          const total = present + absent + late
+          
+          console.log(`Class ${cls.level} ${cls.section} stats:`, { present, absent, late, total })
           
           // Find class teacher
           const classTeacher = teachers.find(t => t.id === cls.class_teacher)
@@ -79,13 +89,16 @@ export default function AttendanceDashboard() {
             teacher: classTeacher,
             present,
             absent,
+            late,
             total,
-            attendanceRate: total > 0 ? ((present / total) * 100).toFixed(1) : '0.0',
+            attendanceRate: total > 0 ? (((present + late) / total) * 100).toFixed(1) : '0.0',
             records: classAttendance,
             lastUpdated: classAttendance.length > 0 ? new Date(Math.max(...classAttendance.map(r => new Date(r.created_at || r.date)))).toLocaleTimeString() : 'Not taken'
           }
         }
       })
+      
+      console.log('Final grouped data:', groupedData)
       
       setAttendanceData(Object.values(groupedData))
     } catch (error) {
@@ -102,25 +115,29 @@ export default function AttendanceDashboard() {
     const totals = attendanceData.reduce((acc, data) => ({
       present: acc.present + data.present,
       absent: acc.absent + data.absent,
+      late: acc.late + data.late,
       total: acc.total + data.total,
       classesTaken: acc.classesTaken + (data.total > 0 ? 1 : 0),
       totalClasses: acc.totalClasses + 1
-    }), { present: 0, absent: 0, total: 0, classesTaken: 0, totalClasses: 0 })
+    }), { present: 0, absent: 0, late: 0, total: 0, classesTaken: 0, totalClasses: 0 })
+    
+    console.log('Total stats calculated:', totals)
     
     return {
       ...totals,
-      attendanceRate: totals.total > 0 ? ((totals.present / totals.total) * 100).toFixed(1) : '0.0',
+      attendanceRate: totals.total > 0 ? (((totals.present + totals.late) / totals.total) * 100).toFixed(1) : '0.0',
       completionRate: totals.totalClasses > 0 ? ((totals.classesTaken / totals.totalClasses) * 100).toFixed(1) : '0.0'
     }
   }
 
   const exportData = () => {
     const csvContent = [
-      ['Class', 'Teacher', 'Present', 'Absent', 'Total', 'Attendance Rate', 'Last Updated'],
+      ['Class', 'Teacher', 'Present', 'Late', 'Absent', 'Total', 'Attendance Rate', 'Last Updated'],
       ...attendanceData.map(data => [
         `${data.class.level_display || data.class.level} ${data.class.section}`,
         data.teacher ? `${data.teacher.first_name} ${data.teacher.last_name}` : 'Not Assigned',
         data.present,
+        data.late,
         data.absent,
         data.total,
         `${data.attendanceRate}%`,
@@ -144,7 +161,7 @@ export default function AttendanceDashboard() {
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
       padding: isMobile ? '20px 12px' : '24px 20px',
-      paddingTop: isMobile ? '100px' : '24px'
+      paddingTop: isMobile ? '100px' : '100px'
     }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header */}
@@ -294,7 +311,7 @@ export default function AttendanceDashboard() {
         {/* Summary Stats */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr 1fr',
+          gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr 1fr 1fr 1fr',
           gap: '16px',
           marginBottom: '24px'
         }}>
@@ -309,6 +326,19 @@ export default function AttendanceDashboard() {
               {totalStats.present}
             </div>
             <div style={{ fontSize: '12px', color: '#94a3b8' }}>Present</div>
+          </div>
+          
+          <div style={{
+            background: 'rgba(245, 158, 11, 0.1)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            borderRadius: '12px',
+            padding: isMobile ? '16px' : '20px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#f59e0b', marginBottom: '4px' }}>
+              {totalStats.late}
+            </div>
+            <div style={{ fontSize: '12px', color: '#94a3b8' }}>Late</div>
           </div>
           
           <div style={{
@@ -338,13 +368,13 @@ export default function AttendanceDashboard() {
           </div>
           
           <div style={{
-            background: 'rgba(245, 158, 11, 0.1)',
-            border: '1px solid rgba(245, 158, 11, 0.3)',
+            background: 'rgba(34, 197, 94, 0.1)',
+            border: '1px solid rgba(34, 197, 94, 0.3)',
             borderRadius: '12px',
             padding: isMobile ? '16px' : '20px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#fbbf24', marginBottom: '4px' }}>
+            <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#22c55e', marginBottom: '4px' }}>
               {totalStats.attendanceRate}%
             </div>
             <div style={{ fontSize: '12px', color: '#94a3b8' }}>Attendance Rate</div>
@@ -425,13 +455,17 @@ export default function AttendanceDashboard() {
                       
                       <div style={{
                         display: 'grid',
-                        gridTemplateColumns: '1fr 1fr 1fr',
+                        gridTemplateColumns: '1fr 1fr 1fr 1fr',
                         gap: '8px',
                         marginBottom: '12px'
                       }}>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#10b981' }}>{data.present}</div>
                           <div style={{ fontSize: '10px', color: '#94a3b8' }}>Present</div>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#f59e0b' }}>{data.late}</div>
+                          <div style={{ fontSize: '10px', color: '#94a3b8' }}>Late</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#ef4444' }}>{data.absent}</div>
@@ -481,6 +515,7 @@ export default function AttendanceDashboard() {
                       <th style={{ padding: '12px', textAlign: 'left', color: '#e2e8f0', fontSize: '14px' }}>Class</th>
                       <th style={{ padding: '12px', textAlign: 'left', color: '#e2e8f0', fontSize: '14px' }}>Teacher</th>
                       <th style={{ padding: '12px', textAlign: 'center', color: '#e2e8f0', fontSize: '14px' }}>Present</th>
+                      <th style={{ padding: '12px', textAlign: 'center', color: '#e2e8f0', fontSize: '14px' }}>Late</th>
                       <th style={{ padding: '12px', textAlign: 'center', color: '#e2e8f0', fontSize: '14px' }}>Absent</th>
                       <th style={{ padding: '12px', textAlign: 'center', color: '#e2e8f0', fontSize: '14px' }}>Total</th>
                       <th style={{ padding: '12px', textAlign: 'center', color: '#e2e8f0', fontSize: '14px' }}>Rate</th>
@@ -513,6 +548,18 @@ export default function AttendanceDashboard() {
                             fontWeight: '600'
                           }}>
                             {data.present}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px 12px', textAlign: 'center' }}>
+                          <span style={{
+                            background: 'rgba(245, 158, 11, 0.2)',
+                            color: '#f59e0b',
+                            padding: '4px 8px',
+                            borderRadius: '12px',
+                            fontSize: '14px',
+                            fontWeight: '600'
+                          }}>
+                            {data.late}
                           </span>
                         </td>
                         <td style={{ padding: '16px 12px', textAlign: 'center' }}>
@@ -633,7 +680,7 @@ export default function AttendanceDashboard() {
 
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr',
+                gridTemplateColumns: '1fr 1fr 1fr 1fr',
                 gap: '12px',
                 marginBottom: '20px'
               }}>
@@ -641,12 +688,16 @@ export default function AttendanceDashboard() {
                   <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#10b981' }}>{showDetails.present}</div>
                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>Present</div>
                 </div>
+                <div style={{ textAlign: 'center', padding: '12px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#f59e0b' }}>{showDetails.late}</div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8' }}>Late</div>
+                </div>
                 <div style={{ textAlign: 'center', padding: '12px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px' }}>
                   <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#ef4444' }}>{showDetails.absent}</div>
                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>Absent</div>
                 </div>
-                <div style={{ textAlign: 'center', padding: '12px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px' }}>
-                  <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#fbbf24' }}>{showDetails.attendanceRate}%</div>
+                <div style={{ textAlign: 'center', padding: '12px', background: 'rgba(34, 197, 94, 0.1)', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#22c55e' }}>{showDetails.attendanceRate}%</div>
                   <div style={{ fontSize: '12px', color: '#94a3b8' }}>Rate</div>
                 </div>
               </div>
@@ -667,14 +718,17 @@ export default function AttendanceDashboard() {
                       }}>
                         <span style={{ color: 'white' }}>{record.student_name || 'Student'}</span>
                         <span style={{
-                          background: record.status === 'present' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                          color: record.status === 'present' ? '#10b981' : '#ef4444',
+                          background: record.status === 'present' ? 'rgba(16, 185, 129, 0.2)' : 
+                                     record.status === 'late' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                          color: record.status === 'present' ? '#10b981' : 
+                                record.status === 'late' ? '#f59e0b' : '#ef4444',
                           padding: '2px 8px',
                           borderRadius: '12px',
                           fontSize: '12px',
                           fontWeight: '600'
                         }}>
-                          {record.status === 'present' ? 'Present' : 'Absent'}
+                          {record.status === 'present' ? 'Present' : 
+                           record.status === 'late' ? 'Late' : 'Absent'}
                         </span>
                       </div>
                     ))}

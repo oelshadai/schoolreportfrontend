@@ -368,7 +368,7 @@ export default function Teachers() {
         maxWidth: 1400,
         margin: '0 auto',
         padding: isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
-        paddingTop: isMobile ? '90px' : '80px',
+        paddingTop: isMobile ? '90px' : '100px',
         background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
         minHeight: '100vh',
         color: 'white',
@@ -379,22 +379,43 @@ export default function Teachers() {
       {/* Enhanced mobile-specific style injection */}
       <style>
         {`
-          @media screen and (max-width: 480px) {
+          * {
+            -webkit-tap-highlight-color: transparent;
+          }
+          
+          @media screen and (max-width: 320px) {
+            .container { 
+              padding: 12px 8px !important; 
+              padding-top: 75px !important;
+            }
+            .page-header {
+              padding: 14px 12px !important;
+              gap: 12px !important;
+              border-radius: 12px !important;
+            }
+            .btn {
+              min-height: 44px !important;
+              font-size: 14px !important;
+              padding: 12px 16px !important;
+            }
+          }
+          
+          @media screen and (min-width: 321px) and (max-width: 480px) {
             .container { 
               padding: 16px 10px !important; 
-              padding-top: 85px !important;
+              padding-top: 80px !important;
             }
             .page-header {
               padding: 16px 14px !important;
               gap: 14px !important;
             }
             .btn {
-              min-height: 50px !important;
+              min-height: 48px !important;
               font-size: 15px !important;
             }
           }
           
-          @media screen and (max-width: 768px) {
+          @media screen and (min-width: 481px) and (max-width: 768px) {
             .container { 
               padding: 20px 12px !important; 
               padding-top: 90px !important; 
@@ -421,6 +442,11 @@ export default function Teachers() {
           @media screen and (min-width: 769px) {
             .desktop-table { display: block !important; }
             .mobile-cards { display: none !important; }
+          }
+          
+          .modal-content {
+            max-height: 100vh !important;
+            overflow-y: auto !important;
           }
           
           @keyframes spin {

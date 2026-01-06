@@ -742,7 +742,7 @@ export default function Dashboard() {
           min-height: 100vh;
           background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
           padding: ${isDesktop ? '24px' : '16px'};
-          padding-top: ${isDesktop ? '140px' : '120px'};
+          padding-top: ${isDesktop ? '100px' : '120px'};
         }
         
         .dashboard-container {
