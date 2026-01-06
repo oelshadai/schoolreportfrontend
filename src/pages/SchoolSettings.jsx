@@ -60,6 +60,7 @@ export default function SchoolSettings() {
     show_headteacher_signature: true,
     report_template: 'STANDARD',
     current_academic_year: '',
+    current_term: '',
     term_closing_date: '',
     term_reopening_date: '',
     show_promotion_on_terminal: true,
@@ -76,7 +77,10 @@ export default function SchoolSettings() {
       const response = await api.get('/schools/settings/', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setSettings(response.data);
+      setSettings({
+        ...response.data,
+        current_term: response.data.current_term || ''
+      });
     } catch (error) {
       console.error('Error fetching settings:', error);
       setMessage({
@@ -103,26 +107,6 @@ export default function SchoolSettings() {
       setCurrentTerm(termsResponse.data.find(term => term.is_current));
     } catch (error) {
       console.error('Error fetching academic data:', error);
-    }
-  };
-
-  const handleSetCurrentTerm = async (termId) => {
-    try {
-      await api.post(`/schools/terms/${termId}/set_current/`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setCurrentTerm(terms.find(term => term.id === termId));
-      setTerms(terms.map(term => ({ ...term, is_current: term.id === termId })));
-      setMessage({
-        text: 'Current term updated successfully!',
-        type: 'success'
-      });
-    } catch (error) {
-      console.error('Error setting current term:', error);
-      setMessage({
-        text: 'Failed to update current term',
-        type: 'error'
-      });
     }
   };
 
@@ -181,7 +165,7 @@ export default function SchoolSettings() {
 
         // Only send fields the API accepts
         const allowedKeys = [
-          'id','name','address','location','phone_number','email','logo','motto','website','current_academic_year',
+          'id','name','address','location','phone_number','email','logo','motto','website','current_academic_year','current_term',
           'score_entry_mode','is_active','principal_name','term_closing_date','term_reopening_date','show_promotion_on_terminal',
           'report_template','report_header_text','report_footer_text',
           'show_class_average','show_position_in_class','show_attendance','show_behavior_comments',
@@ -552,72 +536,39 @@ export default function SchoolSettings() {
             
             {/* Current Term Selection */}
             <div style={{
-              marginBottom: '16px',
-              padding: isMobile ? '16px' : '20px',
-              background: 'rgba(30, 41, 59, 0.5)',
-              borderRadius: 10,
-              border: '1px solid rgba(71, 85, 105, 0.3)'
+              marginBottom: '16px'
             }}>
-              <h4 style={{
-                margin: '0 0 16px 0',
-                fontSize: isMobile ? 16 : 18,
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontSize: '14px',
                 fontWeight: 600,
                 color: '#e2e8f0'
-              }}>Current Term Selection</h4>
-              
-              {terms.length > 0 ? (
-                <div>
-                  <label style={{
-                    display: 'block',
-                    marginBottom: '8px',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    color: '#e2e8f0'
-                  }}>Select Current Term</label>
-                  <select
-                    value={currentTerm?.id || ''}
-                    onChange={(e) => handleSetCurrentTerm(parseInt(e.target.value))}
-                    style={{
-                      width: '100%',
-                      padding: isMobile ? '14px 16px' : '12px 16px',
-                      fontSize: isMobile ? 16 : 15,
-                      border: '2px solid rgba(71, 85, 105, 0.4)',
-                      borderRadius: 8,
-                      background: 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
-                      outline: 'none',
-                      transition: 'all 0.3s ease',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <option value="">Select a term...</option>
-                    {terms.map(term => (
-                      <option key={term.id} value={term.id}>
-                        {term.academic_year_name} - {term.name}
-                      </option>
-                    ))}
-                  </select>
-                  {currentTerm && (
-                    <p style={{
-                      margin: '8px 0 0 0',
-                      fontSize: '12px',
-                      color: '#4ade80',
-                      lineHeight: 1.4
-                    }}>
-                      Current: {currentTerm.academic_year_name} - {currentTerm.name}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <p style={{
-                  margin: 0,
-                  fontSize: '14px',
-                  color: '#64748b',
-                  fontStyle: 'italic'
-                }}>
-                  No terms available. Create academic years and terms first.
-                </p>
-              )}
+              }}>Current Term</label>
+              <select
+                name="current_term"
+                value={settings.current_term}
+                onChange={handleInputChange}
+                style={{
+                  width: '100%',
+                  padding: isMobile ? '14px 16px' : '12px 16px',
+                  fontSize: isMobile ? 16 : 15,
+                  border: '2px solid rgba(71, 85, 105, 0.4)',
+                  borderRadius: 8,
+                  background: 'rgba(30, 41, 59, 0.8)',
+                  color: 'white',
+                  outline: 'none',
+                  transition: 'all 0.3s ease',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <option value="">Select current term...</option>
+                {terms.map(term => (
+                  <option key={term.id} value={term.id}>
+                    {term.academic_year_name} - {term.name}
+                  </option>
+                ))}
+              </select>
             </div>
             
             <div>
