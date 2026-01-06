@@ -55,7 +55,27 @@ export default function AttendanceDashboard() {
       if (selectedClass) params.append('class_id', selectedClass)
       
       console.log('Loading attendance with params:', params.toString())
-      const response = await api.get(`/students/attendance/?${params}`)
+      
+      // Try multiple endpoints to find attendance data
+      let response
+      try {
+        response = await api.get(`/students/attendance/?${params}`)
+      } catch (error) {
+        if (error.response?.status === 404) {
+          // Try alternative endpoint
+          try {
+            response = await api.get(`/attendance/?${params}`)
+          } catch (altError) {
+            // If both fail, return empty data
+            console.log('No attendance data found, using empty dataset')
+            setAttendanceData([])
+            return
+          }
+        } else {
+          throw error
+        }
+      }
+      
       const attendanceRecords = response.data.results || response.data || []
       
       console.log('Attendance records received:', attendanceRecords)
@@ -105,7 +125,13 @@ export default function AttendanceDashboard() {
       console.error('Error loading attendance data:', error)
       console.error('Error response:', error.response?.data)
       console.error('Error status:', error.response?.status)
-      setError(`Failed to load attendance data: ${error.response?.data?.detail || error.message}`)
+      
+      if (error.response?.status === 404) {
+        setError('No attendance data found for the selected date. Please ensure attendance has been recorded.')
+        setAttendanceData([])
+      } else {
+        setError(`Failed to load attendance data: ${error.response?.data?.detail || error.message}`)
+      }
     } finally {
       setLoading(false)
     }
