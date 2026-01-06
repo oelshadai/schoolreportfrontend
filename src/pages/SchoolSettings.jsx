@@ -102,11 +102,20 @@ export default function SchoolSettings() {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
-      setAcademicYears(yearsResponse.data);
-      setTerms(termsResponse.data);
-      setCurrentTerm(termsResponse.data.find(term => term.is_current));
+      
+      // Ensure data is arrays
+      const yearsData = Array.isArray(yearsResponse.data) ? yearsResponse.data : [];
+      const termsData = Array.isArray(termsResponse.data) ? termsResponse.data : [];
+      
+      setAcademicYears(yearsData);
+      setTerms(termsData);
+      setCurrentTerm(termsData.find(term => term.is_current) || null);
     } catch (error) {
       console.error('Error fetching academic data:', error);
+      // Set empty arrays on error
+      setAcademicYears([]);
+      setTerms([]);
+      setCurrentTerm(null);
     }
   };
 
@@ -563,11 +572,15 @@ export default function SchoolSettings() {
                 }}
               >
                 <option value="">Select current term...</option>
-                {terms.map(term => (
-                  <option key={term.id} value={term.id}>
-                    {term.academic_year_name} - {term.name}
-                  </option>
-                ))}
+                {terms && terms.length > 0 ? (
+                  terms.map(term => (
+                    <option key={term.id} value={term.id}>
+                      {term.academic_year_name} - {term.name}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>No terms available</option>
+                )}
               </select>
             </div>
             
