@@ -572,15 +572,9 @@ export default function SchoolSettings() {
                 }}
               >
                 <option value="">Select current term...</option>
-                {terms && terms.length > 0 ? (
-                  terms.map(term => (
-                    <option key={term.id} value={term.id}>
-                      {term.academic_year_name} - {term.name}
-                    </option>
-                  ))
-                ) : (
-                  <option value="" disabled>No terms available</option>
-                )}
+                <option value="1st Term">1st Term</option>
+                <option value="2nd Term">2nd Term</option>
+                <option value="3rd Term">3rd Term</option>
               </select>
             </div>
             
