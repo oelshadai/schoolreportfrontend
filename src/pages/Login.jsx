@@ -242,7 +242,7 @@ export default function Login() {
                   autoComplete="current-password"
                   style={{
                     width: '100%',
-                    padding: isMobile ? '12px 44px 12px 36px' : '10px 36px 10px 32px',
+                    padding: isMobile ? '12px 36px 12px 36px' : '10px 36px 10px 32px',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '6px',
                     fontSize: isMobile ? '16px' : '13px',
@@ -267,22 +267,22 @@ export default function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
                     position: 'absolute',
-                    right: isMobile ? '12px' : '10px',
+                    right: isMobile ? '8px' : '10px',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     background: 'none',
                     border: 'none',
                     color: '#a1a1aa',
                     cursor: 'pointer',
-                    padding: isMobile ? '8px' : '3px',
+                    padding: isMobile ? '4px' : '3px',
                     borderRadius: '3px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     transition: 'color 0.2s ease',
-                    minWidth: isMobile ? '32px' : 'auto',
-                    minHeight: isMobile ? '32px' : 'auto',
-                    zIndex: 2
+                    minWidth: isMobile ? '24px' : 'auto',
+                    minHeight: isMobile ? '24px' : 'auto',
+                    zIndex: 3
                   }}
                   onMouseEnter={e => e.currentTarget.style.color = 'white'}
                   onMouseLeave={e => e.currentTarget.style.color = '#a1a1aa'}
