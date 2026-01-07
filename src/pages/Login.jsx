@@ -15,6 +15,10 @@ export default function Login() {
   const location = useLocation()
   const from = location.state?.from?.pathname || '/dashboard'
 
+  // Mobile detection
+  const isMobile = window.innerWidth <= 768
+  const isSmallMobile = window.innerWidth <= 480
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -224,7 +228,8 @@ export default function Login() {
                   top: '50%',
                   transform: 'translateY(-50%)',
                   color: '#a1a1aa',
-                  zIndex: 1
+                  zIndex: 0,
+                  pointerEvents: 'none'
                 }}>
                   <FaLock size={12} />
                 </div>
@@ -237,13 +242,16 @@ export default function Login() {
                   autoComplete="current-password"
                   style={{
                     width: '100%',
-                    padding: '10px 36px 10px 32px',
+                    padding: isMobile ? '12px 44px 12px 36px' : '10px 36px 10px 32px',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '6px',
-                    fontSize: '13px',
+                    fontSize: isMobile ? '16px' : '13px',
                     background: 'rgba(255, 255, 255, 0.05)',
                     color: 'white',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    boxSizing: 'border-box',
+                    position: 'relative',
+                    zIndex: 1
                   }}
                   onFocus={e => {
                     e.target.style.borderColor = '#3ecf8e'
@@ -259,24 +267,27 @@ export default function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
                     position: 'absolute',
-                    right: '10px',
+                    right: isMobile ? '12px' : '10px',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     background: 'none',
                     border: 'none',
                     color: '#a1a1aa',
                     cursor: 'pointer',
-                    padding: '3px',
+                    padding: isMobile ? '8px' : '3px',
                     borderRadius: '3px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    transition: 'color 0.2s ease'
+                    transition: 'color 0.2s ease',
+                    minWidth: isMobile ? '32px' : 'auto',
+                    minHeight: isMobile ? '32px' : 'auto',
+                    zIndex: 2
                   }}
                   onMouseEnter={e => e.currentTarget.style.color = 'white'}
                   onMouseLeave={e => e.currentTarget.style.color = '#a1a1aa'}
                 >
-                  {showPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                  {showPassword ? <FaEyeSlash size={isMobile ? 16 : 14} /> : <FaEye size={isMobile ? 16 : 14} />}
                 </button>
               </div>
             </div>

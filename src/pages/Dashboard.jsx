@@ -236,7 +236,7 @@ export default function Dashboard() {
                 margin: 0, 
                 fontSize: isTinyMobile ? 16 : isSmallMobile ? 17 : isMobile ? 18 : 28, 
                 fontWeight: 700, 
-                color: '#1f2937',
+                color: '#e2e8f0',
                 letterSpacing: '-0.02em',
                 lineHeight: 1.2
               }}>
@@ -245,7 +245,7 @@ export default function Dashboard() {
               <p style={{ 
                 margin: '6px 0 0', 
                 fontSize: isTinyMobile ? 10 : isSmallMobile ? 11 : isMobile ? 12 : 14, 
-                color: '#6b7280',
+                color: '#94a3b8',
                 fontWeight: 500,
                 display: 'flex',
                 alignItems: 'center',
@@ -257,7 +257,7 @@ export default function Dashboard() {
                   <>
                     <span style={{ 
                       background: 'rgba(99, 102, 241, 0.1)', 
-                      color: '#6366f1',
+                      color: '#a5b4fc',
                       padding: isMobile ? '3px 8px' : '4px 12px', 
                       borderRadius: 20,
                       fontSize: isMobile ? 10 : 12,
@@ -271,7 +271,7 @@ export default function Dashboard() {
                   <>
                     <span style={{ 
                       background: 'rgba(99, 102, 241, 0.1)', 
-                      color: '#6366f1',
+                      color: '#a5b4fc',
                       padding: isMobile ? '3px 8px' : '4px 12px', 
                       borderRadius: 20,
                       fontSize: isMobile ? 10 : 12,
@@ -287,26 +287,180 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {error && (
-          <div style={{
-            background: '#fee2e2',
-            border: '1px solid #fecaca',
-            color: '#991b1b',
-            padding: 16,
-            borderRadius: 12,
-            marginBottom: 24,
-            fontSize: 14
-          }}>
-            {error}
-          </div>
-        )}
+            {/* Quick Navigation Grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: isTinyMobile ? 8 : isSmallMobile ? 10 : 12,
+              marginBottom: isTinyMobile ? 16 : isSmallMobile ? 18 : 20
+            }}>
+              <Link to="/classes" style={{
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: isMobile ? 12 : 16,
+                padding: isTinyMobile ? '12px 8px' : isSmallMobile ? '14px 10px' : isMobile ? '16px 12px' : '20px 16px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: isTinyMobile ? 6 : isSmallMobile ? 8 : 10,
+                minHeight: isTinyMobile ? 80 : isSmallMobile ? 90 : 100
+              }}>
+                <div style={{
+                  width: isTinyMobile ? 32 : isSmallMobile ? 36 : isMobile ? 40 : 48,
+                  height: isTinyMobile ? 32 : isSmallMobile ? 36 : isMobile ? 40 : 48,
+                  borderRadius: isMobile ? 8 : 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: isTinyMobile ? 14 : isSmallMobile ? 16 : isMobile ? 18 : 20,
+                  color: 'white',
+                  marginBottom: 4,
+                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)'
+                }}>
+                  <FaLayerGroup />
+                </div>
+                <span style={{
+                  fontSize: isTinyMobile ? 11 : isSmallMobile ? 12 : isMobile ? 13 : 14,
+                  fontWeight: 600,
+                  color: '#1f2937',
+                  lineHeight: 1.2
+                }}>My Classes</span>
+              </Link>
+              
+              <Link to="/attendance" style={{
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: isMobile ? 12 : 16,
+                padding: isTinyMobile ? '12px 8px' : isSmallMobile ? '14px 10px' : isMobile ? '16px 12px' : '20px 16px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: isTinyMobile ? 6 : isSmallMobile ? 8 : 10,
+                minHeight: isTinyMobile ? 80 : isSmallMobile ? 90 : 100
+              }}>
+                <div style={{
+                  width: isTinyMobile ? 32 : isSmallMobile ? 36 : isMobile ? 40 : 48,
+                  height: isTinyMobile ? 32 : isSmallMobile ? 36 : isMobile ? 40 : 48,
+                  borderRadius: isMobile ? 8 : 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: isTinyMobile ? 14 : isSmallMobile ? 16 : isMobile ? 18 : 20,
+                  color: 'white',
+                  marginBottom: 4,
+                  background: 'linear-gradient(135deg, #10b981, #059669)'
+                }}>
+                  <FaUserCheck />
+                </div>
+                <span style={{
+                  fontSize: isTinyMobile ? 11 : isSmallMobile ? 12 : isMobile ? 13 : 14,
+                  fontWeight: 600,
+                  color: '#1f2937',
+                  lineHeight: 1.2
+                }}>Attendance</span>
+              </Link>
+              
+              <Link to="/enter-scores" style={{
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: isMobile ? 12 : 16,
+                padding: isTinyMobile ? '12px 8px' : isSmallMobile ? '14px 10px' : isMobile ? '16px 12px' : '20px 16px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: isTinyMobile ? 6 : isSmallMobile ? 8 : 10,
+                minHeight: isTinyMobile ? 80 : isSmallMobile ? 90 : 100
+              }}>
+                <div style={{
+                  width: isTinyMobile ? 32 : isSmallMobile ? 36 : isMobile ? 40 : 48,
+                  height: isTinyMobile ? 32 : isSmallMobile ? 36 : isMobile ? 40 : 48,
+                  borderRadius: isMobile ? 8 : 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: isTinyMobile ? 14 : isSmallMobile ? 16 : isMobile ? 18 : 20,
+                  color: 'white',
+                  marginBottom: 4,
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)'
+                }}>
+                  <FaChartBar />
+                </div>
+                <span style={{
+                  fontSize: isTinyMobile ? 11 : isSmallMobile ? 12 : isMobile ? 13 : 14,
+                  fontWeight: 600,
+                  color: '#1f2937',
+                  lineHeight: 1.2
+                }}>Enter Scores</span>
+              </Link>
+              
+              <Link to="/reports" style={{
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: isMobile ? 12 : 16,
+                padding: isTinyMobile ? '12px 8px' : isSmallMobile ? '14px 10px' : isMobile ? '16px 12px' : '20px 16px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: isTinyMobile ? 6 : isSmallMobile ? 8 : 10,
+                minHeight: isTinyMobile ? 80 : isSmallMobile ? 90 : 100
+              }}>
+                <div style={{
+                  width: isTinyMobile ? 32 : isSmallMobile ? 36 : isMobile ? 40 : 48,
+                  height: isTinyMobile ? 32 : isSmallMobile ? 36 : isMobile ? 40 : 48,
+                  borderRadius: isMobile ? 8 : 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: isTinyMobile ? 14 : isSmallMobile ? 16 : isMobile ? 18 : 20,
+                  color: 'white',
+                  marginBottom: 4,
+                  background: 'linear-gradient(135deg, #ec4899, #db2777)'
+                }}>
+                  <FaFileAlt />
+                </div>
+                <span style={{
+                  fontSize: isTinyMobile ? 11 : isSmallMobile ? 12 : isMobile ? 13 : 14,
+                  fontWeight: 600,
+                  color: '#1f2937',
+                  lineHeight: 1.2
+                }}>Reports</span>
+              </Link>
+            </div>
 
         {teacherData && teacherData.assignments && (
           <>
             {/* Stats Cards Grid */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
+              gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)',
               gap: isTinyMobile ? 8 : isSmallMobile ? 10 : isMobile ? 12 : 20,
               marginBottom: isTinyMobile ? 16 : isSmallMobile ? 18 : isMobile ? 20 : 32
             }}>

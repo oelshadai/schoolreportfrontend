@@ -44,9 +44,99 @@ export default function MobileNav() {
   // Only show on mobile
   if (window.innerWidth > 768) return null
 
+  // Hide footer navigation for teachers - only show floating menu button
+  if (user?.role === 'TEACHER') {
+    return (
+      <>
+        {/* Floating Menu Button for Teachers */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            zIndex: 40,
+            background: '#4f46e5',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            width: '56px',
+            height: '56px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 4px 20px rgba(79, 70, 229, 0.4)',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          {isOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+        </button>
+
+        {/* Dropdown Menu */}
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <div 
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0, 0, 0, 0.5)',
+                zIndex: 35,
+                backdropFilter: 'blur(4px)'
+              }}
+              onClick={() => setIsOpen(false)}
+            />
+            
+            {/* Menu */}
+            <div style={{
+              position: 'fixed',
+              top: '80px',
+              right: '16px',
+              zIndex: 45,
+              background: 'white',
+              borderRadius: '16px',
+              padding: '8px',
+              minWidth: '200px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
+              border: '1px solid #e5e7eb'
+            }}>
+              {getNavItems().map(item => {
+                const isActive = location.pathname.startsWith(item.to)
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setIsOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '12px 16px',
+                      borderRadius: '12px',
+                      textDecoration: 'none',
+                      color: isActive ? '#4f46e5' : '#374151',
+                      background: isActive ? 'rgba(79, 70, 229, 0.1)' : 'transparent',
+                      fontWeight: isActive ? '600' : '500',
+                      fontSize: '15px',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <item.Icon size={18} />
+                    {item.label}
+                  </Link>
+                )
+              })}
+            </div>
+          </>
+        )}
+      </>
+    )
+  }
+
   return (
     <>
-      {/* Mobile Navigation Bar */}
+      {/* Mobile Navigation Bar for Admins */}
       <nav style={{
         position: 'fixed',
         bottom: 0,
@@ -55,7 +145,7 @@ export default function MobileNav() {
         zIndex: 40,
         background: 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(20px)',
-        borderTop: '1px solid var(--gray-200)',
+        borderTop: '1px solid #e5e7eb',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -71,11 +161,11 @@ export default function MobileNav() {
         }}>
           {currentPage && (
             <>
-              <currentPage.Icon size={20} style={{ color: 'var(--primary)' }} />
+              <currentPage.Icon size={20} style={{ color: '#4f46e5' }} />
               <span style={{
                 fontSize: '16px',
                 fontWeight: '600',
-                color: 'var(--gray-900)'
+                color: '#111827'
               }}>
                 {currentPage.label}
               </span>
@@ -87,7 +177,7 @@ export default function MobileNav() {
         <button
           onClick={() => setIsOpen(!isOpen)}
           style={{
-            background: 'var(--primary)',
+            background: '#4f46e5',
             color: 'white',
             border: 'none',
             borderRadius: '12px',
@@ -130,7 +220,7 @@ export default function MobileNav() {
             padding: '8px',
             minWidth: '200px',
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
-            border: '1px solid var(--gray-200)',
+            border: '1px solid #e5e7eb',
             animation: 'slideUp 0.2s ease-out'
           }}>
             <style>{`
@@ -160,7 +250,7 @@ export default function MobileNav() {
                     padding: '12px 16px',
                     borderRadius: '12px',
                     textDecoration: 'none',
-                    color: isActive ? 'var(--primary)' : 'var(--gray-700)',
+                    color: isActive ? '#4f46e5' : '#374151',
                     background: isActive ? 'rgba(79, 70, 229, 0.1)' : 'transparent',
                     fontWeight: isActive ? '600' : '500',
                     fontSize: '15px',

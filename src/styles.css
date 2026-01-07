@@ -41,12 +41,21 @@
 }
 
 * { box-sizing: border-box; }
-html, body, #root { height: 100%; }
+html, body, #root { 
+	height: 100%; 
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	overflow-x: hidden;
+}
 
 /* Modern Typography */
 body { 
 	margin: 0; 
-	background: var(--bg); 
+	background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+	background-attachment: fixed;
+	background-size: cover;
+	background-repeat: no-repeat;
 	color: var(--text); 
 	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 	font-size: 16px;
@@ -56,18 +65,31 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	text-rendering: optimizeLegibility;
+	min-height: 100vh;
+	width: 100vw;
 }
 
 a { color: var(--primary); text-decoration: none; transition: color 0.2s ease; }
 a:hover { color: var(--secondary); }
-.app { min-height: 100%; background: var(--bg); }
+.app { 
+	min-height: 100vh; 
+	height: 100%;
+	width: 100vw;
+	background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+	background-attachment: fixed;
+	background-size: cover;
+	background-repeat: no-repeat;
+	overflow-x: hidden;
+}
 
 /* Modern Container System */
 .container { 
 	max-width: 100vw; 
-	margin: 0 auto; 
+	margin: 0; 
 	padding: var(--space-4) var(--space-4); 
 	overflow-x: hidden;
+	min-height: 100vh;
+	background: transparent;
 }
 
 @media (min-width: 640px) { .container { max-width: 640px; } }
@@ -1241,9 +1263,19 @@ input.error:focus, select.error:focus, textarea.error:focus {
   .page, .container {
     padding: 20px 12px !important;
     padding-top: 90px !important;
+    padding-bottom: 20px !important;
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    background-attachment: fixed !important;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
     min-height: 100vh !important;
+    height: 100% !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
     color: white !important;
+    overflow-x: hidden !important;
+    position: relative !important;
   }
   
   .page-header {
@@ -1276,14 +1308,18 @@ input.error:focus, select.error:focus, textarea.error:focus {
   }
   
   .modal {
-    padding: 10px !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
   }
   
   .modal-content {
-    width: 100% !important;
+    width: 100vw !important;
+    height: 100vh !important;
     max-width: none !important;
-    max-height: 90vh !important;
-    border-radius: 12px !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
   }
   
   .card, .tile {
@@ -1305,17 +1341,29 @@ input.error:focus, select.error:focus, textarea.error:focus {
     -webkit-text-size-adjust: 100% !important;
     -webkit-font-smoothing: antialiased !important;
     overflow-x: hidden !important;
+    width: 100vw !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
   /* Global page styling for mobile */
   .page, .container, #root > div {
     padding: 20px 12px !important;
     padding-top: 90px !important;
+    padding-bottom: 20px !important;
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    background-attachment: fixed !important;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
     min-height: 100vh !important;
+    height: 100% !important;
     color: white !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+    position: relative !important;
   }
   
   /* Teacher page specific mobile fixes */

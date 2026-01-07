@@ -365,15 +365,22 @@ export default function Teachers() {
     <div 
       className="container" 
       style={{
-        maxWidth: 1400,
-        margin: '0 auto',
+        maxWidth: '100%',
+        margin: 0,
         padding: isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
         paddingTop: isMobile ? '90px' : '100px',
+        paddingBottom: isMobile ? '20px' : '40px',
         background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+        backgroundAttachment: 'fixed',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
         minHeight: '100vh',
+        height: '100%',
         color: 'white',
-        width: '100%',
-        boxSizing: 'border-box'
+        width: '100vw',
+        boxSizing: 'border-box',
+        position: 'relative',
+        overflow: 'auto'
       }}
     >
       {/* Enhanced mobile-specific style injection */}
