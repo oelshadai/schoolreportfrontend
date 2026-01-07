@@ -242,7 +242,7 @@ export default function Login() {
                   autoComplete="current-password"
                   style={{
                     width: '100%',
-                    padding: isMobile ? '12px 22px 12px 36px' : '10px 36px 10px 32px',
+                    padding: isMobile ? '12px 10px 12px 36px' : '10px 36px 10px 32px',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '6px',
                     fontSize: isMobile ? '16px' : '13px',
@@ -267,28 +267,28 @@ export default function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
                     position: 'absolute',
-                    right: isMobile ? '2px' : '10px',
+                    right: '1px',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     background: 'rgba(255, 255, 255, 0.1)',
                     border: '1px solid rgba(255, 255, 255, 0.2)',
                     color: '#a1a1aa',
                     cursor: 'pointer',
-                    padding: '1px',
-                    borderRadius: '2px',
+                    padding: '0px',
+                    borderRadius: '1px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     transition: 'color 0.2s ease',
-                    width: isMobile ? '16px' : 'auto',
-                    height: isMobile ? '16px' : 'auto',
+                    width: '5px',
+                    height: '5px',
                     zIndex: 10,
                     pointerEvents: 'auto'
                   }}
                   onMouseEnter={e => e.currentTarget.style.color = 'white'}
                   onMouseLeave={e => e.currentTarget.style.color = '#a1a1aa'}
                 >
-                  {showPassword ? <FaEyeSlash size={isMobile ? 16 : 14} /> : <FaEye size={isMobile ? 16 : 14} />}
+                  {showPassword ? <FaEyeSlash size={3} /> : <FaEye size={3} />}
                 </button>
               </div>
             </div>
