@@ -155,7 +155,7 @@ export default function SchoolSettings() {
         // Add logo file
         payload.append('logo', logoFile.blob, logoFile.fileName || 'school_logo.jpg');
         
-        // Add other settings
+        // Add other settings (exclude logo from settings object)
         Object.entries(settings).forEach(([key, value]) => {
           if (key !== 'logo' && value !== null && value !== undefined) {
             payload.append(key, value);
@@ -164,8 +164,9 @@ export default function SchoolSettings() {
         
         // Don't set Content-Type header - let browser set it for FormData
       } else {
-        // Regular JSON payload
+        // Regular JSON payload - exclude logo field entirely if no new logo
         const cleanedSettings = { ...settings };
+        delete cleanedSettings.logo; // Remove logo field completely
         
         // Convert empty website to null
         if (!cleanedSettings.website || cleanedSettings.website.trim() === '') {
@@ -174,7 +175,7 @@ export default function SchoolSettings() {
 
         // Only send fields the API accepts
         const allowedKeys = [
-          'id','name','address','location','phone_number','email','logo','motto','website','current_academic_year','current_term',
+          'id','name','address','location','phone_number','email','motto','website','current_academic_year','current_term',
           'score_entry_mode','is_active','principal_name','term_closing_date','term_reopening_date','show_promotion_on_terminal',
           'report_template','report_header_text','report_footer_text',
           'show_class_average','show_position_in_class','show_attendance','show_behavior_comments',
