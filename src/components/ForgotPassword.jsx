@@ -14,20 +14,41 @@ export default function ForgotPassword({ isOpen, onClose, userType = 'admin' }) 
     setError('')
     setMessage('')
 
+    // Validate input
+    if (!formData.username && !formData.email) {
+      setError('Please enter either username or email')
+      setLoading(false)
+      return
+    }
+
     try {
       const endpoint = userType === 'student' 
         ? '/students/auth/forgot-password/' 
         : '/auth/forgot-password/'
       
+      console.log('Sending password reset request to:', endpoint)
+      console.log('Request data:', formData)
+      
       const response = await api.post(endpoint, formData)
-      setMessage(response.data.message)
+      console.log('Password reset response:', response.data)
+      
+      setMessage(response.data.message || 'Password reset instructions sent successfully')
       
       // Show temp password if email failed
       if (response.data.temp_password) {
         setMessage(`${response.data.message}. Temporary password: ${response.data.temp_password}`)
       }
+      
+      // Clear form on success
+      setFormData({ username: '', email: '' })
     } catch (error) {
-      setError(error.response?.data?.error || 'Failed to reset password')
+      console.error('Password reset error:', error)
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.detail || 
+                          error.response?.data?.message ||
+                          error.normalizedMessage ||
+                          'Failed to reset password. Please try again.'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

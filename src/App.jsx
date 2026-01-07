@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
 import LoginSelection from './pages/LoginSelection'
 import RegisterSchool from './pages/RegisterSchool'
+import PasswordReset from './pages/PasswordReset'
 import Landing from './pages/Landing'
 import Teachers from './pages/Teachers'
 import Dashboard from './pages/Dashboard'
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/login-select" element={<LoginSelection />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register-school" element={<RegisterSchool />} />
+        <Route path="/reset-password/:token" element={<PasswordReset />} />
         <Route path="/student-login" element={<StudentLogin />} />
         <Route path="/student-portal" element={<StudentLogin />} />
         <Route path="/student-portal" element={<StudentPortal />} />
