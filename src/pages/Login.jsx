@@ -262,33 +262,25 @@ export default function Login() {
                     e.target.style.boxShadow = 'none'
                   }}
                 />
+              </div>
+              <div style={{
+                marginTop: '8px',
+                textAlign: 'right'
+              }}>
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
-                    position: 'absolute',
-                    right: '1px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    color: '#a1a1aa',
+                    background: 'none',
+                    border: 'none',
+                    color: '#3ecf8e',
                     cursor: 'pointer',
-                    padding: '0px',
-                    borderRadius: '1px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'color 0.2s ease',
-                    width: '5px',
-                    height: '5px',
-                    zIndex: 10,
-                    pointerEvents: 'auto'
+                    fontSize: '12px',
+                    textDecoration: 'underline',
+                    padding: '4px 0'
                   }}
-                  onMouseEnter={e => e.currentTarget.style.color = 'white'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#a1a1aa'}
                 >
-                  {showPassword ? <FaEyeSlash size={3} /> : <FaEye size={3} />}
+                  {showPassword ? 'Hide' : 'Show'}
                 </button>
               </div>
             </div>
