@@ -92,6 +92,23 @@ a:hover { color: var(--secondary); }
 	background: transparent;
 }
 
+/* Desktop layout with sidebar */
+@media (min-width: 769px) {
+	.container {
+		margin-left: 260px;
+		padding-top: calc(64px + var(--space-4));
+		transition: margin-left 0.3s ease;
+	}
+	
+	.container.sidebar-collapsed {
+		margin-left: 70px;
+	}
+	
+	body {
+		padding-top: 0;
+	}
+}
+
 @media (min-width: 640px) { .container { max-width: 640px; } }
 @media (min-width: 768px) { .container { max-width: 768px; padding: var(--space-6) var(--space-4); } }
 @media (min-width: 1024px) { .container { max-width: 1024px; } }

@@ -27,14 +27,16 @@ import GradeBook from './pages/GradeBook'
 import StudentDetails from './pages/StudentDetails'
 import AssignmentView from './pages/AssignmentView'
 import { NotificationProvider } from './components/NotificationSystem'
+import { SidebarProvider } from './state/SidebarContext'
 import NetworkStatus from './components/NetworkStatus'
 
 export default function App() {
   return (
-    <NotificationProvider>
-      <div className="app">
-        <NetworkStatus />
-        <Routes>
+    <SidebarProvider>
+      <NotificationProvider>
+        <div className="app">
+          <NetworkStatus />
+          <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login-select" element={<LoginSelection />} />
         <Route path="/login" element={<Login />} />
@@ -197,5 +199,6 @@ export default function App() {
       </Routes>
     </div>
     </NotificationProvider>
+    </SidebarProvider>
   )
 }
