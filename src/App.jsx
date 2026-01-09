@@ -20,8 +20,9 @@ import StudentLogin from './pages/StudentLogin'
 import StudentDashboard from './pages/StudentDashboard'
 import VirtualClassroom from './pages/VirtualClassroom'
 import ProtectedRoute from './components/ProtectedRoute'
-import Navbar from './components/Navbar'
-import MobileNav from './components/MobileNav'
+import Navbar from './components/Navbar-mobile-first'
+import BottomNavigation from './components/BottomNavigation'
+import ResponsiveLayout from './components/ResponsiveLayout'
 import Attendance from './pages/Attendance'
 import AttendanceDashboard from './pages/AttendanceDashboard'
 import GradeBook from './pages/GradeBook'
@@ -37,9 +38,10 @@ export default function App() {
       <NotificationProvider>
         <div className="app">
           <NetworkStatus />
-          <Routes>
+          <ResponsiveLayout>
+            <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login-select" element={<LoginSelection />} />
+        <Route path="/login-select" element={<LoginSelection showNavigation={false} />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register-school" element={<RegisterSchool />} />
         <Route path="/reset-password/:token" element={<PasswordReset />} />
@@ -52,9 +54,7 @@ export default function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Navbar />
               <Dashboard />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -62,9 +62,7 @@ export default function App() {
           path="/classes"
           element={
             <ProtectedRoute>
-              <Navbar />
               <Classes />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -72,9 +70,7 @@ export default function App() {
           path="/students"
           element={
             <ProtectedRoute>
-              <Navbar />
               <Students />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -82,9 +78,7 @@ export default function App() {
           path="/subjects"
           element={
             <ProtectedRoute roles={["SCHOOL_ADMIN","PRINCIPAL"]}>
-              <Navbar />
               <Subjects />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -92,9 +86,7 @@ export default function App() {
           path="/subjects-enhanced"
           element={
             <ProtectedRoute roles={["SCHOOL_ADMIN","PRINCIPAL"]}>
-              <Navbar />
               <SubjectsEnhanced />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -102,9 +94,7 @@ export default function App() {
           path="/scores"
           element={
             <ProtectedRoute roles={["TEACHER"]}>
-              <Navbar />
               <EnterScores />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -112,9 +102,7 @@ export default function App() {
           path="/classroom"
           element={
             <ProtectedRoute>
-              <Navbar />
               <ClassroomHub />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -122,9 +110,7 @@ export default function App() {
           path="/teachers"
           element={
             <ProtectedRoute roles={["SCHOOL_ADMIN","PRINCIPAL"]}>
-              <Navbar />
               <Teachers />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -132,9 +118,7 @@ export default function App() {
           path="/settings"
           element={
             <ProtectedRoute roles={["SCHOOL_ADMIN","PRINCIPAL"]}>
-              <Navbar />
               <SchoolSettings />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -142,9 +126,7 @@ export default function App() {
           path="/attendance"
           element={
             <ProtectedRoute roles={["TEACHER"]}>
-              <Navbar />
               <Attendance />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -152,9 +134,7 @@ export default function App() {
           path="/attendance-dashboard"
           element={
             <ProtectedRoute roles={["SCHOOL_ADMIN","PRINCIPAL"]}>
-              <Navbar />
               <AttendanceDashboard />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -162,9 +142,7 @@ export default function App() {
           path="/gradebook"
           element={
             <ProtectedRoute roles={["TEACHER"]}>
-              <Navbar />
               <GradeBook />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -172,9 +150,7 @@ export default function App() {
           path="/student-details"
           element={
             <ProtectedRoute roles={["TEACHER", "SCHOOL_ADMIN", "PRINCIPAL"]}>
-              <Navbar />
               <StudentDetails />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -182,9 +158,7 @@ export default function App() {
           path="/reports"
           element={
             <ProtectedRoute>
-              <Navbar />
               <Reports />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
@@ -192,13 +166,12 @@ export default function App() {
           path="/vclass"
           element={
             <ProtectedRoute>
-              <Navbar />
               <VirtualClassroom />
-              <MobileNav />
             </ProtectedRoute>
           }
         />
       </Routes>
+            </ResponsiveLayout>
     </div>
     </NotificationProvider>
     </SidebarProvider>
