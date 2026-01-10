@@ -6,6 +6,7 @@ import { AuthProvider } from './state/AuthContext'
 import './styles.css'
 import './styles/design-system.css'
 import './styles/responsive-layout.css'
+import './styles/desktop-ui-enhancements.css'
 import './styles-dark-green-theme.css'
 import './styles-responsive-system.css'
 
