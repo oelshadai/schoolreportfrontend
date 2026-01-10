@@ -36,15 +36,15 @@
   }
 }
 
-/* Desktop - Add sidebar support */
+/* Desktop - No sidebar, full width content */
 @media (min-width: 1024px) {
   .responsive-main {
-    margin-left: 260px; /* Sidebar width when expanded */
+    margin-left: 0;
     transition: margin-left var(--transition-base);
   }
 
   .responsive-main.sidebar-collapsed {
-    margin-left: 80px; /* Collapsed sidebar width */
+    margin-left: 0;
   }
 }
 
@@ -66,7 +66,7 @@
 
 @media (min-width: 1024px) {
   .responsive-content-wrapper {
-    max-width: calc(100% - 260px);
+    max-width: 100%;
     padding: var(--space-8);
   }
 }
