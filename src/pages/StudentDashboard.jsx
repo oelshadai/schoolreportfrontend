@@ -5,7 +5,7 @@ import {
   FaClock, FaCheckCircle, FaExclamationTriangle, FaBookOpen,
   FaEye, FaUpload, FaDownload, FaUserCircle, FaComments,
   FaArrowRight, FaGraduationCap, FaChartLine, FaChartBar,
-  FaClipboardList
+  FaClipboardList, FaBars, FaTimes
 } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../state/AuthContext'
@@ -14,27 +14,19 @@ import api from '../utils/api'
 export default function StudentDashboard() {
   const { logout } = useAuth()
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('home')
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [student, setStudent] = useState(null)
   const [assignments, setAssignments] = useState([])
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [showNotifications, setShowNotifications] = useState(false)
-  const [showProfile, setShowProfile] = useState(false)
-  const [selectedClassmate, setSelectedClassmate] = useState(null)
-  const [newMessage, setNewMessage] = useState('')
-  const [chatMessages, setChatMessages] = useState([])
-  const [classmates, setClassmates] = useState([])
-  const [announcements, setAnnouncements] = useState([])
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [availableTasks, setAvailableTasks] = useState([])
   const [reports, setReports] = useState([
     { id: 1, title: 'Term 1 Report', term: 'Term 1', date: new Date(), status: 'Available' },
     { id: 2, title: 'Mid-term Report', term: 'Mid-term', date: new Date(), status: 'Available' }
   ])
-  const [availableTasks, setAvailableTasks] = useState([])
-  const [selectedTask, setSelectedTask] = useState(null)
   
-  const isSmallMobile = window.innerWidth <= 480
-
   const isMobile = window.innerWidth <= 768
 
   useEffect(() => {
@@ -155,18 +147,19 @@ export default function StudentDashboard() {
   if (loading) {
     return (
       <div style={{
+        width: '100vw',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
+        background: '#f8fafc',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <div style={{ textAlign: 'center', color: 'white' }}>
+        <div style={{ textAlign: 'center', color: '#374151' }}>
           <div style={{
             width: 60,
             height: 60,
-            border: '4px solid rgba(255,255,255,0.1)',
-            borderTop: '4px solid #10b981',
+            border: '4px solid #e5e7eb',
+            borderTop: '4px solid #16a34a',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 16px'
@@ -179,116 +172,131 @@ export default function StudentDashboard() {
 
   return (
     <div style={{
+      width: '100vw',
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
-      paddingTop: isMobile ? '60px' : '80px'
+      background: '#f8fafc',
+      paddingTop: '160px',
+      paddingLeft: '20px',
+      paddingRight: '20px',
+      paddingBottom: '40px',
+      overflowX: 'hidden'
     }}>
       <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        
-        @keyframes slideUp {
-          from { transform: translateY(20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .animate-slide-up {
-          animation: slideUp 0.3s ease-out;
-        }
-        
-        .chat-bubble {
-          max-width: 70%;
-          padding: 8px 12px;
-          border-radius: 16px;
-          margin-bottom: 8px;
-          word-wrap: break-word;
-        }
-        
-        .chat-bubble.sent {
-          background: linear-gradient(135deg, #10b981, #059669);
-          color: white;
-          margin-left: auto;
-          border-bottom-right-radius: 4px;
-        }
-        
-        .chat-bubble.received {
-          background: rgba(71, 85, 105, 0.8);
-          color: white;
-          margin-right: auto;
-          border-bottom-left-radius: 4px;
-        }
       `}</style>
 
-      {/* Header */}
-      <div style={{
-        background: 'rgba(15, 23, 42, 0.95)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
-        padding: isMobile ? '12px 16px' : '16px 24px',
+      {/* Professional Navbar */}
+      <nav style={{
+        background: 'white',
+        borderBottom: '1px solid #e5e7eb',
+        padding: '0 24px',
         position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
-        zIndex: 50
+        zIndex: 50,
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          height: '64px',
           maxWidth: '1200px',
           margin: '0 auto'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '12px' }}>
+          {/* Logo & Student Info */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{
-              width: isMobile ? 32 : 40,
-              height: isMobile ? 32 : 40,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #10b981, #059669)',
+              width: 40,
+              height: 40,
+              borderRadius: '8px',
+              background: '#16a34a',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'white',
               fontWeight: '700',
-              fontSize: isMobile ? '14px' : '16px'
+              fontSize: '16px'
             }}>
               {student?.name?.charAt(0) || 'S'}
             </div>
             <div>
-              <h1 style={{
+              <h2 style={{
                 margin: 0,
-                color: 'white',
-                fontSize: isMobile ? '16px' : '18px',
+                color: '#1f2937',
+                fontSize: '18px',
                 fontWeight: '700'
               }}>
-                {student?.name}
-              </h1>
+                {student?.name || 'Student Portal'}
+              </h2>
               <p style={{
                 margin: 0,
-                color: '#94a3b8',
-                fontSize: isMobile ? '12px' : '13px'
+                color: '#6b7280',
+                fontSize: '13px'
               }}>
                 {student?.class} • ID: {student?.student_id}
               </p>
             </div>
           </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+
+          {/* Desktop Navigation */}
+          <div style={{
+            display: isMobile ? 'none' : 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: FaHome },
+              { id: 'assignments', label: 'Assignments', icon: FaTasks },
+              { id: 'grades', label: 'Grades', icon: FaAward },
+              { id: 'schedule', label: 'Schedule', icon: FaCalendar },
+              { id: 'reports', label: 'Reports', icon: FaFileAlt }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  padding: '8px 16px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  background: activeTab === tab.id ? '#16a34a' : 'transparent',
+                  color: activeTab === tab.id ? 'white' : '#6b7280',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <tab.icon size={14} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Right Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Notifications */}
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
               style={{
-                background: 'rgba(71, 85, 105, 0.3)',
-                border: '1px solid rgba(71, 85, 105, 0.5)',
-                color: '#94a3b8',
+                background: 'transparent',
+                border: '1px solid #e5e7eb',
+                color: '#6b7280',
                 borderRadius: '8px',
-                padding: isMobile ? '6px' : '8px',
+                padding: '8px',
                 cursor: 'pointer',
                 position: 'relative'
               }}
             >
-              <FaBell size={isMobile ? 14 : 16} />
-              {notifications.filter(n => !n.read).length > 0 && (
+              <FaBell size={16} />
+              {notifications.length > 0 && (
                 <div style={{
                   position: 'absolute',
                   top: '-2px',
@@ -297,238 +305,177 @@ export default function StudentDashboard() {
                   height: '8px',
                   background: '#ef4444',
                   borderRadius: '50%',
-                  border: '1px solid rgba(15, 23, 42, 0.9)'
+                  border: '2px solid white'
                 }} />
               )}
             </button>
-            
-            <button 
-              onClick={() => setShowProfile(!showProfile)}
-              style={{
-                background: 'rgba(71, 85, 105, 0.3)',
-                border: '1px solid rgba(71, 85, 105, 0.5)',
-                color: '#94a3b8',
-                borderRadius: '8px',
-                padding: isMobile ? '6px' : '8px',
-                cursor: 'pointer'
-              }}
-            >
-              <FaUserCircle size={isMobile ? 14 : 16} />
-            </button>
-            
+
+            {/* Mobile Menu Toggle */}
+            {isMobile && (
+              <button 
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #e5e7eb',
+                  color: '#6b7280',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                {showMobileMenu ? <FaTimes size={16} /> : <FaBars size={16} />}
+              </button>
+            )}
+
+            {/* Logout */}
             <button 
               onClick={handleLogout}
               style={{
-                background: 'rgba(239, 68, 68, 0.2)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                color: '#ef4444',
+                background: '#fef2f2',
+                border: '1px solid #fecaca',
+                color: '#dc2626',
                 borderRadius: '8px',
-                padding: isMobile ? '6px' : '8px',
-                cursor: 'pointer'
-              }}
-            >
-              <FaSignOutAlt size={isMobile ? 14 : 16} />
-            </button>
-          </div>
-          
-          {showNotifications && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              right: 0,
-              marginTop: '8px',
-              width: isMobile ? '280px' : '320px',
-              background: 'rgba(15, 23, 42, 0.95)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(71, 85, 105, 0.3)',
-              borderRadius: '12px',
-              padding: '16px',
-              zIndex: 100,
-              maxHeight: '400px',
-              overflowY: 'auto'
-            }}>
-              <h4 style={{
-                margin: '0 0 12px 0',
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                Notifications
-              </h4>
-              
-              {notifications.length === 0 ? (
-                <p style={{
-                  margin: 0,
-                  color: '#94a3b8',
-                  fontSize: '12px',
-                  textAlign: 'center',
-                  padding: '20px 0'
-                }}>
-                  No new notifications
-                </p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {notifications.slice(0, 5).map(notification => (
-                    <div key={notification.id} style={{
-                      background: notification.read ? 'rgba(30, 41, 59, 0.4)' : 'rgba(16, 185, 129, 0.1)',
-                      border: `1px solid ${notification.read ? 'rgba(71, 85, 105, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
-                      borderRadius: '8px',
-                      padding: '10px',
-                      cursor: 'pointer'
-                    }}>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '8px'
-                      }}>
-                        <div style={{
-                          width: '6px',
-                          height: '6px',
-                          borderRadius: '50%',
-                          background: notification.type === 'assignment' ? '#10b981' : '#3b82f6',
-                          marginTop: '4px',
-                          flexShrink: 0
-                        }} />
-                        <div style={{ flex: 1 }}>
-                          <h5 style={{
-                            margin: '0 0 2px 0',
-                            color: 'white',
-                            fontSize: '12px',
-                            fontWeight: '600'
-                          }}>
-                            {notification.title}
-                          </h5>
-                          <p style={{
-                            margin: '0 0 4px 0',
-                            color: '#94a3b8',
-                            fontSize: '11px',
-                            lineHeight: '1.3'
-                          }}>
-                            {notification.message}
-                          </p>
-                          <p style={{
-                            margin: 0,
-                            color: '#64748b',
-                            fontSize: '10px'
-                          }}>
-                            {new Date(notification.timestamp).toLocaleTimeString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div style={{
-        background: 'rgba(30, 41, 59, 0.8)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
-        padding: isMobile ? '8px 16px' : '12px 24px',
-        position: 'fixed',
-        top: isMobile ? '60px' : '80px',
-        left: 0,
-        right: 0,
-        zIndex: 40
-      }}>
-        <div style={{
-          display: 'flex',
-          gap: isMobile ? '4px' : '8px',
-          maxWidth: '1200px',
-          margin: '0 auto',
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none'
-        }}>
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: FaChartLine },
-            { id: 'assignments', label: 'Tasks', icon: FaTasks },
-            { id: 'live-tasks', label: 'Live Tasks', icon: FaClock },
-            { id: 'grades', label: 'Grades', icon: FaAward },
-            { id: 'schedule', label: 'Schedule', icon: FaCalendar },
-            { id: 'classmates', label: 'Classmates', icon: FaUsers },
-            { id: 'reports', label: 'Reports', icon: FaFileAlt }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: isMobile ? '8px 12px' : '10px 16px',
-                border: 'none',
-                borderRadius: '8px',
-                background: activeTab === tab.id ? 'linear-gradient(135deg, #10b981, #059669)' : 'transparent',
-                color: activeTab === tab.id ? 'white' : '#94a3b8',
+                padding: '8px 12px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                fontSize: isMobile ? '12px' : '13px',
-                fontWeight: '600',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.2s ease'
+                fontSize: '14px',
+                fontWeight: '500'
               }}
             >
-              <tab.icon size={isMobile ? 12 : 14} />
-              {!isSmallMobile && tab.label}
+              <FaSignOutAlt size={14} />
+              {!isMobile && 'Logout'}
             </button>
-          ))}
+          </div>
         </div>
-      </div>
 
+        {/* Mobile Menu */}
+        {isMobile && showMobileMenu && (
+          <div style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            background: 'white',
+            border: '1px solid #e5e7eb',
+            borderTop: 'none',
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}>
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: FaHome },
+              { id: 'assignments', label: 'Assignments', icon: FaTasks },
+              { id: 'grades', label: 'Grades', icon: FaAward },
+              { id: 'schedule', label: 'Schedule', icon: FaCalendar },
+              { id: 'reports', label: 'Reports', icon: FaFileAlt }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id)
+                  setShowMobileMenu(false)
+                }}
+                style={{
+                  padding: '12px 16px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  background: activeTab === tab.id ? '#f0fdf4' : 'transparent',
+                  color: activeTab === tab.id ? '#16a34a' : '#6b7280',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  textAlign: 'left',
+                  width: '100%'
+                }}
+              >
+                <tab.icon size={16} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </nav>
       {/* Main Content */}
       <div style={{
-        padding: isMobile ? '16px' : '24px',
-        paddingTop: isMobile ? '120px' : '140px',
+        paddingTop: '80px',
         maxWidth: '1200px',
-        margin: '0 auto'
+        margin: '0 auto',
+        padding: '80px 24px 40px'
       }}>
-        
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
-          <div className="animate-slide-up">
+          <div>
+            {/* Welcome Section */}
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '24px',
+              marginBottom: '24px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+              border: '1px solid #e5e7eb'
+            }}>
+              <h1 style={{
+                margin: '0 0 8px 0',
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#1f2937'
+              }}>
+                Welcome back, {student?.name}!
+              </h1>
+              <p style={{
+                margin: 0,
+                color: '#6b7280',
+                fontSize: '16px'
+              }}>
+                Here's what's happening with your studies today.
+              </p>
+            </div>
+
             {/* Stats Cards */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)',
-              gap: isMobile ? '12px' : '16px',
-              marginBottom: isMobile ? '20px' : '24px'
+              gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+              gap: '16px',
+              marginBottom: '24px'
             }}>
               <div style={{
-                background: 'rgba(15, 23, 42, 0.9)',
+                background: 'white',
                 borderRadius: '12px',
-                padding: isMobile ? '16px 12px' : '20px 16px',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
+                padding: '20px',
+                border: '1px solid #e5e7eb',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
                 textAlign: 'center'
               }}>
                 <div style={{
-                  width: isMobile ? 32 : 40,
-                  height: isMobile ? 32 : 40,
+                  width: 40,
+                  height: 40,
                   borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                  background: '#16a34a',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  margin: '0 auto 8px'
+                  margin: '0 auto 12px'
                 }}>
-                  <FaGraduationCap style={{ color: 'white', fontSize: isMobile ? '14px' : '18px' }} />
+                  <FaGraduationCap style={{ color: 'white', fontSize: '18px' }} />
                 </div>
                 <h3 style={{
                   margin: '0 0 4px 0',
-                  color: 'white',
-                  fontSize: isMobile ? '18px' : '24px',
+                  color: '#1f2937',
+                  fontSize: '24px',
                   fontWeight: '700'
                 }}>
-                  {student?.grade_average || 0}%
+                  {student?.grade_average || 85}%
                 </h3>
                 <p style={{
                   margin: 0,
-                  color: '#94a3b8',
-                  fontSize: isMobile ? '10px' : '12px',
+                  color: '#6b7280',
+                  fontSize: '12px',
                   fontWeight: '500'
                 }}>
                   Grade Average
@@ -536,36 +483,37 @@ export default function StudentDashboard() {
               </div>
 
               <div style={{
-                background: 'rgba(15, 23, 42, 0.9)',
+                background: 'white',
                 borderRadius: '12px',
-                padding: isMobile ? '16px 12px' : '20px 16px',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
+                padding: '20px',
+                border: '1px solid #e5e7eb',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
                 textAlign: 'center'
               }}>
                 <div style={{
-                  width: isMobile ? 32 : 40,
-                  height: isMobile ? 32 : 40,
+                  width: 40,
+                  height: 40,
                   borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  background: '#3b82f6',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  margin: '0 auto 8px'
+                  margin: '0 auto 12px'
                 }}>
-                  <FaTasks style={{ color: 'white', fontSize: isMobile ? '14px' : '18px' }} />
+                  <FaTasks style={{ color: 'white', fontSize: '18px' }} />
                 </div>
                 <h3 style={{
                   margin: '0 0 4px 0',
-                  color: 'white',
-                  fontSize: isMobile ? '18px' : '24px',
+                  color: '#1f2937',
+                  fontSize: '24px',
                   fontWeight: '700'
                 }}>
                   {assignments.filter(a => a.status === 'graded').length}
                 </h3>
                 <p style={{
                   margin: 0,
-                  color: '#94a3b8',
-                  fontSize: isMobile ? '10px' : '12px',
+                  color: '#6b7280',
+                  fontSize: '12px',
                   fontWeight: '500'
                 }}>
                   Completed
@@ -573,36 +521,37 @@ export default function StudentDashboard() {
               </div>
 
               <div style={{
-                background: 'rgba(15, 23, 42, 0.9)',
+                background: 'white',
                 borderRadius: '12px',
-                padding: isMobile ? '16px 12px' : '20px 16px',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
+                padding: '20px',
+                border: '1px solid #e5e7eb',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
                 textAlign: 'center'
               }}>
                 <div style={{
-                  width: isMobile ? 32 : 40,
-                  height: isMobile ? 32 : 40,
+                  width: 40,
+                  height: 40,
                   borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  background: '#f59e0b',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  margin: '0 auto 8px'
+                  margin: '0 auto 12px'
                 }}>
-                  <FaClock style={{ color: 'white', fontSize: isMobile ? '14px' : '18px' }} />
+                  <FaClock style={{ color: 'white', fontSize: '18px' }} />
                 </div>
                 <h3 style={{
                   margin: '0 0 4px 0',
-                  color: 'white',
-                  fontSize: isMobile ? '18px' : '24px',
+                  color: '#1f2937',
+                  fontSize: '24px',
                   fontWeight: '700'
                 }}>
                   {assignments.filter(a => a.status === 'pending').length}
                 </h3>
                 <p style={{
                   margin: 0,
-                  color: '#94a3b8',
-                  fontSize: isMobile ? '10px' : '12px',
+                  color: '#6b7280',
+                  fontSize: '12px',
                   fontWeight: '500'
                 }}>
                   Pending
@@ -610,287 +559,134 @@ export default function StudentDashboard() {
               </div>
 
               <div style={{
-                background: 'rgba(15, 23, 42, 0.9)',
+                background: 'white',
                 borderRadius: '12px',
-                padding: isMobile ? '16px 12px' : '20px 16px',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
+                padding: '20px',
+                border: '1px solid #e5e7eb',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
                 textAlign: 'center'
               }}>
                 <div style={{
-                  width: isMobile ? 32 : 40,
-                  height: isMobile ? 32 : 40,
+                  width: 40,
+                  height: 40,
                   borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                  background: '#8b5cf6',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  margin: '0 auto 8px'
+                  margin: '0 auto 12px'
                 }}>
-                  <FaUsers style={{ color: 'white', fontSize: isMobile ? '14px' : '18px' }} />
+                  <FaAward style={{ color: 'white', fontSize: '18px' }} />
                 </div>
                 <h3 style={{
                   margin: '0 0 4px 0',
-                  color: 'white',
-                  fontSize: isMobile ? '18px' : '24px',
+                  color: '#1f2937',
+                  fontSize: '24px',
                   fontWeight: '700'
                 }}>
-                  {classmates.length}
+                  A-
                 </h3>
                 <p style={{
                   margin: 0,
-                  color: '#94a3b8',
-                  fontSize: isMobile ? '10px' : '12px',
+                  color: '#6b7280',
+                  fontSize: '12px',
                   fontWeight: '500'
                 }}>
-                  Classmates
+                  Current Grade
                 </p>
               </div>
             </div>
 
-            {/* Recent Activity & Announcements */}
+            {/* Recent Assignments */}
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr',
-              gap: isMobile ? '16px' : '20px',
-              marginBottom: '24px'
+              background: 'white',
+              borderRadius: '12px',
+              padding: '24px',
+              marginBottom: '24px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+              border: '1px solid #e5e7eb'
             }}>
-              {/* Recent Assignments */}
               <div style={{
-                background: 'rgba(15, 23, 42, 0.9)',
-                borderRadius: '16px',
-                padding: isMobile ? '16px' : '20px',
-                border: '1px solid rgba(71, 85, 105, 0.3)'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: '16px'
-                }}>
-                  <h3 style={{
-                    margin: 0,
-                    color: 'white',
-                    fontSize: isMobile ? '16px' : '18px',
-                    fontWeight: '700'
-                  }}>
-                    Recent Tasks
-                  </h3>
-                  <button
-                    onClick={() => setActiveTab('assignments')}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#10b981',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      fontWeight: '600'
-                    }}
-                  >
-                    View All <FaArrowRight size={10} />
-                  </button>
-                </div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {assignments.slice(0, 3).map(assignment => (
-                    <div key={assignment.id} style={{
-                      background: 'rgba(30, 41, 59, 0.6)',
-                      borderRadius: '12px',
-                      padding: '12px',
-                      border: '1px solid rgba(71, 85, 105, 0.3)'
-                    }}>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: '8px'
-                      }}>
-                        <h4 style={{
-                          margin: 0,
-                          color: 'white',
-                          fontSize: isMobile ? '13px' : '14px',
-                          fontWeight: '600'
-                        }}>
-                          {assignment.title}
-                        </h4>
-                        <span style={{
-                          background: getAssignmentStatusColor(assignment.status),
-                          color: 'white',
-                          padding: '2px 8px',
-                          borderRadius: '12px',
-                          fontSize: '10px',
-                          fontWeight: '600'
-                        }}>
-                          {assignment.status}
-                        </span>
-                      </div>
-                      <p style={{
-                        margin: '0 0 4px 0',
-                        color: '#94a3b8',
-                        fontSize: '12px'
-                      }}>
-                        {assignment.subject}
-                      </p>
-                      <p style={{
-                        margin: 0,
-                        color: '#64748b',
-                        fontSize: '11px'
-                      }}>
-                        Due: {new Date(assignment.due_date).toLocaleDateString()}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Announcements */}
-              <div style={{
-                background: 'rgba(15, 23, 42, 0.9)',
-                borderRadius: '16px',
-                padding: isMobile ? '16px' : '20px',
-                border: '1px solid rgba(71, 85, 105, 0.3)'
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '16px'
               }}>
                 <h3 style={{
-                  margin: '0 0 16px 0',
-                  color: 'white',
-                  fontSize: isMobile ? '16px' : '18px',
+                  margin: 0,
+                  color: '#1f2937',
+                  fontSize: '18px',
                   fontWeight: '700'
                 }}>
-                  Announcements
+                  Recent Assignments
                 </h3>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {announcements.map(announcement => (
-                    <div key={announcement.id} style={{
-                      background: 'rgba(30, 41, 59, 0.6)',
-                      borderRadius: '12px',
-                      padding: '12px',
-                      border: '1px solid rgba(71, 85, 105, 0.3)'
-                    }}>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '8px'
-                      }}>
-                        <div style={{
-                          width: '6px',
-                          height: '6px',
-                          borderRadius: '50%',
-                          background: announcement.priority === 'high' ? '#ef4444' : '#f59e0b',
-                          marginTop: '6px',
-                          flexShrink: 0
-                        }} />
-                        <div style={{ flex: 1 }}>
-                          <h4 style={{
-                            margin: '0 0 4px 0',
-                            color: 'white',
-                            fontSize: '13px',
-                            fontWeight: '600'
-                          }}>
-                            {announcement.title}
-                          </h4>
-                          <p style={{
-                            margin: '0 0 4px 0',
-                            color: '#94a3b8',
-                            fontSize: '12px',
-                            lineHeight: '1.4'
-                          }}>
-                            {announcement.content}
-                          </p>
-                          <p style={{
-                            margin: 0,
-                            color: '#64748b',
-                            fontSize: '10px'
-                          }}>
-                            {new Date(announcement.date).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div style={{
-              background: 'rgba(15, 23, 42, 0.9)',
-              borderRadius: '16px',
-              padding: isMobile ? '16px' : '20px',
-              border: '1px solid rgba(71, 85, 105, 0.3)'
-            }}>
-              <h3 style={{
-                margin: '0 0 16px 0',
-                color: 'white',
-                fontSize: isMobile ? '16px' : '18px',
-                fontWeight: '700'
-              }}>
-                Quick Actions
-              </h3>
-              
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-                gap: '12px'
-              }}>
                 <button
                   onClick={() => setActiveTab('assignments')}
                   style={{
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    borderRadius: '12px',
-                    padding: '16px',
+                    background: 'none',
+                    border: 'none',
+                    color: '#16a34a',
                     cursor: 'pointer',
-                    textAlign: 'center'
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
                   }}
                 >
-                  <FaTasks style={{ color: '#10b981', fontSize: '20px', marginBottom: '8px' }} />
-                  <p style={{ margin: 0, color: '#10b981', fontSize: '12px', fontWeight: '600' }}>View Tasks</p>
+                  View All <FaArrowRight size={12} />
                 </button>
-                
-                <button
-                  onClick={() => setActiveTab('grades')}
-                  style={{
-                    background: 'rgba(59, 130, 246, 0.1)',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    borderRadius: '12px',
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {assignments.slice(0, 3).map(assignment => (
+                  <div key={assignment.id} style={{
+                    background: '#f9fafb',
+                    borderRadius: '8px',
                     padding: '16px',
-                    cursor: 'pointer',
-                    textAlign: 'center'
-                  }}
-                >
-                  <FaAward style={{ color: '#3b82f6', fontSize: '20px', marginBottom: '8px' }} />
-                  <p style={{ margin: 0, color: '#3b82f6', fontSize: '12px', fontWeight: '600' }}>Check Grades</p>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab('schedule')}
-                  style={{
-                    background: 'rgba(139, 92, 246, 0.1)',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    cursor: 'pointer',
-                    textAlign: 'center'
-                  }}
-                >
-                  <FaCalendar style={{ color: '#8b5cf6', fontSize: '20px', marginBottom: '8px' }} />
-                  <p style={{ margin: 0, color: '#8b5cf6', fontSize: '12px', fontWeight: '600' }}>View Schedule</p>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab('reports')}
-                  style={{
-                    background: 'rgba(245, 158, 11, 0.1)',
-                    border: '1px solid rgba(245, 158, 11, 0.3)',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    cursor: 'pointer',
-                    textAlign: 'center'
-                  }}
-                >
-                  <FaFileAlt style={{ color: '#f59e0b', fontSize: '20px', marginBottom: '8px' }} />
-                  <p style={{ margin: 0, color: '#f59e0b', fontSize: '12px', fontWeight: '600' }}>View Reports</p>
-                </button>
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '8px'
+                    }}>
+                      <h4 style={{
+                        margin: 0,
+                        color: '#1f2937',
+                        fontSize: '16px',
+                        fontWeight: '600'
+                      }}>
+                        {assignment.title}
+                      </h4>
+                      <span style={{
+                        background: getAssignmentStatusColor(assignment.status),
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: '600'
+                      }}>
+                        {assignment.status}
+                      </span>
+                    </div>
+                    <p style={{
+                      margin: '0 0 4px 0',
+                      color: '#6b7280',
+                      fontSize: '14px'
+                    }}>
+                      {assignment.subject}
+                    </p>
+                    <p style={{
+                      margin: 0,
+                      color: '#9ca3af',
+                      fontSize: '12px'
+                    }}>
+                      Due: {new Date(assignment.due_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

@@ -14,6 +14,9 @@ export default function Attendance() {
   const [error, setError] = useState('')
   const [classInfo, setClassInfo] = useState(null)
   const [isMobile] = useState(window.innerWidth <= 768)
+  const [showReports, setShowReports] = useState(false)
+  const [reportType, setReportType] = useState('daily')
+  const [reportData, setReportData] = useState(null)
 
   useEffect(() => {
     if (user?.role === 'TEACHER') {
@@ -61,17 +64,25 @@ export default function Attendance() {
       console.log('Attendance response:', res.data)
       
       const attendanceData = {}
-      if (res.data.results) {
+      if (res.data.results && res.data.results.length > 0) {
         res.data.results.forEach(record => {
           attendanceData[record.student] = record.status
+        })
+      } else {
+        // Initialize all students as absent if no records exist
+        students.forEach(student => {
+          attendanceData[student.id] = 'absent'
         })
       }
       setAttendance(attendanceData)
     } catch (err) {
       console.error('Failed to load attendance:', err)
-      console.log('Error details:', err.response?.data)
-      // Initialize empty attendance if no records exist
-      setAttendance({})
+      // Initialize all students as absent on error
+      const attendanceData = {}
+      students.forEach(student => {
+        attendanceData[student.id] = 'absent'
+      })
+      setAttendance(attendanceData)
     }
   }
 
@@ -104,6 +115,36 @@ export default function Attendance() {
     }
   }
 
+  const generateReport = async () => {
+    try {
+      setLoading(true)
+      const params = {
+        class_id: classInfo.id,
+        report_type: reportType
+      }
+      
+      if (reportType === 'daily') {
+        params.date = selectedDate
+      } else if (reportType === 'weekly') {
+        const date = new Date(selectedDate)
+        const startOfWeek = new Date(date.setDate(date.getDate() - date.getDay()))
+        params.start_date = startOfWeek.toISOString().split('T')[0]
+        params.end_date = selectedDate
+      } else if (reportType === 'monthly') {
+        const date = new Date(selectedDate)
+        params.start_date = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0]
+        params.end_date = selectedDate
+      }
+      
+      const res = await api.get('/students/attendance/report/', { params })
+      setReportData(res.data)
+    } catch (err) {
+      setError('Failed to generate report')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const getAttendanceStats = () => {
     const total = students.length
     const present = Object.values(attendance).filter(status => status === 'present').length
@@ -130,62 +171,88 @@ export default function Attendance() {
 
   return (
     <div style={{
+      width: '100vw',
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-      padding: isMobile ? '20px 12px' : '24px 20px',
-      paddingTop: isMobile ? '100px' : '24px'
+      background: '#f8fafc',
+      paddingTop: '160px',
+      paddingLeft: '20px',
+      paddingRight: '20px',
+      paddingBottom: '40px',
+      overflowX: 'hidden'
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
-          borderRadius: '16px',
-          padding: isMobile ? '20px 16px' : '24px',
+          background: 'white',
+          borderRadius: '12px',
+          padding: '24px',
           marginBottom: '24px',
-          border: '1px solid rgba(71, 85, 105, 0.3)'
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+          border: '1px solid #e5e7eb'
         }}>
-          <h1 style={{
-            margin: '0 0 16px 0',
-            fontSize: isMobile ? '20px' : '24px',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            <FaUserCheck style={{ color: '#10b981' }} />
-            Daily Attendance
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+            <div style={{
+              background: '#16a34a',
+              borderRadius: '8px',
+              padding: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <FaUserCheck size={20} color="white" />
+            </div>
+            <div>
+              <h1 style={{
+                margin: 0,
+                fontSize: isMobile ? '20px' : '24px',
+                color: '#1f2937',
+                fontWeight: '700'
+              }}>
+                Daily Attendance
+              </h1>
+              <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
+                Mark student attendance for today
+              </p>
+            </div>
+          </div>
           
           {classInfo && (
-            <p style={{ margin: 0, color: '#94a3b8', fontSize: '16px' }}>
-              {classInfo.level_display || classInfo.level} {classInfo.section} • {students.length} Students
-            </p>
+            <div style={{
+              background: '#f0f9ff',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              border: '1px solid #bae6fd'
+            }}>
+              <p style={{ margin: 0, color: '#0369a1', fontSize: '14px', fontWeight: '600' }}>
+                📚 {classInfo.level_display || classInfo.level} {classInfo.section} • {students.length} Students
+              </p>
+            </div>
           )}
         </div>
 
         {error && (
           <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '12px',
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            borderRadius: '8px',
             padding: '16px',
             marginBottom: '24px',
-            color: '#fca5a5'
+            color: '#dc2626'
           }}>
-            {error}
+            ⚠️ {error}
           </div>
         )}
 
         {message && (
           <div style={{
-            background: 'rgba(16, 185, 129, 0.1)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: '12px',
+            background: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            borderRadius: '8px',
             padding: '16px',
             marginBottom: '24px',
-            color: '#86efac'
+            color: '#16a34a'
           }}>
-            {message}
+            ✓ {message}
           </div>
         )}
 
@@ -197,19 +264,20 @@ export default function Attendance() {
           marginBottom: '24px'
         }}>
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
+            background: 'white',
             borderRadius: '12px',
             padding: '20px',
-            border: '1px solid rgba(71, 85, 105, 0.3)'
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
           }}>
             <label style={{
               display: 'block',
               marginBottom: '8px',
-              color: 'white',
+              color: '#374151',
               fontSize: '14px',
               fontWeight: '600'
             }}>
-              Select Date
+              📅 Select Date
             </label>
             <input
               type="date"
@@ -220,41 +288,42 @@ export default function Attendance() {
                 width: '100%',
                 padding: '12px',
                 borderRadius: '8px',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                background: 'rgba(30, 41, 59, 0.8)',
-                color: 'white',
-                fontSize: '16px'
+                border: '1px solid #d1d5db',
+                background: 'white',
+                color: '#374151',
+                fontSize: '14px'
               }}
             />
           </div>
 
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
+            background: 'white',
             borderRadius: '12px',
             padding: '20px',
-            border: '1px solid rgba(71, 85, 105, 0.3)'
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
           }}>
-            <h3 style={{ margin: '0 0 12px 0', color: 'white', fontSize: '16px' }}>
-              Today's Summary
+            <h3 style={{ margin: '0 0 12px 0', color: '#374151', fontSize: '16px', fontWeight: '600' }}>
+              📊 Attendance Summary
             </h3>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#10b981' }}>
+                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#16a34a' }}>
                   {stats.present}
                 </div>
-                <div style={{ fontSize: '12px', color: '#94a3b8' }}>Present</div>
+                <div style={{ fontSize: '12px', color: '#6b7280' }}>Present</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ef4444' }}>
+                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#dc2626' }}>
                   {stats.absent}
                 </div>
-                <div style={{ fontSize: '12px', color: '#94a3b8' }}>Absent</div>
+                <div style={{ fontSize: '12px', color: '#6b7280' }}>Absent</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#60a5fa' }}>
+                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6' }}>
                   {stats.total}
                 </div>
-                <div style={{ fontSize: '12px', color: '#94a3b8' }}>Total</div>
+                <div style={{ fontSize: '12px', color: '#6b7280' }}>Total</div>
               </div>
             </div>
           </div>
@@ -262,30 +331,54 @@ export default function Attendance() {
 
         {/* Student List */}
         <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
-          borderRadius: '16px',
-          padding: isMobile ? '16px' : '24px',
-          border: '1px solid rgba(71, 85, 105, 0.3)'
+          background: 'white',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
         }}>
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '20px'
+            marginBottom: '20px',
+            flexWrap: 'wrap',
+            gap: '12px'
           }}>
-            <h2 style={{ margin: 0, color: 'white', fontSize: '18px' }}>
-              Mark Attendance
+            <h2 style={{ margin: 0, color: '#374151', fontSize: '18px', fontWeight: '600' }}>
+              📋 Mark Attendance
             </h2>
             <button
               onClick={saveAttendance}
               disabled={saving}
               style={{
-                background: saving ? '#6b7280' : 'linear-gradient(135deg, #10b981, #059669)',
+                background: saving ? '#9ca3af' : '#16a34a',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
-                padding: '10px 20px',
+                padding: '12px 20px',
                 cursor: saving ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                opacity: saving ? 0.6 : 1
+              }}
+            >
+              <FaSave size={14} />
+              {saving ? 'Saving...' : 'Save Attendance'}
+            </button>
+            
+            <button
+              onClick={() => setShowReports(!showReports)}
+              style={{
+                background: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '12px 20px',
+                cursor: 'pointer',
                 fontSize: '14px',
                 fontWeight: '600',
                 display: 'flex',
@@ -293,8 +386,8 @@ export default function Attendance() {
                 gap: '8px'
               }}
             >
-              <FaSave size={12} />
-              {saving ? 'Saving...' : 'Save Attendance'}
+              <FaChartBar size={14} />
+              Reports
             </button>
           </div>
 
@@ -307,20 +400,20 @@ export default function Attendance() {
               <div
                 key={student.id}
                 style={{
-                  background: 'rgba(30, 41, 59, 0.8)',
+                  background: '#f9fafb',
                   borderRadius: '12px',
                   padding: '16px',
-                  border: '1px solid rgba(71, 85, 105, 0.3)',
+                  border: '1px solid #e5e7eb',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center'
                 }}
               >
                 <div>
-                  <div style={{ color: 'white', fontSize: '16px', fontWeight: '600' }}>
+                  <div style={{ color: '#1f2937', fontSize: '16px', fontWeight: '600' }}>
                     {student.full_name || `${student.first_name} ${student.last_name}`}
                   </div>
-                  <div style={{ color: '#94a3b8', fontSize: '12px' }}>
+                  <div style={{ color: '#6b7280', fontSize: '12px' }}>
                     ID: {student.student_id || student.id}
                   </div>
                 </div>
@@ -329,10 +422,10 @@ export default function Attendance() {
                   <button
                     onClick={() => toggleAttendance(student.id)}
                     style={{
-                      background: attendance[student.id] === 'present' ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(71, 85, 105, 0.3)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
+                      background: attendance[student.id] === 'present' ? '#16a34a' : '#f3f4f6',
+                      color: attendance[student.id] === 'present' ? 'white' : '#6b7280',
+                      border: attendance[student.id] === 'present' ? 'none' : '1px solid #d1d5db',
+                      borderRadius: '6px',
                       padding: '8px 12px',
                       cursor: 'pointer',
                       fontSize: '12px',
@@ -349,10 +442,10 @@ export default function Attendance() {
                   <button
                     onClick={() => setAttendance(prev => ({ ...prev, [student.id]: 'absent' }))}
                     style={{
-                      background: attendance[student.id] === 'absent' ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(71, 85, 105, 0.3)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
+                      background: attendance[student.id] === 'absent' ? '#dc2626' : '#f3f4f6',
+                      color: attendance[student.id] === 'absent' ? 'white' : '#6b7280',
+                      border: attendance[student.id] === 'absent' ? 'none' : '1px solid #d1d5db',
+                      borderRadius: '6px',
                       padding: '8px 12px',
                       cursor: 'pointer',
                       fontSize: '12px',
@@ -370,6 +463,104 @@ export default function Attendance() {
             ))}
           </div>
         </div>
+
+        {/* Reports Section */}
+        {showReports && (
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+            marginTop: '24px'
+          }}>
+            <h3 style={{ margin: '0 0 20px 0', color: '#374151', fontSize: '18px', fontWeight: '600' }}>
+              📊 Attendance Reports
+            </h3>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+              gap: '16px',
+              marginBottom: '20px'
+            }}>
+              {['daily', 'weekly', 'monthly'].map(type => (
+                <button
+                  key={type}
+                  onClick={() => setReportType(type)}
+                  style={{
+                    background: reportType === type ? '#16a34a' : '#f3f4f6',
+                    color: reportType === type ? 'white' : '#6b7280',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    textTransform: 'capitalize'
+                  }}
+                >
+                  {type} Report
+                </button>
+              ))}
+            </div>
+            
+            <button
+              onClick={generateReport}
+              disabled={loading}
+              style={{
+                background: loading ? '#9ca3af' : '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '12px 24px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '20px'
+              }}
+            >
+              <FaChartBar size={14} />
+              {loading ? 'Generating...' : `Generate ${reportType} Report`}
+            </button>
+            
+            {reportData && (
+              <div style={{
+                background: '#f9fafb',
+                borderRadius: '8px',
+                padding: '16px',
+                border: '1px solid #e5e7eb'
+              }}>
+                <h4 style={{ margin: '0 0 12px 0', color: '#374151', fontSize: '16px' }}>
+                  {reportType.charAt(0).toUpperCase() + reportType.slice(1)} Attendance Summary
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#16a34a' }}>
+                      {reportData.total_present || 0}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6b7280' }}>Total Present</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#dc2626' }}>
+                      {reportData.total_absent || 0}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6b7280' }}>Total Absent</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#3b82f6' }}>
+                      {reportData.attendance_rate || 0}%
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6b7280' }}>Attendance Rate</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

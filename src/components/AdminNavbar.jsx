@@ -1,25 +1,21 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../state/AuthContext'
-import { useSidebar } from '../state/SidebarContext'
 import NotificationSystem from './NotificationSystem'
-import EliteLogo from './EliteLogo'
 import { 
-  FaTachometerAlt, FaUserGraduate, FaBookOpen, FaFileInvoice, 
+  FaTachometerAlt, FaUserGraduate, FaFileInvoice, 
   FaChalkboardTeacher, FaSignOutAlt, FaLayerGroup, 
-  FaBook, FaCog, FaBars, FaTimes, FaClipboardList, FaUserEdit, FaUserCheck, FaChartBar,
-  FaChevronLeft, FaChevronRight, FaHome, FaCogs 
+  FaBook, FaCogs, FaBars, FaTimes, FaChartBar, FaHome
 } from 'react-icons/fa'
 
-export default function Navbar() {
+export default function AdminNavbar() {
   const { user, logout } = useAuth()
-  const { sidebarCollapsed, setSidebarCollapsed } = useSidebar()
   const location = useLocation()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [screenSize, setScreenSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight
   })
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const handleResize = () => {
@@ -37,30 +33,18 @@ export default function Navbar() {
   }, [])
 
   const isMobile = screenSize.width <= 768
-  const isSmallMobile = screenSize.width <= 480
-  const isTablet = screenSize.width <= 1024 && screenSize.width > 768
 
-  const navItems = [
-    { to: '/dashboard', label: 'Dashboard', icon: FaTachometerAlt, roles: ['SCHOOL_ADMIN', 'PRINCIPAL', 'TEACHER'] },
-    { to: '/classes', label: 'Classes', icon: FaLayerGroup, roles: ['SCHOOL_ADMIN', 'PRINCIPAL', 'TEACHER'] },
-    { to: '/subjects', label: 'Subjects', icon: FaBook, roles: ['SCHOOL_ADMIN', 'PRINCIPAL'] },
-    { to: '/students', label: 'Students', icon: FaUserGraduate, roles: ['SCHOOL_ADMIN', 'PRINCIPAL', 'TEACHER'] },
-    { to: '/student-details', label: 'Student Details', icon: FaUserEdit, roles: ['TEACHER'] },
-    { to: '/teachers', label: 'Teachers', icon: FaChalkboardTeacher, roles: ['SCHOOL_ADMIN', 'PRINCIPAL'] },
-    { to: '/attendance', label: 'Attendance', icon: FaUserCheck, roles: ['TEACHER'] },
-    { to: '/teacher-schedule', label: 'Schedule', icon: FaChartBar, roles: ['TEACHER'] },
-    { to: '/attendance-dashboard', label: 'Attendance Overview', icon: FaChartBar, roles: ['SCHOOL_ADMIN', 'PRINCIPAL'] },
-    { to: '/gradebook', label: 'Grade Book', icon: FaBookOpen, roles: ['TEACHER'] },
-    { to: '/scores', label: 'Enter Scores', icon: FaClipboardList, roles: ['TEACHER'] },
-    { to: '/vclass', label: 'Virtual Class', icon: FaChalkboardTeacher, roles: ['TEACHER'] },
-
-    { to: '/reports', label: 'Reports', icon: FaFileInvoice, roles: ['SCHOOL_ADMIN', 'PRINCIPAL', 'TEACHER'] },
-    { to: '/settings', label: 'Settings', icon: FaCogs, roles: ['SCHOOL_ADMIN', 'PRINCIPAL'] }
+  // STRICT Admin Navigation - ONLY these links allowed
+  const adminNavItems = [
+    { to: '/dashboard', label: 'Dashboard', icon: FaTachometerAlt },
+    { to: '/subjects', label: 'Subjects', icon: FaBook },
+    { to: '/classes', label: 'Classes', icon: FaLayerGroup },
+    { to: '/teachers', label: 'Teachers', icon: FaChalkboardTeacher },
+    { to: '/students', label: 'Students', icon: FaUserGraduate },
+    { to: '/attendance-dashboard', label: 'Attendance Overview', icon: FaChartBar },
+    { to: '/reports', label: 'Reports', icon: FaFileInvoice },
+    { to: '/settings', label: 'Settings', icon: FaCogs }
   ]
-
-  const visibleNavItems = navItems.filter(item => 
-    item.roles.includes(user?.role)
-  )
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
@@ -70,61 +54,54 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Mobile-First Header */}
-      <header 
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          width: '100vw',
-          zIndex: 40,
-          backgroundColor: '#ffffff',
-          borderBottom: '1px solid #e2e8f0',
-          height: '64px',
+      {/* Admin Header */}
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        width: '100vw',
+        zIndex: 40,
+        backgroundColor: '#ffffff',
+        borderBottom: '1px solid #e2e8f0',
+        height: '64px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        margin: 0
+      }}>
+        {/* Logo */}
+        <Link to="/dashboard" style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingLeft: '16px',
-          paddingRight: '16px',
-          paddingTop: 'env(safe-area-inset-top, 0)',
-          paddingBottom: '0',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          margin: 0
-        }}
-      >
-        {/* Logo Section */}
-        <Link 
-          to="/dashboard"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            textDecoration: 'none',
-            fontWeight: 700,
-            fontSize: isMobile ? 18 : 20,
-            color: '#1a202c',
-            minWidth: '150px'
-          }}
-        >
+          gap: '8px',
+          textDecoration: 'none',
+          fontWeight: 700,
+          fontSize: isMobile ? 18 : 20,
+          color: '#1a202c',
+          minWidth: '150px'
+        }}>
           <div style={{
             width: 36,
             height: 36,
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #115e3d, #0c4d31)',
+            background: 'linear-gradient(135deg, #1e40af, #2563eb)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: 'var(--shadow-md)'
+            boxShadow: '0 2px 8px rgba(30, 64, 175, 0.3)'
           }}>
-            <FaHome size={18} color="white" />
+            <FaCogs size={18} color="white" />
           </div>
-          {!isMobile && <span>Elite Tech</span>}
+          {!isMobile && <span>Admin Portal</span>}
         </Link>
 
-        {/* Notification System */}
+        {/* Notifications */}
         <div style={{ flex: 1, maxWidth: isMobile ? 'none' : '200px', marginRight: '16px' }}>
           <NotificationSystem />
         </div>
@@ -151,22 +128,23 @@ export default function Navbar() {
           </button>
         )}
 
-        {/* Desktop Header Actions */}
+        {/* Desktop Navigation */}
         {!isMobile && (
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
+            gap: '6px',
+            flex: 1,
+            justifyContent: 'flex-end'
           }}>
-            {/* Desktop Navigation Links */}
             <nav style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              marginRight: '12px',
-              flexWrap: 'wrap'
+              gap: '3px',
+              marginRight: '8px',
+              flexWrap: 'nowrap'
             }}>
-              {visibleNavItems.map(item => {
+              {adminNavItems.map(item => {
                 const isActive = location.pathname.startsWith(item.to)
                 const Icon = item.icon
                 
@@ -178,19 +156,19 @@ export default function Navbar() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '6px',
-                      padding: '6px 8px',
-                      borderRadius: '6px',
+                      padding: '4px 6px',
+                      borderRadius: '4px',
                       fontSize: '12px',
                       fontWeight: isActive ? 600 : 500,
-                      color: isActive ? '#3ecf8e' : '#64748b',
-                      backgroundColor: isActive ? 'rgba(62, 207, 142, 0.1)' : 'transparent',
+                      color: isActive ? '#1e40af' : '#64748b',
+                      backgroundColor: isActive ? 'rgba(30, 64, 175, 0.1)' : 'transparent',
                       textDecoration: 'none',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={e => {
                       if (!isActive) {
                         e.currentTarget.style.backgroundColor = '#f8fafc'
-                        e.currentTarget.style.color = '#3ecf8e'
+                        e.currentTarget.style.color = '#1e40af'
                       }
                     }}
                     onMouseLeave={e => {
@@ -208,18 +186,30 @@ export default function Navbar() {
             </nav>
             
             <span style={{ fontSize: '14px', color: '#64748b' }}>
-              {user?.name || 'User'}
+              {user?.first_name || 'Admin'}
             </span>
             <button
               onClick={handleLogout}
-              className="btn-ghost"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
                 padding: '6px 12px',
-                minHeight: 'auto',
-                fontSize: '14px'
+                background: 'none',
+                border: '1px solid #e2e8f0',
+                borderRadius: '6px',
+                fontSize: '14px',
+                color: '#64748b',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = '#ef4444'
+                e.currentTarget.style.color = '#ef4444'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = '#e2e8f0'
+                e.currentTarget.style.color = '#64748b'
               }}
             >
               <FaSignOutAlt size={16} />
@@ -229,31 +219,29 @@ export default function Navbar() {
         )}
       </header>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Menu */}
       {isMobile && mobileMenuOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '64px',
-            left: 0,
-            right: 0,
-            width: '100vw',
-            backgroundColor: 'var(--bg-secondary)',
-            borderBottom: '1px solid var(--border-color)',
-            zIndex: 35,
-            maxHeight: 'calc(100vh - 64px)',
-            overflowY: 'auto',
-            animation: 'slideInFromBottom 0.2s ease-out',
-            margin: 0
-          }}
-        >
+        <div style={{
+          position: 'fixed',
+          top: '64px',
+          left: 0,
+          right: 0,
+          width: '100vw',
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e2e8f0',
+          zIndex: 35,
+          maxHeight: 'calc(100vh - 64px)',
+          overflowY: 'auto',
+          animation: 'slideInFromTop 0.2s ease-out',
+          margin: 0
+        }}>
           <nav style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '0',
-            padding: 'var(--space-2)'
+            padding: '16px'
           }}>
-            {visibleNavItems.map(item => {
+            {adminNavItems.map(item => {
               const isActive = location.pathname.startsWith(item.to)
               const Icon = item.icon
               
@@ -265,43 +253,40 @@ export default function Navbar() {
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 'var(--space-3)',
-                    padding: 'var(--space-3) var(--space-4)',
-                    borderRadius: 'var(--radius-md)',
+                    gap: '12px',
+                    padding: '12px 16px',
+                    borderRadius: '8px',
                     fontSize: '15px',
                     fontWeight: isActive ? 600 : 500,
-                    color: isActive ? '#115e3d' : 'var(--text-secondary)',
-                    backgroundColor: isActive ? 'rgba(17, 94, 61, 0.1)' : 'transparent',
-                    border: isActive ? '1px solid rgba(17, 94, 61, 0.2)' : '1px solid transparent',
+                    color: isActive ? '#1e40af' : '#64748b',
+                    backgroundColor: isActive ? 'rgba(30, 64, 175, 0.1)' : 'transparent',
+                    border: isActive ? '1px solid rgba(30, 64, 175, 0.2)' : '1px solid transparent',
                     transition: 'all 0.2s ease',
                     textDecoration: 'none',
                     cursor: 'pointer'
                   }}
                 >
-                  <Icon size={16} style={{ opacity: 0.8 }} />
+                  <Icon size={16} />
                   <span>{item.label}</span>
                 </Link>
               )
             })}
           </nav>
 
-          {/* Mobile Menu Footer */}
+          {/* Mobile Footer */}
           <div style={{
-            paddingTop: 'var(--space-4)',
-            paddingBottom: 'var(--space-4)',
-            paddingLeft: 'var(--space-2)',
-            paddingRight: 'var(--space-2)',
-            borderTop: '1px solid var(--border-color)',
-            marginTop: 'var(--space-4)'
+            padding: '16px',
+            borderTop: '1px solid #e2e8f0',
+            marginTop: '16px'
           }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: 'var(--space-3)'
+              marginBottom: '12px'
             }}>
-              <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-                {user?.name || 'User'}
+              <span style={{ fontSize: '14px', color: '#64748b' }}>
+                {user?.first_name || 'Admin'}
               </span>
             </div>
             <button
@@ -313,9 +298,9 @@ export default function Navbar() {
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 'var(--space-3)',
-                padding: 'var(--space-3) var(--space-4)',
-                borderRadius: 'var(--radius-md)',
+                gap: '12px',
+                padding: '12px 16px',
+                borderRadius: '8px',
                 fontSize: '15px',
                 fontWeight: 600,
                 color: '#ef4444',
@@ -332,7 +317,7 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Mobile Menu Backdrop */}
+      {/* Mobile Backdrop */}
       {isMobile && mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
@@ -349,25 +334,8 @@ export default function Navbar() {
         />
       )}
 
-      {/* Adjust layout based on screen size */}
       <style>{`
-        @media (max-width: 768px) {
-          .container {
-            margin-left: 0;
-            padding-top: calc(64px + var(--space-4));
-            padding-bottom: calc(80px + env(safe-area-inset-bottom, 0));
-          }
-        }
-        
-        @media (min-width: 769px) {
-          .container {
-            margin-left: 0;
-            padding-top: calc(64px + var(--space-4));
-            transition: margin-left 0.3s ease;
-          }
-        }
-        
-        @keyframes slideInFromBottom {
+        @keyframes slideInFromTop {
           from {
             opacity: 0;
             transform: translateY(-10px);

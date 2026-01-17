@@ -184,19 +184,22 @@ export default function AttendanceDashboard() {
 
   return (
     <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+      width: '100vw',
+      height: '100vh',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
       padding: isMobile ? '20px 12px' : '24px 20px',
-      paddingTop: isMobile ? '100px' : '100px'
+      paddingTop: isMobile ? '100px' : '100px',
+      overflow: 'auto'
     }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ width: '100%' }}>
         {/* Header */}
         <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
+          background: 'white',
           borderRadius: '16px',
           padding: isMobile ? '20px 16px' : '24px',
           marginBottom: '24px',
-          border: '1px solid rgba(71, 85, 105, 0.3)'
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
         }}>
           <div style={{
             display: 'flex',
@@ -209,15 +212,15 @@ export default function AttendanceDashboard() {
               <h1 style={{
                 margin: '0 0 8px 0',
                 fontSize: isMobile ? '20px' : '24px',
-                color: 'white',
+                color: '#1f2937',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px'
               }}>
-                <FaChartBar style={{ color: '#10b981' }} />
+                <FaChartBar style={{ color: '#16a34a' }} />
                 Attendance Overview
               </h1>
-              <p style={{ margin: 0, color: '#94a3b8', fontSize: '16px' }}>
+              <p style={{ margin: 0, color: '#6b7280', fontSize: '16px' }}>
                 Monitor daily attendance across all classes
               </p>
             </div>
@@ -225,7 +228,7 @@ export default function AttendanceDashboard() {
             <button
               onClick={exportData}
               style={{
-                background: 'linear-gradient(135deg, #10b981, #059669)',
+                background: '#16a34a',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
@@ -246,12 +249,12 @@ export default function AttendanceDashboard() {
 
         {error && (
           <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
             borderRadius: '12px',
             padding: '16px',
             marginBottom: '24px',
-            color: '#fca5a5'
+            color: '#dc2626'
           }}>
             {error}
           </div>
@@ -265,15 +268,16 @@ export default function AttendanceDashboard() {
           marginBottom: '24px'
         }}>
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
+            background: 'white',
             borderRadius: '12px',
             padding: '20px',
-            border: '1px solid rgba(71, 85, 105, 0.3)'
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
           }}>
             <label style={{
               display: 'block',
               marginBottom: '8px',
-              color: 'white',
+              color: '#374151',
               fontSize: '14px',
               fontWeight: '600'
             }}>
@@ -288,24 +292,25 @@ export default function AttendanceDashboard() {
                 width: '100%',
                 padding: '12px',
                 borderRadius: '8px',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                background: 'rgba(30, 41, 59, 0.8)',
-                color: 'white',
+                border: '1px solid #d1d5db',
+                background: 'white',
+                color: '#1f2937',
                 fontSize: '16px'
               }}
             />
           </div>
 
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
+            background: 'white',
             borderRadius: '12px',
             padding: '20px',
-            border: '1px solid rgba(71, 85, 105, 0.3)'
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
           }}>
             <label style={{
               display: 'block',
               marginBottom: '8px',
-              color: 'white',
+              color: '#374151',
               fontSize: '14px',
               fontWeight: '600'
             }}>
@@ -318,9 +323,9 @@ export default function AttendanceDashboard() {
                 width: '100%',
                 padding: '12px',
                 borderRadius: '8px',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                background: 'rgba(30, 41, 59, 0.8)',
-                color: 'white',
+                border: '1px solid #d1d5db',
+                background: 'white',
+                color: '#1f2937',
                 fontSize: '16px'
               }}
             >
@@ -342,102 +347,109 @@ export default function AttendanceDashboard() {
           marginBottom: '24px'
         }}>
           <div style={{
-            background: 'rgba(16, 185, 129, 0.1)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
+            background: 'white',
+            border: '1px solid #e5e7eb',
             borderRadius: '12px',
             padding: isMobile ? '16px' : '20px',
-            textAlign: 'center'
+            textAlign: 'center',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
           }}>
-            <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#10b981', marginBottom: '4px' }}>
+            <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#16a34a', marginBottom: '4px' }}>
               {totalStats.present}
             </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8' }}>Present</div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>Present</div>
           </div>
           
           <div style={{
-            background: 'rgba(245, 158, 11, 0.1)',
-            border: '1px solid rgba(245, 158, 11, 0.3)',
+            background: 'white',
+            border: '1px solid #e5e7eb',
             borderRadius: '12px',
             padding: isMobile ? '16px' : '20px',
-            textAlign: 'center'
+            textAlign: 'center',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
           }}>
             <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#f59e0b', marginBottom: '4px' }}>
               {totalStats.late}
             </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8' }}>Late</div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>Late</div>
           </div>
           
           <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
+            background: 'white',
+            border: '1px solid #e5e7eb',
             borderRadius: '12px',
             padding: isMobile ? '16px' : '20px',
-            textAlign: 'center'
+            textAlign: 'center',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
           }}>
             <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#ef4444', marginBottom: '4px' }}>
               {totalStats.absent}
             </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8' }}>Absent</div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>Absent</div>
           </div>
           
           <div style={{
-            background: 'rgba(59, 130, 246, 0.1)',
-            border: '1px solid rgba(59, 130, 246, 0.3)',
-            borderRadius: '12px',
-            padding: isMobile ? '16px' : '20px',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#60a5fa', marginBottom: '4px' }}>
-              {totalStats.total}
-            </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8' }}>Total Students</div>
-          </div>
-          
-          <div style={{
-            background: 'rgba(34, 197, 94, 0.1)',
-            border: '1px solid rgba(34, 197, 94, 0.3)',
-            borderRadius: '12px',
-            padding: isMobile ? '16px' : '20px',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#22c55e', marginBottom: '4px' }}>
-              {totalStats.attendanceRate}%
-            </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8' }}>Attendance Rate</div>
-          </div>
-          
-          <div style={{
-            background: 'rgba(139, 92, 246, 0.1)',
-            border: '1px solid rgba(139, 92, 246, 0.3)',
+            background: 'white',
+            border: '1px solid #e5e7eb',
             borderRadius: '12px',
             padding: isMobile ? '16px' : '20px',
             textAlign: 'center',
-            gridColumn: isMobile ? 'span 2' : 'auto'
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+          }}>
+            <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#3b82f6', marginBottom: '4px' }}>
+              {totalStats.total}
+            </div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>Total Students</div>
+          </div>
+          
+          <div style={{
+            background: 'white',
+            border: '1px solid #e5e7eb',
+            borderRadius: '12px',
+            padding: isMobile ? '16px' : '20px',
+            textAlign: 'center',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+          }}>
+            <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#16a34a', marginBottom: '4px' }}>
+              {totalStats.attendanceRate}%
+            </div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>Attendance Rate</div>
+          </div>
+          
+          <div style={{
+            background: 'white',
+            border: '1px solid #e5e7eb',
+            borderRadius: '12px',
+            padding: isMobile ? '16px' : '20px',
+            textAlign: 'center',
+            gridColumn: isMobile ? 'span 2' : 'auto',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
           }}>
             <div style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 'bold', color: '#8b5cf6', marginBottom: '4px' }}>
               {totalStats.classesTaken}/{totalStats.totalClasses}
             </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8' }}>Classes Taken</div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>Classes Taken</div>
           </div>
         </div>
 
         {/* Class Attendance Table */}
         <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
+          background: 'white',
           borderRadius: '16px',
           padding: isMobile ? '16px' : '24px',
-          border: '1px solid rgba(71, 85, 105, 0.3)'
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
         }}>
-          <h2 style={{ margin: '0 0 20px 0', color: 'white', fontSize: '18px' }}>
+          <h2 style={{ margin: '0 0 20px 0', color: '#1f2937', fontSize: '18px' }}>
             Class Attendance Summary
           </h2>
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
               Loading attendance data...
             </div>
           ) : attendanceData.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
               No attendance data found for the selected date
             </div>
           ) : (

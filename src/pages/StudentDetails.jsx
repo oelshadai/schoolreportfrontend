@@ -80,7 +80,41 @@ export default function StudentDetails() {
         api.get('/schools/terms/')
       ])
       
-      setStudents(studentsRes.data.results || studentsRes.data)
+      let allStudents = studentsRes.data.results || studentsRes.data
+      
+      // Filter students for teachers - only show students from their assigned classes
+      if (user?.role === 'TEACHER') {
+        try {
+          // Get teacher's class assignments
+          const teacherAssignmentsRes = await api.get('/teachers/assignments/')
+          const teacherAssignments = teacherAssignmentsRes.data.results || teacherAssignmentsRes.data || []
+          
+          // Get unique class IDs the teacher is assigned to
+          const assignedClassIds = [...new Set(teacherAssignments.map(a => a.class?.id).filter(Boolean))]
+          
+          console.log('Teacher assigned class IDs:', assignedClassIds)
+          console.log('All students before filtering:', allStudents.length)
+          
+          // Filter students to only those in teacher's assigned classes
+          allStudents = allStudents.filter(student => {
+            const studentClassId = student.current_class?.id || student.class_instance || student.class_id
+            const isInAssignedClass = assignedClassIds.includes(studentClassId)
+            
+            if (isInAssignedClass) {
+              console.log(`Student ${student.full_name} is in teacher's class`)
+            }
+            
+            return isInAssignedClass
+          })
+          
+          console.log('Filtered students for teacher:', allStudents.length)
+        } catch (error) {
+          console.error('Error filtering students for teacher:', error)
+          // If filtering fails, show all students as fallback
+        }
+      }
+      
+      setStudents(allStudents)
       setTerms(termsRes.data.results || termsRes.data)
       
       // Auto-select current term
@@ -179,25 +213,25 @@ export default function StudentDetails() {
   const selectedStudentObj = students.find(s => s.id === parseInt(selectedStudent))
 
   return (
-    <div className="container" style={{
-      maxWidth: 1400,
-      margin: '0 auto',
-      padding: isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
-      paddingTop: isMobile ? '60px' : '120px',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    <div style={{
+      width: '100vw',
       minHeight: '100vh',
-      color: 'white',
-      width: '100%',
+      padding: isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
+      paddingTop: '120px',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+      color: '#1f2937',
+      margin: 0,
       boxSizing: 'border-box'
     }}>
-      {/* Enhanced mobile-specific style injection */}
       <style>
         {`
+          body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+          }
+          
           @media screen and (max-width: 480px) {
-            .container { 
-              padding: 16px 10px !important; 
-              padding-top: 85px !important;
-            }
             .page-header {
               padding: 16px 14px !important;
               gap: 14px !important;
@@ -205,16 +239,8 @@ export default function StudentDetails() {
           }
           
           @media screen and (max-width: 768px) {
-            .container { 
-              padding: 20px 12px !important; 
-              padding-top: 55px !important; 
-              background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-              color: white !important;
-            }
             .page-header { 
               flex-direction: column !important; 
-              background: rgba(15, 23, 42, 0.8) !important;
-              border-radius: 16px !important;
               padding: 20px 16px !important;
               gap: 16px !important;
             }
@@ -225,12 +251,11 @@ export default function StudentDetails() {
       {/* Enhanced Header with Mobile-First Design */}
       <div className="page-header" style={{ 
         marginBottom: isMobile ? 20 : 24,
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(16px)',
+        background: 'white',
         borderRadius: isMobile ? 16 : 20,
         padding: isMobile ? '20px 16px' : isTablet ? '24px 20px' : '28px 24px',
-        border: '1px solid rgba(102, 126, 234, 0.2)',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+        border: '1px solid #e5e7eb',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: isMobile ? 'flex-start' : 'center',
@@ -243,13 +268,13 @@ export default function StudentDetails() {
           gap: isMobile ? 12 : 16
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+            background: '#16a34a',
             borderRadius: 12,
             padding: isMobile ? '12px' : '16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 8px 20px rgba(102, 126, 234, 0.4)'
+            boxShadow: '0 4px 6px -1px rgba(22, 163, 74, 0.3)'
           }}>
             <FaUser size={isMobile ? 20 : 24} color="white" />
           </div>
@@ -258,19 +283,19 @@ export default function StudentDetails() {
               margin: 0,
               fontSize: isMobile ? 22 : isTablet ? 26 : 32,
               fontWeight: 700,
-              background: 'linear-gradient(135deg, #86efac, #22c55e)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: '#1f2937',
               lineHeight: 1.2
-            }}>Student Details</h1>
+            }}>{user?.role === 'TEACHER' ? 'My Students Details' : 'Student Details'}</h1>
             <p style={{
               margin: '4px 0 0 0',
               fontSize: isMobile ? 13 : 14,
-              color: '#1f2937',
+              color: '#6b7280',
               fontWeight: 500
             }}>
-              Enter attendance, behavior, and additional information
+              {user?.role === 'TEACHER' 
+                ? 'Enter attendance and behavior for students in your assigned classes'
+                : 'Enter attendance, behavior, and additional information'
+              }
             </p>
           </div>
         </div>
@@ -278,13 +303,12 @@ export default function StudentDetails() {
 
       {/* Selection Section */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(12px)',
+        background: 'white',
         borderRadius: isMobile ? 12 : 16,
         padding: isMobile ? '16px 12px' : isTablet ? '20px 16px' : '24px 20px',
         marginBottom: isMobile ? 20 : 24,
-        border: '1px solid rgba(71, 85, 105, 0.3)',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
+        border: '1px solid #e5e7eb',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
       }}>
         <h2 style={{ 
           fontSize: isMobile ? 16 : 18, 
@@ -404,13 +428,18 @@ export default function StudentDetails() {
           <div style={{
             marginTop: isMobile ? 12 : 16,
             padding: isMobile ? '10px' : '12px',
-            background: 'rgba(59, 130, 246, 0.1)',
+            background: user?.role === 'TEACHER' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(59, 130, 246, 0.1)',
             borderRadius: isMobile ? 10 : 8,
             fontSize: isMobile ? 13 : 14,
-            border: '1px solid rgba(59, 130, 246, 0.2)',
+            border: user?.role === 'TEACHER' ? '1px solid rgba(34, 197, 94, 0.2)' : '1px solid rgba(59, 130, 246, 0.2)',
             color: '#1f2937'
           }}>
             <strong>Selected:</strong> {selectedStudentObj.full_name} - Class: {selectedStudentObj.class_name}
+            {user?.role === 'TEACHER' && (
+              <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '4px' }}>
+                ✓ This student is in your assigned class
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -419,13 +448,12 @@ export default function StudentDetails() {
         <>
           {/* Attendance Section */}
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
+            background: 'white',
             borderRadius: isMobile ? 12 : 16,
             padding: isMobile ? '16px 12px' : isTablet ? '20px 16px' : '24px 20px',
             marginBottom: isMobile ? 20 : 24,
-            border: '1px solid rgba(71, 85, 105, 0.3)',
-            backdropFilter: 'blur(12px)',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
           }}>
             <h2 style={{ 
               fontSize: isMobile ? 16 : 18, 

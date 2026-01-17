@@ -189,47 +189,55 @@ export default function VirtualClassroom() {
 
   return (
     <div style={{
+      width: '100vw',
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-      color: 'white',
-      padding: isMobile ? '20px 12px' : '24px 20px',
-      paddingTop: isMobile ? '120px' : '80px'
+      background: '#f8fafc',
+      paddingTop: '120px',
+      paddingLeft: '20px',
+      paddingRight: '20px',
+      paddingBottom: '40px',
+      overflowX: 'hidden'
     }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         
         {/* Header */}
         <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
-          backdropFilter: 'blur(16px)',
-          borderRadius: 20,
+          background: 'white',
+          borderRadius: '12px',
           padding: '24px',
           marginBottom: '24px',
-          border: '1px solid rgba(148, 163, 184, 0.2)',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+          border: '1px solid #e5e7eb',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '16px'
         }}>
-          <div>
-            <h1 style={{
-              margin: '0 0 8px 0',
-              fontSize: isMobile ? 24 : 32,
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #a78bfa, #6366f1)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              background: '#16a34a',
+              borderRadius: '8px',
+              padding: '12px',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px'
+              justifyContent: 'center'
             }}>
-              <FaVideo />
-              Virtual Classroom
-            </h1>
-            <p style={{ margin: 0, color: '#94a3b8' }}>
-              Manage assignments, announcements, and class activities
-            </p>
+              <FaVideo size={20} color="white" />
+            </div>
+            <div>
+              <h1 style={{
+                margin: '0 0 8px 0',
+                fontSize: isMobile ? 24 : 32,
+                fontWeight: 700,
+                color: '#1f2937'
+              }}>
+                Virtual Classroom
+              </h1>
+              <p style={{ margin: 0, color: '#6b7280' }}>
+                Manage assignments, announcements, and class activities
+              </p>
+            </div>
           </div>
           
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -237,7 +245,7 @@ export default function VirtualClassroom() {
               onClick={() => setShowCreateModal(true)}
               style={{
                 padding: '12px 20px',
-                background: 'linear-gradient(135deg, #059669, #047857)',
+                background: '#16a34a',
                 color: 'white',
                 border: 'none',
                 borderRadius: 8,
@@ -257,7 +265,7 @@ export default function VirtualClassroom() {
               onClick={() => setShowTaskModal(true)}
               style={{
                 padding: '12px 20px',
-                background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                background: '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 borderRadius: 8,
@@ -277,7 +285,7 @@ export default function VirtualClassroom() {
               onClick={() => setShowAnnouncementModal(true)}
               style={{
                 padding: '12px 20px',
-                background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                background: '#3b82f6',
                 color: 'white',
                 border: 'none',
                 borderRadius: 8,
@@ -297,10 +305,12 @@ export default function VirtualClassroom() {
 
         {/* Navigation Tabs */}
         <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
-          borderRadius: 16,
+          background: 'white',
+          borderRadius: '12px',
           padding: '8px',
           marginBottom: '24px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+          border: '1px solid #e5e7eb',
           display: 'flex',
           gap: '8px',
           overflowX: 'auto'
@@ -318,9 +328,9 @@ export default function VirtualClassroom() {
               style={{
                 padding: '12px 16px',
                 background: activeTab === tab.id 
-                  ? 'linear-gradient(135deg, #6366f1, #4f46e5)' 
+                  ? '#16a34a' 
                   : 'transparent',
-                color: activeTab === tab.id ? 'white' : '#94a3b8',
+                color: activeTab === tab.id ? 'white' : '#6b7280',
                 border: 'none',
                 borderRadius: 8,
                 fontSize: '14px',
@@ -414,21 +424,23 @@ export default function VirtualClassroom() {
 function AssignmentsTab({ assignments, onExtendDueDate, onDelete, isMobile }) {
   return (
     <div style={{
-      background: 'rgba(15, 23, 42, 0.8)',
-      borderRadius: 16,
-      padding: '20px'
+      background: 'white',
+      borderRadius: '12px',
+      padding: '20px',
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+      border: '1px solid #e5e7eb'
     }}>
-      <h3 style={{ margin: '0 0 20px 0', color: '#e2e8f0' }}>
+      <h3 style={{ margin: '0 0 20px 0', color: '#1f2937' }}>
         My Assignments ({assignments.length})
       </h3>
       
       <div style={{ display: 'grid', gap: '16px' }}>
         {assignments.map(assignment => (
           <div key={assignment.id} style={{
-            background: 'rgba(30, 41, 59, 0.5)',
+            background: '#f9fafb',
             borderRadius: 12,
             padding: '16px',
-            border: '1px solid rgba(71, 85, 105, 0.3)'
+            border: '1px solid #e5e7eb'
           }}>
             <div style={{
               display: 'flex',
@@ -439,13 +451,13 @@ function AssignmentsTab({ assignments, onExtendDueDate, onDelete, isMobile }) {
               gap: '12px'
             }}>
               <div>
-                <h4 style={{ margin: '0 0 4px 0', color: '#e2e8f0' }}>
+                <h4 style={{ margin: '0 0 4px 0', color: '#1f2937' }}>
                   {assignment.title}
                 </h4>
-                <p style={{ margin: '0 0 8px 0', color: '#94a3b8', fontSize: '14px' }}>
+                <p style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '14px' }}>
                   {assignment.class_name} • {assignment.assignment_type}
                 </p>
-                <p style={{ margin: 0, color: '#fbbf24', fontSize: '12px' }}>
+                <p style={{ margin: 0, color: '#f59e0b', fontSize: '12px' }}>
                   Due: {new Date(assignment.due_date).toLocaleString()}
                 </p>
               </div>

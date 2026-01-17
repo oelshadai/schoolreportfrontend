@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../utils/api'
-import { FaChalkboardTeacher, FaPlus, FaSync, FaLock, FaEnvelope, FaUser, FaCalendarAlt, FaGraduationCap, FaPhone, FaUserGraduate, FaSave, FaTimes } from 'react-icons/fa'
-import ScrollableSelect from '../components/ScrollableSelect'
-import ImageCaptureInput from '../components/ImageCaptureInput'
+import { FaChalkboardTeacher, FaPlus, FaSync, FaEnvelope, FaTimes } from 'react-icons/fa'
 import { useAuth } from '../state/AuthContext'
 
 export default function Teachers() {
@@ -24,45 +22,13 @@ export default function Teachers() {
     specializations: [],
     class_id: ''
   })
-  const [studentForm, setStudentForm] = useState({
-    student_id: '', 
-    first_name: '', 
-    last_name: '', 
-    other_names: '', 
-    gender: 'M', 
-    date_of_birth: '',
-    current_class: '', 
-    guardian_name: '', 
-    guardian_phone: '', 
-    guardian_email: '', 
-    guardian_address: '',
-    admission_date: '', 
-    photo: null
-  })
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [showCreate, setShowCreate] = useState(false)
-  const [showAddStudent, setShowAddStudent] = useState(false)
-  const [studentLoading, setStudentLoading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [classes, setClasses] = useState([])
   const [subjects, setSubjects] = useState([])
-  const [selectedTeacher, setSelectedTeacher] = useState(null)
-  const [showSchedule, setShowSchedule] = useState(false)
-  const [showClassDropdown, setShowClassDropdown] = useState(false)
   
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showClassDropdown && !event.target.closest('.class-dropdown')) {
-        setShowClassDropdown(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [showClassDropdown])
-  
-  // Enhanced responsive state management with resize listener
   const [screenSize, setScreenSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight
@@ -80,33 +46,20 @@ export default function Teachers() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Prevent body scroll when modal is open on mobile
   useEffect(() => {
-    if ((showCreate || showAddStudent) && screenSize.width <= 768) {
+    if (showCreate && screenSize.width <= 768) {
       document.body.style.overflow = 'hidden'
-      document.body.style.position = 'fixed'
-      document.body.style.width = '100%'
-      document.body.style.height = '100%'
     } else {
       document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.width = ''
-      document.body.style.height = ''
     }
     
     return () => {
       document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.width = ''
-      document.body.style.height = ''
     }
-  }, [showCreate, showAddStudent, screenSize.width])
+  }, [showCreate, screenSize.width])
 
-  // Enhanced responsive design constants
-  const isSmallMobile = screenSize.width <= 480
   const isMobile = screenSize.width <= 768
   const isTablet = screenSize.width <= 1024
-  const isDesktop = screenSize.width > 1024
 
   const load = async () => {
     try {
@@ -127,54 +80,6 @@ export default function Teachers() {
 
   useEffect(() => { load() }, [])
 
-  // Ensure latest classes are available when opening the modal
-  useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        const res = await api.get('/schools/classes/')
-        setClasses(res.data.results || res.data)
-      } catch {}
-    }
-    if (showCreate && !classes.length) fetchClasses()
-  }, [showCreate])
-
-  // Test API endpoint function
-  const testAPIEndpoint = async () => {
-    try {
-      console.log('Testing API endpoint...')
-      const response = await api.get('/teachers/')
-      console.log('GET /teachers/ successful:', response.data)
-      setMessage('API endpoint is working correctly!')
-    } catch (error) {
-      console.error('API test failed:', error)
-      setError(`API test failed: ${error.message}`)
-    }
-  }
-
-  // Test teacher creation with sample data
-  const testTeacherCreation = async () => {
-    const testData = {
-      email: `test.teacher.${Date.now()}@school.com`,
-      first_name: 'John',
-      last_name: 'Doe',
-      password: 'TestPassword123!',
-      password_confirm: 'TestPassword123!',
-      employee_id: `EMP${Date.now()}`,
-      phone_number: '+1234567890',
-      hire_date: new Date().toISOString().split('T')[0],
-      qualification: 'B.Ed Mathematics',
-      experience_years: 5,
-      emergency_contact: 'Jane Doe - +1987654321',
-      address: '123 Teacher Street, Education City',
-      specializations: [],
-      class_id: ''
-    }
-    
-    console.log('Testing teacher creation with data:', testData)
-    setForm(testData)
-    setMessage('Test data filled! Click Create Teacher to test.')
-  }
-
   const handleChange = (e) => {
     const { name, value, type } = e.target
     if (type === 'number') {
@@ -182,10 +87,6 @@ export default function Teachers() {
     } else {
       setForm((f) => ({ ...f, [name]: value }))
     }
-  }
-
-  const handleSpecializationChange = (selectedIds) => {
-    setForm((f) => ({ ...f, specializations: selectedIds }))
   }
 
   const resetForm = () => {
@@ -213,9 +114,6 @@ export default function Teachers() {
     setMessage('')
     setError('')
     
-    console.log('Form submission started with data:', form)
-    
-    // Enhanced validation
     const errors = []
     
     if (!form.email?.trim()) {
@@ -248,14 +146,12 @@ export default function Teachers() {
     
     if (errors.length > 0) {
       setError(errors.join(', '))
-      console.error('Validation errors:', errors)
       return
     }
     
     setLoading(true)
     
     try {
-      // Prepare the data to send
       const teacherData = {
         email: form.email.trim(),
         first_name: form.first_name.trim(),
@@ -270,17 +166,14 @@ export default function Teachers() {
         address: form.address?.trim() || null,
         specializations: Array.isArray(form.specializations) ? form.specializations : [],
         class_id: form.class_id ? parseInt(form.class_id) : null,
-        school: user?.school_id || user?.school || 1 // Add school field
+        school: user?.school_id || user?.school || 1
       }
       
-      // Remove null values to avoid backend issues
       Object.keys(teacherData).forEach(key => {
         if (teacherData[key] === null || teacherData[key] === '') {
           delete teacherData[key]
         }
       })
-      
-      console.log('Sending teacher data:', JSON.stringify(teacherData, null, 2))
       
       const response = await api.post('/teachers/', teacherData, {
         headers: {
@@ -288,44 +181,17 @@ export default function Teachers() {
         }
       })
       
-      console.log('Teacher creation successful:', response.data)
-      
       resetForm()
       await load()
       setMessage('Teacher created successfully!')
       setShowCreate(false)
       
     } catch (error) {
-      console.error('Teacher creation failed:', error)
-      console.error('Error response:', error?.response)
-      console.error('Error data:', error?.response?.data)
-      
-      // Log validation details specifically
-      if (error?.response?.data?.details) {
-        console.error('Validation details:', error.response.data.details)
-      }
-      
       let errorMessage = 'Failed to create teacher'
       
       if (error?.response?.status === 400) {
         const errorData = error?.response?.data
-        if (errorData?.details) {
-          // Handle validation details
-          const validationErrors = []
-          Object.entries(errorData.details).forEach(([field, messages]) => {
-            if (Array.isArray(messages)) {
-              validationErrors.push(`${field}: ${messages.join(', ')}`)
-            } else if (typeof messages === 'string') {
-              validationErrors.push(`${field}: ${messages}`)
-            } else {
-              validationErrors.push(`${field}: ${JSON.stringify(messages)}`)
-            }
-          })
-          if (validationErrors.length > 0) {
-            errorMessage = validationErrors.join('\n')
-          }
-        } else if (errorData && typeof errorData === 'object') {
-          // Handle field-specific errors
+        if (errorData && typeof errorData === 'object') {
           const fieldErrors = []
           Object.entries(errorData).forEach(([field, messages]) => {
             if (Array.isArray(messages)) {
@@ -339,15 +205,7 @@ export default function Teachers() {
           }
         } else if (errorData?.detail) {
           errorMessage = errorData.detail
-        } else if (errorData?.error) {
-          errorMessage = errorData.error
         }
-      } else if (error?.response?.status === 401) {
-        errorMessage = 'Authentication failed. Please login again.'
-      } else if (error?.response?.status === 403) {
-        errorMessage = 'You do not have permission to create teachers.'
-      } else if (error?.response?.status === 500) {
-        errorMessage = 'Server error. Please try again later.'
       } else if (error?.response?.data?.detail) {
         errorMessage = error.response.data.detail
       } else if (error?.message) {
@@ -363,71 +221,32 @@ export default function Teachers() {
 
   return (
     <div 
-      className="container" 
       style={{
-        maxWidth: '100%',
+        width: '100vw',
+        height: '100vh',
         margin: 0,
         padding: isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
         paddingTop: isMobile ? '90px' : '100px',
         paddingBottom: isMobile ? '20px' : '40px',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-        backgroundAttachment: 'fixed',
-        backgroundSize: 'cover',
-        backgroundRepeat: 'no-repeat',
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
         minHeight: '100vh',
         height: '100%',
-        color: 'white',
-        width: '100vw',
+        color: '#1f2937',
         boxSizing: 'border-box',
         position: 'relative',
         overflow: 'auto'
       }}
     >
-      {/* Enhanced mobile-specific style injection */}
       <style>
         {`
           * {
             -webkit-tap-highlight-color: transparent;
           }
           
-          @media screen and (max-width: 320px) {
-            .container { 
-              padding: 12px 8px !important; 
-              padding-top: 75px !important;
-            }
-            .page-header {
-              padding: 14px 12px !important;
-              gap: 12px !important;
-              border-radius: 12px !important;
-            }
-            .btn {
-              min-height: 44px !important;
-              font-size: 14px !important;
-              padding: 12px 16px !important;
-            }
-          }
-          
-          @media screen and (min-width: 321px) and (max-width: 480px) {
-            .container { 
-              padding: 16px 10px !important; 
-              padding-top: 80px !important;
-            }
-            .page-header {
-              padding: 16px 14px !important;
-              gap: 14px !important;
-            }
-            .btn {
-              min-height: 48px !important;
-              font-size: 15px !important;
-            }
-          }
-          
-          @media screen and (min-width: 481px) and (max-width: 768px) {
+          @media screen and (max-width: 768px) {
             .container { 
               padding: 20px 12px !important; 
               padding-top: 90px !important; 
-              background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-              color: white !important;
             }
             .page-header { 
               flex-direction: column !important; 
@@ -450,27 +269,17 @@ export default function Teachers() {
             .desktop-table { display: block !important; }
             .mobile-cards { display: none !important; }
           }
-          
-          .modal-content {
-            max-height: 100vh !important;
-            overflow-y: auto !important;
-          }
-          
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
         `}
       </style>
-      {/* Enhanced Header with Mobile-First Design */}
+
       <div className="page-header" style={{
-        background: 'rgba(15, 23, 42, 0.8)',
+        background: 'white',
         backdropFilter: 'blur(16px)',
         borderRadius: isMobile ? 16 : 20,
         padding: isMobile ? '20px 16px' : isTablet ? '24px 20px' : '28px 24px',
         marginBottom: isMobile ? 20 : 24,
-        border: '1px solid rgba(34, 197, 94, 0.2)',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+        border: '1px solid #e5e7eb',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: isMobile ? 'flex-start' : 'center',
@@ -483,13 +292,13 @@ export default function Teachers() {
           gap: isMobile ? 12 : 16
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+            background: 'linear-gradient(135deg, #16a34a, #15803d)',
             borderRadius: 12,
             padding: isMobile ? '12px' : '16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 8px 20px rgba(34, 197, 94, 0.4)'
+            boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)'
           }}>
             <FaChalkboardTeacher size={isMobile ? 20 : 24} color="white" />
           </div>
@@ -507,7 +316,7 @@ export default function Teachers() {
             <p style={{
               margin: '4px 0 0 0',
               fontSize: isMobile ? 13 : 14,
-              color: '#94a3b8',
+              color: '#374151',
               fontWeight: 500
             }}>
               {teachers.length} {teachers.length === 1 ? 'teacher' : 'teachers'} registered
@@ -528,7 +337,7 @@ export default function Teachers() {
               alignItems: 'center',
               gap: 8,
               padding: isMobile ? '14px 18px' : '12px 16px',
-              background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+              background: 'linear-gradient(135deg, #16a34a, #15803d)',
               border: 'none',
               borderRadius: 10,
               color: 'white',
@@ -538,7 +347,8 @@ export default function Teachers() {
               justifyContent: 'center',
               width: isMobile ? '100%' : 'auto',
               transition: 'all 0.3s ease',
-              boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)'
+              boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)',
+              cursor: 'pointer'
             }}
           >
             <FaPlus size={isMobile ? 16 : 14} />
@@ -552,16 +362,17 @@ export default function Teachers() {
               alignItems: 'center',
               gap: 8,
               padding: isMobile ? '14px 18px' : '12px 16px',
-              background: 'rgba(34, 197, 94, 0.1)',
-              border: '1px solid rgba(34, 197, 94, 0.3)',
+              background: 'rgba(22, 163, 74, 0.05)',
+              border: '1px solid rgba(22, 163, 74, 0.2)',
               borderRadius: 10,
-              color: '#86efac',
+              color: '#16a34a',
               fontWeight: 600,
               fontSize: isMobile ? 14 : 15,
               minHeight: isMobile ? 48 : 44,
               justifyContent: 'center',
               width: isMobile ? '100%' : 'auto',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              cursor: 'pointer'
             }}
           >
             <FaSync size={isMobile ? 16 : 14} />
@@ -569,7 +380,7 @@ export default function Teachers() {
           </button>
         </div>
       </div>
-      {/* Enhanced Alert Messages */}
+
       {error && (
         <div style={{
           background: 'rgba(239, 68, 68, 0.1)',
@@ -603,1040 +414,372 @@ export default function Teachers() {
         </div>
       )}
 
-      {/* Desktop Table View */}
-      {!isMobile && (
-        <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
-          borderRadius: 16,
-          overflow: 'hidden',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-          border: '1px solid rgba(71, 85, 105, 0.3)',
-          marginBottom: 24,
-          backdropFilter: 'blur(12px)'
-        }}>
-          <table className="table" style={{ margin: 0 }}>
-            <thead style={{ background: 'linear-gradient(135deg, #1e40af, #3b82f6)' }}>
-              <tr>
-                <th style={{ padding: '16px 20px', color: '#000000', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, borderBottom: '2px solid rgba(34, 197, 94, 0.3)' }}>📧 Email</th>
-                <th style={{ padding: '16px 20px', color: '#000000', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, borderBottom: '2px solid rgba(34, 197, 94, 0.3)' }}>👤 Full Name</th>
-                <th style={{ padding: '16px 20px', color: '#000000', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, textAlign: 'center', borderBottom: '2px solid rgba(34, 197, 94, 0.3)' }}>🎯 Role</th>
-                <th style={{ padding: '16px 20px', color: '#000000', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, textAlign: 'center', borderBottom: '2px solid rgba(34, 197, 94, 0.3)' }}>⚡ Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {teachers.map((t, index) => (
-                <tr key={t.id} style={{ 
-                  borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
-                  background: index % 2 === 0 ? 'rgba(15, 23, 42, 0.4)' : 'rgba(30, 41, 59, 0.2)',
-                  transition: 'all 0.3s ease'
-                }}>
-                  <td style={{ padding: '16px 20px', color: '#e2e8f0', fontSize: 14, fontWeight: 500 }}>{t.email}</td>
-                  <td style={{ padding: '16px 20px', color: '#ffffff', fontWeight: 600, fontSize: 14 }}>{t.first_name} {t.last_name}</td>
-                  <td style={{ padding: '16px 20px', textAlign: 'center' }}>
-                    <span style={{
-                      background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                      color: 'white',
-                      padding: '6px 12px',
-                      borderRadius: 12,
-                      fontSize: 11,
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)'
-                    }}>
-                      {t.role || 'Teacher'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '16px 20px', textAlign: 'center' }}>
-                    <span style={{
-                      background: t.is_active !== false ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
-                      color: 'white',
-                      padding: '4px 8px',
-                      borderRadius: 8,
-                      fontSize: 10,
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.3px'
-                    }}>
-                      {t.is_active !== false ? '✓ Active' : '✗ Inactive'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {!teachers.length && (
-            <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b' }}>
-              👩‍🏫 No teachers registered yet.
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Mobile Card View */}
-      {isMobile && (
-        <div style={{
-          display: 'grid',
-          gap: 16,
-          marginTop: 20
-        }}>
-          {teachers.map(t => (
-            <div
-              key={t.id}
-              style={{
-                background: 'rgba(15, 23, 42, 0.8)',
-                borderRadius: 16,
-                padding: '20px 16px',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                backdropFilter: 'blur(12px)',
-                boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3)'
-              }}
-            >
-              <div style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 12,
-                marginBottom: 12
+      <div className="desktop-table" style={{
+        background: 'white',
+        borderRadius: 16,
+        overflow: 'hidden',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+        border: '1px solid #e5e7eb',
+        marginBottom: 24
+      }}>
+        <table className="table" style={{ margin: 0, width: '100%', borderCollapse: 'collapse' }}>
+          <thead style={{ background: '#f3f4f6' }}>
+            <tr>
+              <th style={{ padding: '16px 20px', color: 'black', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, borderBottom: '2px solid #e5e7eb' }}>📧 Email</th>
+              <th style={{ padding: '16px 20px', color: 'black', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, borderBottom: '2px solid #e5e7eb' }}>👤 Full Name</th>
+              <th style={{ padding: '16px 20px', color: 'black', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, textAlign: 'center', borderBottom: '2px solid #e5e7eb' }}>🎯 Role</th>
+              <th style={{ padding: '16px 20px', color: 'black', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: 13, textAlign: 'center', borderBottom: '2px solid #e5e7eb' }}>⚡ Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {teachers.map((t, index) => (
+              <tr key={t.id} style={{ 
+                borderBottom: '1px solid #e5e7eb',
+                background: index % 2 === 0 ? '#ffffff' : '#f9fafb',
+                transition: 'all 0.3s ease'
               }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                  borderRadius: 10,
-                  padding: 8,
+                <td style={{ padding: '16px 20px', color: '#374151', fontSize: 14, fontWeight: 500 }}>{t.email}</td>
+                <td style={{ padding: '16px 20px', color: '#1f2937', fontWeight: 600, fontSize: 14 }}>{t.first_name} {t.last_name}</td>
+                <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                  <span style={{
+                    background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                    color: 'white',
+                    padding: '6px 12px',
+                    borderRadius: 12,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    boxShadow: '0 2px 8px rgba(22, 163, 74, 0.3)'
+                  }}>
+                    {t.role || 'Teacher'}
+                  </span>
+                </td>
+                <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                  <span style={{
+                    background: t.is_active !== false ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    color: 'white',
+                    padding: '4px 8px',
+                    borderRadius: 8,
+                    fontSize: 10,
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.3px'
+                  }}>
+                    {t.is_active !== false ? '✓ Active' : '✗ Inactive'}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {!teachers.length && (
+          <div style={{ padding: '40px 20px', textAlign: 'center', color: '#6b7280' }}>
+            👩🏫 No teachers registered yet.
+          </div>
+        )}
+      </div>
+
+      <div className="mobile-cards" style={{
+        display: 'grid',
+        gap: 16,
+        marginTop: 20
+      }}>
+        {teachers.map(t => (
+          <div
+            key={t.id}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: 16,
+              padding: '20px 16px',
+              border: '1px solid rgba(71, 85, 105, 0.3)',
+              backdropFilter: 'blur(12px)',
+              boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3)'
+            }}
+          >
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 12,
+              marginBottom: 12
+            }}>
+              <div style={{
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                borderRadius: 10,
+                padding: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <FaChalkboardTeacher size={16} color="white" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <h3 style={{
+                  margin: 0,
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: 'white',
+                  marginBottom: 4
+                }}>
+                  {t.first_name} {t.last_name}
+                </h3>
+                <p style={{
+                  margin: 0,
+                  fontSize: 13,
+                  color: '#94a3b8',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  gap: 6
                 }}>
-                  <FaChalkboardTeacher size={16} color="white" />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{
-                    margin: 0,
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: 'white',
-                    marginBottom: 4
-                  }}>
-                    {t.first_name} {t.last_name}
-                  </h3>
-                  <p style={{
-                    margin: 0,
-                    fontSize: 13,
-                    color: '#94a3b8',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6
-                  }}>
-                    <FaEnvelope size={12} />
-                    {t.email}
-                  </p>
-                </div>
-                <span style={{
-                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                  color: 'white',
-                  padding: '6px 10px',
-                  borderRadius: 8,
-                  fontSize: 10,
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  {t.role}
-                </span>
+                  <FaEnvelope size={12} />
+                  {t.email}
+                </p>
               </div>
+              <span style={{
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                padding: '6px 10px',
+                borderRadius: 8,
+                fontSize: 10,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                {t.role || 'Teacher'}
+              </span>
             </div>
-          ))}
-          {!teachers.length && (
-            <div style={{
-              background: 'rgba(15, 23, 42, 0.6)',
-              borderRadius: 16,
-              padding: '40px 20px',
-              textAlign: 'center',
-              color: '#64748b',
-              border: '1px solid rgba(71, 85, 105, 0.3)',
-              backdropFilter: 'blur(12px)'
-            }}>
-              👩‍🏫 No teachers registered yet.
-            </div>
-          )}
-        </div>
-      )}
+          </div>
+        ))}
+        {!teachers.length && (
+          <div style={{
+            background: 'rgba(15, 23, 42, 0.6)',
+            borderRadius: 16,
+            padding: '40px 20px',
+            textAlign: 'center',
+            color: '#64748b',
+            border: '1px solid rgba(71, 85, 105, 0.3)',
+            backdropFilter: 'blur(12px)'
+          }}>
+            👩🏫 No teachers registered yet.
+          </div>
+        )}
+      </div>
 
       {showCreate && (
-        <div className="modal" onClick={()=>setShowCreate(false)} style={{
+        <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: isMobile ? 'flex-start' : 'center',
-          justifyContent: 'center',
-          padding: isMobile ? '0' : '16px',
           background: 'rgba(0, 0, 0, 0.8)',
-          backdropFilter: 'blur(12px)',
-          overflow: 'hidden'
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: isMobile ? '20px' : '40px'
         }}>
-          <div className="modal-content" onClick={(e)=>e.stopPropagation()} style={{
-            width: isMobile ? '100vw' : '90%',
-            height: isMobile ? '100vh' : 'auto',
-            maxWidth: isMobile ? 'none' : '700px',
-            maxHeight: isMobile ? '100vh' : '90vh',
-            background: isMobile ? 'rgba(15, 23, 42, 1)' : 'rgba(15, 23, 42, 0.95)',
-            border: isMobile ? 'none' : '1px solid rgba(34, 197, 94, 0.3)',
-            borderRadius: isMobile ? 0 : 16,
-            backdropFilter: 'blur(20px)',
-            color: 'white',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            position: 'relative'
+          <div style={{
+            background: 'rgba(15, 23, 42, 0.95)',
+            borderRadius: 20,
+            padding: isMobile ? '24px' : '32px',
+            width: '100%',
+            maxWidth: isMobile ? '100%' : '600px',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            border: '1px solid rgba(34, 197, 94, 0.3)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(20px)'
           }}>
-            <div className="modal-header" style={{
+            <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: isMobile ? '20px 20px 16px' : '20px 24px 16px',
-              borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
-              background: isMobile ? 'linear-gradient(135deg, rgba(22, 163, 74, 0.15), rgba(34, 197, 94, 0.1))' : 'linear-gradient(135deg, rgba(22, 163, 74, 0.1), rgba(34, 197, 94, 0.05))',
-              backdropFilter: 'blur(8px)',
-              position: isMobile ? 'sticky' : 'static',
-              top: 0,
-              zIndex: 10
+              marginBottom: 24
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12
-              }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                  borderRadius: 8,
-                  padding: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <FaChalkboardTeacher size={16} color="white" />
-                </div>
-                <h3 style={{
-                  margin: 0,
-                  fontSize: isMobile ? 18 : 20,
-                  fontWeight: 600,
-                  background: 'linear-gradient(135deg, #86efac, #22c55e)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}>Create New Teacher</h3>
-              </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                {process.env.NODE_ENV === 'development' && (
-                  <>
-                    <button 
-                      type="button"
-                      onClick={testAPIEndpoint}
-                      style={{
-                        background: 'rgba(168, 85, 247, 0.15)',
-                        border: '2px solid rgba(168, 85, 247, 0.4)',
-                        color: '#c4b5fd',
-                        padding: isMobile ? '8px 12px' : '6px 10px',
-                        borderRadius: 8,
-                        fontSize: isMobile ? 14 : 12,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease'
-                      }}
-                    >
-                      Test API
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={testTeacherCreation}
-                      style={{
-                        background: 'rgba(59, 130, 246, 0.15)',
-                        border: '2px solid rgba(59, 130, 246, 0.4)',
-                        color: '#93c5fd',
-                        padding: isMobile ? '8px 12px' : '6px 10px',
-                        borderRadius: 8,
-                        fontSize: isMobile ? 14 : 12,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease'
-                      }}
-                    >
-                      Fill Test Data
-                    </button>
-                  </>
-                )}
-                <button 
-                  className="btn" 
-                  onClick={()=>setShowCreate(false)}
+              <h2 style={{
+                margin: 0,
+                fontSize: isMobile ? 20 : 24,
+                fontWeight: 700,
+                color: '#22c55e'
+              }}>Create New Teacher</h2>
+              <button
+                onClick={() => setShowCreate(false)}
                 style={{
-                  background: 'rgba(71, 85, 105, 0.1)',
-                  border: '1px solid rgba(71, 85, 105, 0.3)',
+                  background: 'none',
+                  border: 'none',
                   color: '#94a3b8',
-                  padding: '6px',
-                  borderRadius: 6,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  width: 28,
-                  height: 28,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s ease',
-                  cursor: 'pointer'
+                  fontSize: 20,
+                  cursor: 'pointer',
+                  padding: 8,
+                  borderRadius: 8,
+                  transition: 'all 0.3s ease'
                 }}
               >
-                ×
+                <FaTimes />
               </button>
-              </div>
             </div>
             
-            {/* Error and Success Messages */}
-            {(error || message) && (
-              <div style={{
-                padding: isMobile ? '16px 20px' : '12px 24px',
-                margin: 0,
-                background: error 
-                  ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))' 
-                  : 'linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.1))',
-                border: error 
-                  ? '2px solid rgba(239, 68, 68, 0.3)' 
-                  : '2px solid rgba(34, 197, 94, 0.3)',
-                borderRadius: isMobile ? 10 : 8,
-                marginBottom: isMobile ? 16 : 12,
-                marginLeft: isMobile ? 20 : 24,
-                marginRight: isMobile ? 20 : 24,
-                fontSize: isMobile ? 15 : 14,
-                fontWeight: 500,
-                color: error ? '#fca5a5' : '#86efac'
-              }}>
-                {error || message}
-              </div>
-            )}
-            
-            <form onSubmit={handleCreate} style={{ 
-              flex: 1, 
-              display: 'flex', 
-              flexDirection: 'column',
-              height: isMobile ? 'calc(100vh - 140px)' : 'auto',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                flex: 1,
-                overflowY: 'auto',
-                overflowX: 'hidden',
-                padding: isMobile ? '16px 20px' : '20px 24px',
-                display: isMobile ? 'flex' : 'grid',
-                flexDirection: isMobile ? 'column' : 'row',
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                gap: isMobile ? 16 : 20,
-                alignContent: 'start',
-                WebkitOverflowScrolling: 'touch',
-                scrollbarWidth: 'thin',
-                scrollbarColor: 'rgba(34, 197, 94, 0.3) transparent',
-                scrollBehavior: 'smooth'
-              }}>
-                {/* Email Field */}
-                <div className="field" style={{ gridColumn: isMobile ? '1' : '1 / -1' }}>
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    Email Address <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <div className="input-with-icon" style={{ position: 'relative' }}>
-                    <FaEnvelope style={{
-                      position: 'absolute',
-                      left: isMobile ? 16 : 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#64748b',
-                      fontSize: isMobile ? 16 : 14,
-                      zIndex: 2
-                    }} />
-                    <input 
-                      name="email" 
-                      type="email"
-                      value={form.email} 
-                      onChange={handleChange} 
-                      required
-                      placeholder="Enter email address"
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px 16px 16px 48px' : '12px 12px 12px 42px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        outline: 'none',
-                        transition: 'all 0.3s ease',
-                        minHeight: isMobile ? '52px' : 'auto',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* First Name */}
-                <div className="field">
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    First Name <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <div className="input-with-icon" style={{ position: 'relative' }}>
-                    <FaUser style={{
-                      position: 'absolute',
-                      left: isMobile ? 16 : 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#64748b',
-                      fontSize: isMobile ? 16 : 14,
-                      zIndex: 2
-                    }} />
-                    <input 
-                      name="first_name" 
-                      value={form.first_name} 
-                      onChange={handleChange} 
-                      required
-                      placeholder="Enter first name"
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px 16px 16px 48px' : '12px 12px 12px 42px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        outline: 'none',
-                        transition: 'all 0.3s ease',
-                        minHeight: isMobile ? '52px' : 'auto',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Last Name */}
-                <div className="field">
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    Last Name <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <div className="input-with-icon" style={{ position: 'relative' }}>
-                    <FaUser style={{
-                      position: 'absolute',
-                      left: isMobile ? 16 : 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#64748b',
-                      fontSize: isMobile ? 16 : 14,
-                      zIndex: 2
-                    }} />
-                    <input 
-                      name="last_name" 
-                      value={form.last_name} 
-                      onChange={handleChange} 
-                      required
-                      placeholder="Enter last name"
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px 16px 16px 48px' : '12px 12px 12px 42px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        outline: 'none',
-                        transition: 'all 0.3s ease',
-                        minHeight: isMobile ? '52px' : 'auto',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Class Assignment */}
-                <div className="field" style={{ gridColumn: isMobile ? '1' : '1 / -1' }}>
-                  <label style={{
-                    display: 'block',
-                    marginBottom: 8,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: '#d1d5db'
-                  }}>
-                    Assign Class (Optional)
-                  </label>
-                  <div className="class-dropdown" style={{ position: 'relative' }}>
-                    <div
-                      onClick={() => setShowClassDropdown(!showClassDropdown)}
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px' : '12px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        minHeight: isMobile ? '52px' : '44px',
-                        boxSizing: 'border-box'
-                      }}
-                    >
-                      <span>{form.class_id ? classes.find(c => String(c.id) === form.class_id)?.level_display || classes.find(c => String(c.id) === form.class_id)?.level : 'None'}</span>
-                      <span style={{ transform: showClassDropdown ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
-                    </div>
-                    {showClassDropdown && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '100%',
-                        left: 0,
-                        right: 0,
-                        background: 'rgba(30, 41, 59, 0.95)',
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: 8,
-                        maxHeight: '200px',
-                        overflowY: 'auto',
-                        zIndex: 1000,
-                        marginTop: 4
-                      }}>
-                        <div
-                          onClick={() => {
-                            setForm(f => ({...f, class_id: ''}))
-                            setShowClassDropdown(false)
-                          }}
-                          style={{
-                            padding: '12px 16px',
-                            cursor: 'pointer',
-                            borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
-                            color: '#94a3b8'
-                          }}
-                        >
-                          None
-                        </div>
-                        {classes.map(c => (
-                          <div
-                            key={c.id}
-                            onClick={() => {
-                              setForm(f => ({...f, class_id: String(c.id)}))
-                              setShowClassDropdown(false)
-                            }}
-                            style={{
-                              padding: '12px 16px',
-                              cursor: 'pointer',
-                              borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
-                              backgroundColor: String(c.id) === form.class_id ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
-                              color: 'white'
-                            }}
-                          >
-                            {c.level_display || c.level}{c.section ? ` ${c.section}` : ''}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div className="field">
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    Password <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <div className="input-with-icon" style={{ position: 'relative' }}>
-                    <FaLock style={{
-                      position: 'absolute',
-                      left: isMobile ? 16 : 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#64748b',
-                      fontSize: isMobile ? 16 : 14,
-                      zIndex: 2
-                    }} />
-                    <input 
-                      type="password" 
-                      name="password" 
-                      value={form.password} 
-                      onChange={handleChange} 
-                      required
-                      placeholder="Create password"
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px 16px 16px 48px' : '12px 12px 12px 42px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        outline: 'none',
-                        transition: 'all 0.3s ease',
-                        minHeight: isMobile ? '52px' : 'auto',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Confirm Password */}
-                <div className="field">
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    Confirm Password <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <div className="input-with-icon" style={{ position: 'relative' }}>
-                    <FaLock style={{
-                      position: 'absolute',
-                      left: isMobile ? 16 : 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#64748b',
-                      fontSize: isMobile ? 16 : 14,
-                      zIndex: 2
-                    }} />
-                    <input 
-                      type="password" 
-                      name="password_confirm" 
-                      value={form.password_confirm} 
-                      onChange={handleChange} 
-                      required
-                      placeholder="Confirm password"
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px 16px 16px 48px' : '12px 12px 12px 42px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        outline: 'none',
-                        transition: 'all 0.3s ease',
-                        minHeight: isMobile ? '52px' : 'auto',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Hire Date */}
-                <div className="field">
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    Hire Date <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <div className="input-with-icon" style={{ position: 'relative' }}>
-                    <FaCalendarAlt style={{
-                      position: 'absolute',
-                      left: isMobile ? 16 : 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#64748b',
-                      fontSize: isMobile ? 16 : 14,
-                      zIndex: 2
-                    }} />
-                    <input 
-                      type="date" 
-                      name="hire_date" 
-                      value={form.hire_date} 
-                      onChange={handleChange} 
-                      required
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px 16px 16px 48px' : '12px 12px 12px 42px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        outline: 'none',
-                        transition: 'all 0.3s ease',
-                        minHeight: isMobile ? '52px' : 'auto',
-                        boxSizing: 'border-box',
-                        colorScheme: 'dark'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Phone Number */}
-                <div className="field">
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    Phone Number
-                  </label>
-                  <div className="input-with-icon" style={{ position: 'relative' }}>
-                    <FaPhone style={{
-                      position: 'absolute',
-                      left: isMobile ? 16 : 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#64748b',
-                      fontSize: isMobile ? 16 : 14,
-                      zIndex: 2
-                    }} />
-                    <input 
-                      type="tel" 
-                      name="phone_number" 
-                      value={form.phone_number} 
-                      onChange={handleChange} 
-                      placeholder="Enter phone number"
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px 16px 16px 48px' : '12px 12px 12px 42px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        outline: 'none',
-                        transition: 'all 0.3s ease',
-                        minHeight: isMobile ? '52px' : 'auto',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Employee ID */}
-                <div className="field">
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    Employee ID <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <div className="input-with-icon" style={{ position: 'relative' }}>
-                    <FaUserGraduate style={{
-                      position: 'absolute',
-                      left: isMobile ? 16 : 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#64748b',
-                      fontSize: isMobile ? 16 : 14,
-                      zIndex: 2
-                    }} />
-                    <input 
-                      type="text" 
-                      name="employee_id" 
-                      value={form.employee_id} 
-                      onChange={handleChange} 
-                      required
-                      placeholder="Enter employee ID"
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px 16px 16px 48px' : '12px 12px 12px 42px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        outline: 'none',
-                        transition: 'all 0.3s ease',
-                        minHeight: isMobile ? '52px' : 'auto',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Qualification */}
-                <div className="field">
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    Qualification
-                  </label>
-                  <div className="input-with-icon" style={{ position: 'relative' }}>
-                    <FaGraduationCap style={{
-                      position: 'absolute',
-                      left: isMobile ? 16 : 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#64748b',
-                      fontSize: isMobile ? 16 : 14,
-                      zIndex: 2
-                    }} />
-                    <input 
-                      type="text" 
-                      name="qualification" 
-                      value={form.qualification} 
-                      onChange={handleChange} 
-                      placeholder="e.g., B.Ed, M.Sc Mathematics"
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px 16px 16px 48px' : '12px 12px 12px 42px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        outline: 'none',
-                        transition: 'all 0.3s ease',
-                        minHeight: isMobile ? '52px' : 'auto',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Experience Years */}
-                <div className="field">
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    Experience (Years)
-                  </label>
-                  <div className="input-with-icon" style={{ position: 'relative' }}>
-                    <FaCalendarAlt style={{
-                      position: 'absolute',
-                      left: isMobile ? 16 : 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#64748b',
-                      fontSize: isMobile ? 16 : 14,
-                      zIndex: 2
-                    }} />
-                    <input 
-                      type="number" 
-                      name="experience_years" 
-                      value={form.experience_years} 
-                      onChange={handleChange} 
-                      min="0"
-                      max="50"
-                      placeholder="Years of experience"
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px 16px 16px 48px' : '12px 12px 12px 42px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        outline: 'none',
-                        transition: 'all 0.3s ease',
-                        minHeight: isMobile ? '52px' : 'auto',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Emergency Contact */}
-                <div className="field">
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    Emergency Contact
-                  </label>
-                  <div className="input-with-icon" style={{ position: 'relative' }}>
-                    <FaPhone style={{
-                      position: 'absolute',
-                      left: isMobile ? 16 : 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#64748b',
-                      fontSize: isMobile ? 16 : 14,
-                      zIndex: 2
-                    }} />
-                    <input 
-                      type="tel" 
-                      name="emergency_contact" 
-                      value={form.emergency_contact} 
-                      onChange={handleChange} 
-                      placeholder="Emergency contact number"
-                      style={{
-                        width: '100%',
-                        padding: isMobile ? '16px 16px 16px 48px' : '12px 12px 12px 42px',
-                        fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
-                        borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
-                        outline: 'none',
-                        transition: 'all 0.3s ease',
-                        minHeight: isMobile ? '52px' : 'auto',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Address */}
-                <div className="field" style={{ gridColumn: isMobile ? '1' : '1 / -1' }}>
-                  <label style={{
-                    display: 'block',
-                    marginBottom: isMobile ? 12 : 8,
-                    fontSize: isMobile ? 15 : 14,
-                    fontWeight: 600,
-                    color: '#e2e8f0',
-                    letterSpacing: '0.025em'
-                  }}>
-                    Address
-                  </label>
-                  <textarea 
-                    name="address" 
-                    value={form.address} 
-                    onChange={handleChange} 
-                    placeholder="Enter residential address"
-                    rows="3"
+            <form onSubmit={handleCreate} style={{ display: 'grid', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>First Name *</label>
+                  <input
+                    type="text"
+                    name="first_name"
+                    value={form.first_name}
+                    onChange={handleChange}
+                    required
                     style={{
                       width: '100%',
-                      padding: isMobile ? '16px' : '12px',
-                      fontSize: isMobile ? 16 : 15,
-                      border: '2px solid rgba(71, 85, 105, 0.4)',
-                      borderRadius: isMobile ? 12 : 8,
-                      background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
+                      padding: '12px 16px',
+                      borderRadius: 10,
+                      border: '1px solid rgba(71, 85, 105, 0.5)',
+                      background: 'rgba(30, 41, 59, 0.8)',
                       color: 'white',
-                      outline: 'none',
-                      transition: 'all 0.3s ease',
-                      minHeight: isMobile ? '80px' : '60px',
-                      boxSizing: 'border-box',
-                      fontFamily: 'inherit',
-                      resize: 'vertical'
+                      fontSize: 14,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>Last Name *</label>
+                  <input
+                    type="text"
+                    name="last_name"
+                    value={form.last_name}
+                    onChange={handleChange}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderRadius: 10,
+                      border: '1px solid rgba(71, 85, 105, 0.5)',
+                      background: 'rgba(30, 41, 59, 0.8)',
+                      color: 'white',
+                      fontSize: 14,
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
               </div>
-              <div className="modal-actions" style={{
-                display: 'flex',
-                flexDirection: isMobile ? 'column-reverse' : 'row',
-                gap: isMobile ? 16 : 8,
-                padding: isMobile ? '20px 20px 24px' : '16px 24px 20px',
-                borderTop: '2px solid rgba(71, 85, 105, 0.3)',
-                background: isMobile 
-                  ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.8))' 
-                  : 'rgba(15, 23, 42, 0.3)',
-                justifyContent: 'flex-end',
-                backdropFilter: 'blur(8px)',
-                position: isMobile ? 'sticky' : 'static',
-                bottom: 0,
-                zIndex: 10
-              }}>
-                <button 
-                  type="button" 
-                  className="btn" 
-                  onClick={()=>setShowCreate(false)}
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>Email *</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
                   style={{
-                    padding: isMobile ? '16px 20px' : '10px 16px',
-                    background: 'rgba(107, 114, 128, 0.15)',
-                    border: '2px solid rgba(107, 114, 128, 0.4)',
-                    borderRadius: isMobile ? 12 : 8,
-                    color: '#cbd5e1',
+                    width: '100%',
+                    padding: '12px 16px',
+                    borderRadius: 10,
+                    border: '1px solid rgba(71, 85, 105, 0.5)',
+                    background: 'rgba(30, 41, 59, 0.8)',
+                    color: 'white',
+                    fontSize: 14,
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>Employee ID *</label>
+                <input
+                  type="text"
+                  name="employee_id"
+                  value={form.employee_id}
+                  onChange={handleChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    borderRadius: 10,
+                    border: '1px solid rgba(71, 85, 105, 0.5)',
+                    background: 'rgba(30, 41, 59, 0.8)',
+                    color: 'white',
+                    fontSize: 14,
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>Password *</label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderRadius: 10,
+                      border: '1px solid rgba(71, 85, 105, 0.5)',
+                      background: 'rgba(30, 41, 59, 0.8)',
+                      color: 'white',
+                      fontSize: 14,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>Confirm Password *</label>
+                  <input
+                    type="password"
+                    name="password_confirm"
+                    value={form.password_confirm}
+                    onChange={handleChange}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderRadius: 10,
+                      border: '1px solid rgba(71, 85, 105, 0.5)',
+                      background: 'rgba(30, 41, 59, 0.8)',
+                      color: 'white',
+                      fontSize: 14,
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-end', marginTop: 24 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowCreate(false)}
+                  style={{
+                    padding: '12px 24px',
+                    borderRadius: 10,
+                    border: '1px solid rgba(71, 85, 105, 0.5)',
+                    background: 'transparent',
+                    color: '#94a3b8',
                     fontWeight: 600,
-                    fontSize: isMobile ? 15 : 15,
-                    minHeight: isMobile ? 54 : 40,
-                    width: isMobile ? '40%' : 'auto',
-                    transition: 'all 0.3s ease'
+                    cursor: 'pointer'
                   }}
                 >
                   Cancel
                 </button>
-                <button 
-                  disabled={loading} 
-                  className="btn primary" 
+                <button
                   type="submit"
+                  disabled={loading}
                   style={{
-                    padding: isMobile ? '16px 22px' : '10px 20px',
-                    background: loading 
-                      ? 'rgba(107, 114, 128, 0.5)' 
-                      : 'linear-gradient(135deg, #22c55e, #16a34a)',
+                    padding: '12px 24px',
+                    borderRadius: 10,
                     border: 'none',
-                    borderRadius: isMobile ? 12 : 8,
+                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
                     color: 'white',
-                    fontWeight: 700,
-                    fontSize: isMobile ? 15 : 15,
-                    minHeight: isMobile ? 54 : 40,
-                    width: isMobile ? '100%' : 'auto',
-                    transition: 'all 0.3s ease',
-                    boxShadow: loading ? 'none' : '0 6px 16px rgba(34, 197, 94, 0.4)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    cursor: loading ? 'not-allowed' : 'pointer'
+                    fontWeight: 600,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.7 : 1
                   }}
                 >
-                  {loading ? (
-                    <>
-                      <div style={{
-                        width: 16,
-                        height: 16,
-                        border: '2px solid rgba(255, 255, 255, 0.3)',
-                        borderTop: '2px solid white',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite'
-                      }} />
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <FaSave size={14} />
-                      Create Teacher
-                    </>
-                  )}
+                  {loading ? 'Creating...' : 'Create Teacher'}
                 </button>
               </div>
             </form>

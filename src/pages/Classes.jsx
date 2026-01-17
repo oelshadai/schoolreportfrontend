@@ -59,47 +59,34 @@ export default function Classes() {
     try {
       console.log('Loading students for class ID:', classId)
       
-      // Try different API endpoints
-      let students = []
+      // Get all students first
+      const res = await api.get('/students/')
+      const allStudents = res.data.results || res.data || []
+      console.log('All students loaded:', allStudents.length)
       
-      try {
-        // Method 1: Direct class filter
-        const res1 = await api.get(`/students/?class_instance=${classId}`)
-        students = res1.data.results || res1.data || []
-        console.log('Method 1 - Direct filter:', students.length, 'students')
-      } catch (e1) {
-        console.log('Method 1 failed:', e1.message)
-      }
-      
-      if (students.length === 0) {
-        try {
-          // Method 2: Get all students and filter
-          const res2 = await api.get('/students/')
-          const allStudents = res2.data.results || res2.data || []
-          students = allStudents.filter(s => 
-            s.class_instance == classId || 
-            s.class_id == classId || 
-            s.class == classId ||
-            (s.class_instance && s.class_instance.id == classId)
-          )
-          console.log('Method 2 - Filter all:', students.length, 'students from', allStudents.length, 'total')
-        } catch (e2) {
-          console.log('Method 2 failed:', e2.message)
+      // Filter students for this class using multiple possible field names
+      const students = allStudents.filter(s => {
+        const matches = (
+          s.current_class?.id == classId || 
+          s.class_instance == classId || 
+          s.class_id == classId ||
+          s.current_class == classId ||
+          (s.current_class && typeof s.current_class === 'object' && s.current_class.id == classId)
+        )
+        
+        if (matches) {
+          console.log(`Student ${s.first_name} ${s.last_name} matches class ${classId}:`, {
+            current_class_id: s.current_class?.id,
+            class_instance: s.class_instance,
+            class_id: s.class_id,
+            current_class: s.current_class
+          })
         }
-      }
+        
+        return matches
+      })
       
-      if (students.length === 0) {
-        try {
-          // Method 3: Try with class_id parameter
-          const res3 = await api.get(`/students/?class_id=${classId}`)
-          students = res3.data.results || res3.data || []
-          console.log('Method 3 - class_id param:', students.length, 'students')
-        } catch (e3) {
-          console.log('Method 3 failed:', e3.message)
-        }
-      }
-      
-      console.log('Final student count:', students.length)
+      console.log('Filtered students for class:', students.length)
       setClassStudents(students)
     } catch (e) {
       console.error('Failed to load class students:', e)
@@ -363,34 +350,32 @@ export default function Classes() {
         }
         
         .classes-page {
-          min-height: 100vh;
-          max-height: 100vh;
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-          padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
-          -webkit-overflow-scrolling: touch;
-          overscroll-behavior: contain;
+          width: 100vw;
+          height: 100vh;
+          background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+          padding: 0;
+          margin: 0;
           overflow-y: auto;
           overflow-x: hidden;
-          color: white;
+          color: #1a202c;
         }
         
         .classes-container {
-          max-width: 1400px;
-          margin: 0 auto;
+          width: 100%;
+          margin: 0;
           padding: 16px;
-          padding-top: 120px;
-          min-height: calc(100vh - 32px);
-          overflow-y: auto;
+          padding-top: 80px;
+          min-height: 100vh;
+          box-sizing: border-box;
         }
         
         .classes-header {
-          background: rgba(15, 23, 42, 0.8);
-          backdrop-filter: blur(16px);
-          border-radius: 16px;
+          background: #ffffff;
+          border-radius: 12px;
           padding: 20px;
           margin-bottom: 24px;
-          border: 1px solid rgba(34, 197, 94, 0.2);
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         
         .classes-title {
@@ -399,25 +384,21 @@ export default function Classes() {
           gap: 12px;
           font-size: 28px;
           font-weight: 700;
-          background: linear-gradient(135deg, #86efac, #22c55e);
-          background-clip: text;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          color: #1a202c;
           margin: 0;
         }
         
         .classes-title svg {
           font-size: 28px;
-          color: #22c55e;
+          color: #3ecf8e;
         }
         
         .classes-card {
-          background: rgba(15, 23, 42, 0.8);
-          backdrop-filter: blur(12px);
-          border-radius: 16px;
+          background: #ffffff;
+          border-radius: 12px;
           padding: 24px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(71, 85, 105, 0.3);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+          border: 1px solid #e2e8f0;
           transition: all 0.3s ease;
           margin-bottom: 24px;
         }
@@ -428,96 +409,97 @@ export default function Classes() {
         }
         
         .classes-card h3 {
-          color: #e2e8f0;
+          color: #1a202c;
           margin-bottom: 16px;
         }
         
         .classes-card label {
-          color: #d1d5db;
+          color: #374151;
           font-weight: 600;
           margin-bottom: 8px;
           display: block;
         }
         
         .classes-card input, .classes-card select, .classes-card textarea {
-          background: rgba(30, 41, 59, 0.8);
-          border: 2px solid rgba(71, 85, 105, 0.4);
-          border-radius: 8px;
-          color: white;
-          padding: 12px;
+          background: #ffffff;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          color: #374151;
+          padding: 10px 12px;
           width: 100%;
           box-sizing: border-box;
-          transition: all 0.3s ease;
+          transition: all 0.2s ease;
         }
         
         .classes-card input:focus, .classes-card select:focus, .classes-card textarea:focus {
           outline: none;
-          border-color: #22c55e;
-          box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+          border-color: #3ecf8e;
+          box-shadow: 0 0 0 2px rgba(62, 207, 142, 0.1);
         }
         
         .btn {
-          background: rgba(34, 197, 94, 0.1);
-          border: 1px solid rgba(34, 197, 94, 0.3);
-          color: #86efac;
-          padding: 10px 16px;
-          border-radius: 8px;
+          background: #f7fafc;
+          border: 1px solid #e2e8f0;
+          color: #374151;
+          padding: 8px 16px;
+          border-radius: 6px;
           cursor: pointer;
-          font-weight: 600;
-          transition: all 0.3s ease;
+          font-weight: 500;
+          transition: all 0.2s ease;
           display: inline-flex;
           align-items: center;
           gap: 6px;
+          font-size: 13px;
         }
         
         .btn:hover {
-          background: rgba(34, 197, 94, 0.2);
+          background: #edf2f7;
           transform: translateY(-1px);
         }
         
         .btn.primary {
-          background: linear-gradient(135deg, #22c55e, #16a34a);
+          background: linear-gradient(135deg, #3ecf8e, #2dd4bf);
           border: none;
           color: white;
-          box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+          box-shadow: 0 3px 10px rgba(62, 207, 142, 0.3);
         }
         
         .btn.primary:hover {
-          background: linear-gradient(135deg, #16a34a, #15803d);
-          box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+          background: linear-gradient(135deg, #2dd4bf, #22c55e);
+          box-shadow: 0 4px 12px rgba(62, 207, 142, 0.4);
         }
         
         .table {
           width: 100%;
           border-collapse: collapse;
-          background: rgba(30, 41, 59, 0.5);
-          border-radius: 12px;
+          background: #ffffff;
+          border-radius: 8px;
           overflow: hidden;
+          border: 1px solid #e2e8f0;
         }
         
         .table th {
-          background: linear-gradient(135deg, #1e40af, #3b82f6);
+          background: linear-gradient(135deg, #3ecf8e, #2dd4bf);
           color: white;
-          padding: 16px;
+          padding: 12px 16px;
           text-align: left;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
+          font-weight: 600;
           font-size: 13px;
         }
         
         .table td {
-          padding: 16px;
-          border-bottom: 1px solid rgba(71, 85, 105, 0.3);
-          color: #e2e8f0;
+          padding: 12px 16px;
+          border-bottom: 1px solid #e5e7eb;
+          color: #374151;
+          font-size: 13px;
         }
         
         .table tr:hover {
-          background: rgba(34, 197, 94, 0.05);
+          background: #f8fafc;
         }
         
         .table tr.selected {
-          background: rgba(34, 197, 94, 0.1);
+          background: rgba(62, 207, 142, 0.1);
         }
         
         .alert {
@@ -780,8 +762,8 @@ export default function Classes() {
                             }}
                             className="mobile-card"
                             style={{
-                              border: isSelected ? '2px solid #22c55e' : '2px solid #374151',
-                              background: isSelected ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05))' : 'rgba(15, 23, 42, 0.8)',
+                              border: isSelected ? '2px solid #3ecf8e' : '1px solid #e2e8f0',
+                              background: isSelected ? 'rgba(62, 207, 142, 0.1)' : '#ffffff',
                               cursor: 'pointer',
                               textAlign: 'center',
                               boxShadow: isSelected 
@@ -813,13 +795,13 @@ export default function Classes() {
                             <div style={{
                               fontSize: window.innerWidth <= 768 ? '16px' : '18px', 
                               fontWeight: '700', 
-                              color: isSelected ? '#22c55e' : '#e2e8f0', 
+                              color: isSelected ? '#3ecf8e' : '#1a202c', 
                               marginBottom: window.innerWidth <= 768 ? '8px' : '12px'
                             }}>
                               {classObj.name}
                             </div>
                             {/* Teacher Role Title */}
-                            <div style={{fontSize: window.innerWidth <= 768 ? '12px' : '14px', fontWeight: '600', color: isSelected ? '#065f46' : '#4b5563', marginBottom: window.innerWidth <= 768 ? '6px' : '8px'}}>
+                            <div style={{fontSize: window.innerWidth <= 768 ? '12px' : '14px', fontWeight: '600', color: isSelected ? '#047857' : '#6b7280', marginBottom: window.innerWidth <= 768 ? '6px' : '8px'}}>
                               {isFormClass && subjectCount > 0 ? (
                                 <>🏫 Form Teacher + 📚 Subject Teacher</>
                               ) : isFormClass ? (

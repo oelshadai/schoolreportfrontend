@@ -248,36 +248,34 @@ export default function SchoolSettings() {
   if (loading) {
     return (
       <div style={{
-        maxWidth: 1400,
-        margin: '0 auto',
+        width: '100vw',
+        height: '100vh',
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
         padding: isMobile ? '20px 12px' : '24px 20px',
-        paddingTop: isMobile ? '100px' : '24px',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-        minHeight: '100vh',
-        color: 'white',
+        paddingTop: isMobile ? '120px' : '120px',
+        overflow: 'auto',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
         <div style={{
           textAlign: 'center',
-          background: 'rgba(15, 23, 42, 0.8)',
-          backdropFilter: 'blur(16px)',
+          background: 'white',
           borderRadius: 20,
           padding: '40px 30px',
-          border: '1px solid rgba(148, 163, 184, 0.2)',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
         }}>
           <div style={{
             width: '50px',
             height: '50px',
-            border: '4px solid rgba(59, 130, 246, 0.3)',
-            borderTop: '4px solid #3b82f6',
+            border: '4px solid #e5e7eb',
+            borderTop: '4px solid #16a34a',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 20px'
           }}></div>
-          <p style={{ margin: 0, fontSize: '16px', color: '#94a3b8' }}>Loading school settings...</p>
+          <p style={{ margin: 0, fontSize: '16px', color: '#6b7280' }}>Loading school settings...</p>
         </div>
       </div>
     );
@@ -285,35 +283,34 @@ export default function SchoolSettings() {
 
   return (
     <div style={{
-      maxWidth: 1400,
-      margin: '0 auto',
+      width: '100vw',
+      height: '100vh',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
       padding: isSmallMobile ? '16px 8px' : isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
-      paddingTop: isMobile ? '100px' : '24px',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-      minHeight: '100vh',
-      color: 'white'
+      paddingTop: '160px',
+      overflow: 'auto'
     }}>
+      <div style={{ width: '100%' }}>
       {/* Header */}
       <div style={{
-        background: 'rgba(15, 23, 42, 0.8)',
-        backdropFilter: 'blur(16px)',
+        background: 'white',
         borderRadius: isMobile ? 16 : 20,
         padding: isMobile ? '20px 16px' : '24px 20px',
         marginBottom: isMobile ? 20 : 24,
-        border: '1px solid rgba(148, 163, 184, 0.2)',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+        border: '1px solid #e5e7eb',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         display: 'flex',
         alignItems: 'center',
         gap: isMobile ? 12 : 16
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+          background: '#16a34a',
           borderRadius: 12,
           padding: isMobile ? '12px' : '16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 8px 20px rgba(99, 102, 241, 0.4)'
+          boxShadow: '0 4px 6px -1px rgba(22, 163, 74, 0.3)'
         }}>
           <FaSchool size={isMobile ? 20 : 24} color="white" />
         </div>
@@ -322,15 +319,12 @@ export default function SchoolSettings() {
             margin: 0,
             fontSize: isMobile ? 22 : isTablet ? 26 : 32,
             fontWeight: 700,
-            background: 'linear-gradient(135deg, #a78bfa, #6366f1)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
+            color: '#1f2937'
           }}>School Settings</h1>
           <p style={{
             margin: '4px 0 0 0',
             fontSize: isMobile ? 13 : 14,
-            color: '#94a3b8',
+            color: '#6b7280',
             fontWeight: 500
           }}>
             Manage your school information and preferences
@@ -339,25 +333,24 @@ export default function SchoolSettings() {
       </div>
       {/* Main Content */}
       <div style={{
-        background: 'rgba(15, 23, 42, 0.8)',
-        backdropFilter: 'blur(16px)',
+        background: 'white',
         borderRadius: isMobile ? 16 : 20,
         padding: isMobile ? '20px 16px' : '24px 20px',
-        border: '1px solid rgba(148, 163, 184, 0.2)',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
+        border: '1px solid #e5e7eb',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
       }}>
         {message.text && (
           <div style={{
             padding: isMobile ? '16px' : '16px 20px',
             marginBottom: '24px',
             background: message.type === 'success' 
-              ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.1))' 
-              : 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1))',
+              ? '#f0fdf4' 
+              : '#fef2f2',
             border: message.type === 'success'
-              ? '2px solid rgba(34, 197, 94, 0.3)'
-              : '2px solid rgba(239, 68, 68, 0.3)',
+              ? '1px solid #bbf7d0'
+              : '1px solid #fecaca',
             borderRadius: 12,
-            color: message.type === 'success' ? '#86efac' : '#fca5a5',
+            color: message.type === 'success' ? '#166534' : '#dc2626',
             fontSize: isMobile ? 14 : 15,
             fontWeight: 500,
             display: 'flex',
@@ -387,22 +380,22 @@ export default function SchoolSettings() {
         <form onSubmit={handleSubmit}>
           {/* School Information Section */}
           <div style={{
-            background: 'rgba(59, 130, 246, 0.1)',
+            background: '#f8fafc',
             borderRadius: 12,
             padding: isMobile ? '16px' : '20px',
             marginBottom: '24px',
-            border: '1px solid rgba(59, 130, 246, 0.2)'
+            border: '1px solid #e2e8f0'
           }}>
             <h3 style={{
               margin: '0 0 20px 0',
               fontSize: isMobile ? 18 : 20,
               fontWeight: 600,
-              color: '#60a5fa',
+              color: '#1f2937',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
             }}>
-              <FaSchool size={16} />
+              <FaSchool size={16} style={{color: '#16a34a'}} />
               School Information & Terms
             </h3>
             
@@ -410,15 +403,15 @@ export default function SchoolSettings() {
             <div style={{
               marginBottom: '24px',
               padding: isMobile ? '16px' : '20px',
-              background: 'rgba(30, 41, 59, 0.5)',
+              background: 'white',
               borderRadius: 10,
-              border: '1px solid rgba(71, 85, 105, 0.3)'
+              border: '1px solid #e5e7eb'
             }}>
               <h4 style={{
                 margin: '0 0 16px 0',
                 fontSize: isMobile ? 16 : 18,
                 fontWeight: 600,
-                color: '#e2e8f0'
+                color: '#374151'
               }}>School Logo</h4>
               
               {settings.logo && (
@@ -449,13 +442,13 @@ export default function SchoolSettings() {
                       <p style={{
                         margin: 0,
                         fontSize: '14px',
-                        color: '#94a3b8',
+                        color: '#6b7280',
                         fontWeight: 500
                       }}>Current Logo</p>
                       <p style={{
                         margin: 0,
                         fontSize: '12px',
-                        color: '#64748b'
+                        color: '#9ca3af'
                       }}>Upload a new logo to replace</p>
                     </div>
                   </div>
@@ -472,7 +465,7 @@ export default function SchoolSettings() {
               <p style={{
                 margin: '8px 0 0 0',
                 fontSize: '12px',
-                color: '#64748b',
+                color: '#9ca3af',
                 lineHeight: 1.4
               }}>
                 Recommended: Square image (400x400px or larger) in PNG or JPG format
@@ -491,7 +484,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>School Name *</label>
                 <input
                   type="text"
@@ -503,10 +496,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -519,7 +512,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Academic Year *</label>
                 <input
                   type="text"
@@ -532,10 +525,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -553,7 +546,7 @@ export default function SchoolSettings() {
                 marginBottom: '8px',
                 fontSize: '14px',
                 fontWeight: 600,
-                color: '#e2e8f0'
+                color: '#374151'
               }}>Current Term</label>
               <select
                 name="current_term"
@@ -563,10 +556,10 @@ export default function SchoolSettings() {
                   width: '100%',
                   padding: isMobile ? '14px 16px' : '12px 16px',
                   fontSize: isMobile ? 16 : 15,
-                  border: '2px solid rgba(71, 85, 105, 0.4)',
+                  border: '1px solid #d1d5db',
                   borderRadius: 8,
-                  background: 'rgba(30, 41, 59, 0.8)',
-                  color: 'white',
+                  background: 'white',
+                  color: '#1f2937',
                   outline: 'none',
                   transition: 'all 0.3s ease',
                   boxSizing: 'border-box'
@@ -585,7 +578,7 @@ export default function SchoolSettings() {
                 marginBottom: '8px',
                 fontSize: '14px',
                 fontWeight: 600,
-                color: '#e2e8f0'
+                color: '#374151'
               }}>Address</label>
               <textarea
                 name="address"
@@ -596,10 +589,10 @@ export default function SchoolSettings() {
                   width: '100%',
                   padding: isMobile ? '14px 16px' : '12px 16px',
                   fontSize: isMobile ? 16 : 15,
-                  border: '2px solid rgba(71, 85, 105, 0.4)',
+                  border: '1px solid #d1d5db',
                   borderRadius: 8,
-                  background: 'rgba(30, 41, 59, 0.8)',
-                  color: 'white',
+                  background: 'white',
+                  color: '#1f2937',
                   outline: 'none',
                   transition: 'all 0.3s ease',
                   boxSizing: 'border-box',
@@ -615,7 +608,7 @@ export default function SchoolSettings() {
                 marginBottom: '8px',
                 fontSize: '14px',
                 fontWeight: 600,
-                color: '#e2e8f0'
+                color: '#374151'
               }}>Location/City</label>
               <input
                 type="text"
@@ -626,10 +619,10 @@ export default function SchoolSettings() {
                   width: '100%',
                   padding: isMobile ? '14px 16px' : '12px 16px',
                   fontSize: isMobile ? 16 : 15,
-                  border: '2px solid rgba(71, 85, 105, 0.4)',
+                  border: '1px solid #d1d5db',
                   borderRadius: 8,
-                  background: 'rgba(30, 41, 59, 0.8)',
-                  color: 'white',
+                  background: 'white',
+                  color: '#1f2937',
                   outline: 'none',
                   transition: 'all 0.3s ease',
                   boxSizing: 'border-box'
@@ -649,7 +642,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Phone</label>
                 <input
                   type="text"
@@ -660,10 +653,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -676,7 +669,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Email</label>
                 <input
                   type="email"
@@ -687,10 +680,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -703,7 +696,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Website</label>
                 <input
                   type="url"
@@ -715,10 +708,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -739,7 +732,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>School Motto</label>
                 <input
                   type="text"
@@ -750,10 +743,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -766,7 +759,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Principal Name</label>
                 <input
                   type="text"
@@ -777,10 +770,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -801,7 +794,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Term Closing Date</label>
                 <input
                   type="date"
@@ -812,10 +805,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -828,7 +821,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Term Reopening Date</label>
                 <input
                   type="date"
@@ -839,10 +832,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -854,22 +847,22 @@ export default function SchoolSettings() {
 
           {/* Teacher Permissions Section */}
           <div style={{
-            background: 'rgba(34, 197, 94, 0.1)',
+            background: '#f0fdf4',
             borderRadius: 12,
             padding: isMobile ? '16px' : '20px',
             marginBottom: '24px',
-            border: '1px solid rgba(34, 197, 94, 0.2)'
+            border: '1px solid #bbf7d0'
           }}>
             <h3 style={{
               margin: '0 0 20px 0',
               fontSize: isMobile ? 18 : 20,
               fontWeight: 600,
-              color: '#4ade80',
+              color: '#166534',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
             }}>
-              <FaCog size={16} />
+              <FaCog size={16} style={{color: '#16a34a'}} />
               Teacher Permissions
             </h3>
             
@@ -879,7 +872,7 @@ export default function SchoolSettings() {
                 marginBottom: '8px',
                 fontSize: '14px',
                 fontWeight: 600,
-                color: '#e2e8f0'
+                color: '#374151'
               }}>Score Entry Mode</label>
               <select
                 name="score_entry_mode"
@@ -889,10 +882,10 @@ export default function SchoolSettings() {
                   width: '100%',
                   padding: isMobile ? '14px 16px' : '12px 16px',
                   fontSize: isMobile ? 16 : 15,
-                  border: '2px solid rgba(71, 85, 105, 0.4)',
+                  border: '1px solid #d1d5db',
                   borderRadius: 8,
-                  background: 'rgba(30, 41, 59, 0.8)',
-                  color: 'white',
+                  background: 'white',
+                  color: '#1f2937',
                   outline: 'none',
                   transition: 'all 0.3s ease',
                   boxSizing: 'border-box'
@@ -904,7 +897,7 @@ export default function SchoolSettings() {
               <p style={{
                 margin: '8px 0 0 0',
                 fontSize: '12px',
-                color: '#64748b',
+                color: '#9ca3af',
                 lineHeight: 1.4
               }}>
                 Choose how teachers can enter student scores.
@@ -914,22 +907,22 @@ export default function SchoolSettings() {
 
           {/* Grading System Section */}
           <div style={{
-            background: 'rgba(139, 92, 246, 0.1)',
+            background: '#fefbff',
             borderRadius: 12,
             padding: isMobile ? '16px' : '20px',
             marginBottom: '24px',
-            border: '1px solid rgba(139, 92, 246, 0.2)'
+            border: '1px solid #e4e4e7'
           }}>
             <h3 style={{
               margin: '0 0 20px 0',
               fontSize: isMobile ? 18 : 20,
               fontWeight: 600,
-              color: '#a78bfa',
+              color: '#7c3aed',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
             }}>
-              <FaClipboardList size={16} />
+              <FaClipboardList size={16} style={{color: '#8b5cf6'}} />
               Grading System
             </h3>
             
@@ -937,7 +930,7 @@ export default function SchoolSettings() {
               margin: '0 0 16px 0',
               fontSize: isMobile ? 16 : 18,
               fontWeight: 600,
-              color: '#e2e8f0'
+              color: '#374151'
             }}>Grade Scale</h4>
             
             <div style={{
@@ -951,7 +944,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Grade A (min)</label>
                 <input
                   type="number"
@@ -964,10 +957,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -980,7 +973,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Grade B (min)</label>
                 <input
                   type="number"
@@ -993,10 +986,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -1009,7 +1002,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Grade C (min)</label>
                 <input
                   type="number"
@@ -1022,10 +1015,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -1038,7 +1031,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Grade D (min)</label>
                 <input
                   type="number"
@@ -1051,10 +1044,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -1067,7 +1060,7 @@ export default function SchoolSettings() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: '#e2e8f0'
+                  color: '#374151'
                 }}>Grade F (min)</label>
                 <input
                   type="number"
@@ -1080,10 +1073,10 @@ export default function SchoolSettings() {
                     width: '100%',
                     padding: isMobile ? '14px 16px' : '12px 16px',
                     fontSize: isMobile ? 16 : 15,
-                    border: '2px solid rgba(71, 85, 105, 0.4)',
+                    border: '1px solid #d1d5db',
                     borderRadius: 8,
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    background: 'white',
+                    color: '#1f2937',
                     outline: 'none',
                     transition: 'all 0.3s ease',
                     boxSizing: 'border-box'
@@ -1095,22 +1088,22 @@ export default function SchoolSettings() {
 
           {/* Report Settings Section */}
           <div style={{
-            background: 'rgba(236, 72, 153, 0.1)',
+            background: '#fdf2f8',
             borderRadius: 12,
             padding: isMobile ? '16px' : '20px',
             marginBottom: '24px',
-            border: '1px solid rgba(236, 72, 153, 0.2)'
+            border: '1px solid #fce7f3'
           }}>
             <h3 style={{
               margin: '0 0 20px 0',
               fontSize: isMobile ? 18 : 20,
               fontWeight: 600,
-              color: '#f472b6',
+              color: '#be185d',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
             }}>
-              <FaPalette size={16} />
+              <FaPalette size={16} style={{color: '#ec4899'}} />
               Report Settings
             </h3>
             
@@ -1120,7 +1113,7 @@ export default function SchoolSettings() {
                 marginBottom: '8px',
                 fontSize: '14px',
                 fontWeight: 600,
-                color: '#e2e8f0'
+                color: '#374151'
               }}>Report Template</label>
               <select
                 name="report_template"
@@ -1130,10 +1123,10 @@ export default function SchoolSettings() {
                   width: '100%',
                   padding: isMobile ? '14px 16px' : '12px 16px',
                   fontSize: isMobile ? 16 : 15,
-                  border: '2px solid rgba(71, 85, 105, 0.4)',
+                  border: '1px solid #d1d5db',
                   borderRadius: 8,
-                  background: 'rgba(30, 41, 59, 0.8)',
-                  color: 'white',
+                  background: 'white',
+                  color: '#1f2937',
                   outline: 'none',
                   transition: 'all 0.3s ease',
                   boxSizing: 'border-box'
@@ -1153,10 +1146,10 @@ export default function SchoolSettings() {
                   padding: isMobile ? '12px 20px' : '10px 18px',
                   fontSize: isMobile ? 15 : 14,
                   fontWeight: 600,
-                  border: '2px solid rgba(59, 130, 246, 0.4)',
+                  border: '1px solid #3b82f6',
                   borderRadius: 8,
-                  background: 'rgba(59, 130, 246, 0.1)',
-                  color: '#60a5fa',
+                  background: loadingPreview ? '#f3f4f6' : '#eff6ff',
+                  color: loadingPreview ? '#6b7280' : '#1d4ed8',
                   cursor: loadingPreview ? 'not-allowed' : 'pointer',
                   transition: 'all 0.3s ease',
                   display: 'flex',
@@ -1187,7 +1180,7 @@ export default function SchoolSettings() {
               <p style={{
                 margin: '8px 0 0 0',
                 fontSize: '12px',
-                color: '#64748b',
+                color: '#9ca3af',
                 lineHeight: 1.4
               }}>
                 Click to see how your reports will look with current settings
@@ -1234,7 +1227,7 @@ export default function SchoolSettings() {
                   style={{
                     fontSize: '14px',
                     fontWeight: 500,
-                    color: '#e2e8f0',
+                    color: '#374151',
                     cursor: 'pointer'
                   }}
                 >
@@ -1277,7 +1270,7 @@ export default function SchoolSettings() {
                   style={{
                     fontSize: '14px',
                     fontWeight: 500,
-                    color: '#e2e8f0',
+                    color: '#374151',
                     cursor: 'pointer'
                   }}
                 >
@@ -1320,7 +1313,7 @@ export default function SchoolSettings() {
                   style={{
                     fontSize: '14px',
                     fontWeight: 500,
-                    color: '#e2e8f0',
+                    color: '#374151',
                     cursor: 'pointer'
                   }}
                 >
@@ -1363,7 +1356,7 @@ export default function SchoolSettings() {
                   style={{
                     fontSize: '14px',
                     fontWeight: 500,
-                    color: '#e2e8f0',
+                    color: '#374151',
                     cursor: 'pointer'
                   }}
                 >
@@ -1376,15 +1369,15 @@ export default function SchoolSettings() {
             <div style={{
               marginTop: '24px',
               padding: isMobile ? '16px' : '20px',
-              background: 'rgba(30, 41, 59, 0.5)',
+              background: 'white',
               borderRadius: 10,
-              border: '1px solid rgba(71, 85, 105, 0.3)'
+              border: '1px solid #e5e7eb'
             }}>
               <h4 style={{
                 margin: '0 0 16px 0',
                 fontSize: isMobile ? 16 : 18,
                 fontWeight: 600,
-                color: '#e2e8f0'
+                color: '#374151'
               }}>Terminal Report Settings</h4>
               
               <div style={{
@@ -1423,7 +1416,7 @@ export default function SchoolSettings() {
                   style={{
                     fontSize: '14px',
                     fontWeight: 500,
-                    color: '#e2e8f0',
+                    color: '#374151',
                     cursor: 'pointer'
                   }}
                 >
@@ -1434,7 +1427,7 @@ export default function SchoolSettings() {
               <p style={{
                 margin: '0',
                 fontSize: '12px',
-                color: '#64748b',
+                color: '#9ca3af',
                 lineHeight: 1.4
               }}>
                 When enabled, terminal reports will display promotion status and term dates set above.
@@ -1445,7 +1438,7 @@ export default function SchoolSettings() {
           {/* Save Button */}
           <div style={{
             padding: isMobile ? '20px 0' : '24px 0',
-            borderTop: '1px solid rgba(71, 85, 105, 0.3)',
+            borderTop: '1px solid #e5e7eb',
             marginTop: '24px'
           }}>
             <button
@@ -1459,8 +1452,8 @@ export default function SchoolSettings() {
                 border: 'none',
                 borderRadius: 12,
                 background: saving 
-                  ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(79, 70, 229, 0.5))'
-                  : 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                  ? '#9ca3af'
+                  : '#16a34a',
                 color: 'white',
                 cursor: saving ? 'not-allowed' : 'pointer',
                 transition: 'all 0.3s ease',
@@ -1468,7 +1461,7 @@ export default function SchoolSettings() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
-                boxShadow: saving ? 'none' : '0 8px 20px rgba(99, 102, 241, 0.4)',
+                boxShadow: saving ? 'none' : '0 4px 6px -1px rgba(22, 163, 74, 0.3)',
                 opacity: saving ? 0.7 : 1
               }}
             >
@@ -1526,6 +1519,7 @@ export default function SchoolSettings() {
           .settings-grid-toggles { grid-template-columns: 1fr 1fr !important; }
         }
       `}</style>
+      </div>
     </div>
   );
 }

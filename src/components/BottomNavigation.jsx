@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../state/AuthContext'
 import { 
   FaTachometerAlt, FaUserGraduate, FaFileInvoice,
-  FaChalkboardTeacher, FaCog, FaLayerGroup, FaChartBar, FaClock
+  FaChalkboardTeacher, FaCog, FaLayerGroup, FaChartBar, FaClock, FaCalendarAlt
 } from 'react-icons/fa'
 
 /**
@@ -15,6 +15,7 @@ export default function BottomNavigation() {
   const { user } = useAuth()
   const location = useLocation()
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 640)
+  const [isFormTeacher, setIsFormTeacher] = useState(false)
 
   useEffect(() => {
     const handleResize = () => {
@@ -24,6 +25,33 @@ export default function BottomNavigation() {
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  // Check if teacher is a form teacher
+  useEffect(() => {
+    const checkFormTeacherStatus = async () => {
+      if (user?.role === 'TEACHER') {
+        try {
+          const response = await fetch('/api/teachers/assignments/', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          })
+          if (response.ok) {
+            const data = await response.json()
+            const assignments = data.results || data || []
+            const hasFormClass = assignments.some(assignment => assignment.type === 'form_class')
+            setIsFormTeacher(hasFormClass)
+          }
+        } catch (error) {
+          console.error('Error checking form teacher status:', error)
+        }
+      }
+    }
+
+    if (user) {
+      checkFormTeacherStatus()
+    }
+  }, [user])
 
   if (!isMobile) return null
 
@@ -36,6 +64,7 @@ export default function BottomNavigation() {
 
     const roleSpecific = {
       'TEACHER': [
+        { to: '/teacher-schedule', label: 'Schedule', icon: FaCalendarAlt, roles: ['TEACHER'] },
         { to: '/attendance', label: 'Attendance', icon: FaClock, roles: ['TEACHER'] },
         { to: '/reports', label: 'Reports', icon: FaFileInvoice, roles: ['TEACHER'] },
       ],

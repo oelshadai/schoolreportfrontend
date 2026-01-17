@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/',
+  define: {
+    __DEFINES__: JSON.stringify({})
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -18,9 +21,14 @@ export default defineConfig({
     }
   },
   server: {
-    host: true, // expose to LAN for mobile preview
+    host: 'localhost',
     port: 3000,
-    open: true
+    open: true,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 3000
+    }
   },
   preview: {
     port: 3001

@@ -36,14 +36,14 @@ export default function NetworkStatus() {
     return (
       <div style={{
         position: 'fixed',
-        top: '20px',
+        top: '80px',
         right: '20px',
         background: 'rgba(59, 130, 246, 0.9)',
         color: 'white',
         padding: '8px 12px',
         borderRadius: '8px',
         fontSize: '12px',
-        zIndex: 1000,
+        zIndex: 50,
         display: 'flex',
         alignItems: 'center',
         gap: '8px'
@@ -73,14 +73,14 @@ export default function NetworkStatus() {
     return (
       <div style={{
         position: 'fixed',
-        top: '20px',
+        top: '80px',
         right: '20px',
         background: 'rgba(16, 185, 129, 0.9)',
         color: 'white',
         padding: '8px 12px',
         borderRadius: '8px',
         fontSize: '12px',
-        zIndex: 1000,
+        zIndex: 50,
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
@@ -96,9 +96,9 @@ export default function NetworkStatus() {
   return (
     <div style={{
       position: 'fixed',
-      top: '20px',
+      top: '80px',
       right: '20px',
-      zIndex: 1000
+      zIndex: 50
     }}>
       <div
         style={{

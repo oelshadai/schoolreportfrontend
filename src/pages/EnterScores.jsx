@@ -912,25 +912,22 @@ export default function EnterScores() {
 
   if (step === 'setup') {
     return (
-      <div className="container" style={{
-        maxWidth: responsive.isSmall ? '100vw' : 1400,
-        margin: '0 auto',
-        padding: responsive.isSmall ? '16px 8px' : responsive.isMobile ? '20px 12px' : '24px 20px',
-        paddingTop: responsive.isSmall ? '80px' : responsive.isMobile ? '100px' : '24px',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+      <div style={{
+        width: '100vw',
         minHeight: '100vh',
-        color: 'white',
-        overflowX: 'hidden',
+        background: 'linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%)',
+        paddingTop: '80px',
+        padding: '80px 20px 20px 20px',
+        margin: 0,
         boxSizing: 'border-box'
       }}>
         <div className="mobile-card" style={{ 
           marginBottom: '20px',
-          background: 'rgba(15, 23, 42, 0.8)',
-          backdropFilter: 'blur(16px)',
+          background: '#ffffff',
           borderRadius: responsive.isSmall ? 12 : responsive.isMobile ? 16 : 20,
           padding: responsive.isSmall ? '16px 12px' : responsive.isMobile ? '20px 16px' : '24px 20px',
-          border: '1px solid rgba(59, 130, 246, 0.2)',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+          border: '1px solid #e2e8f0',
           width: '100%',
           maxWidth: '100%',
           boxSizing: 'border-box',
@@ -951,19 +948,16 @@ export default function EnterScores() {
               fontSize: responsive.isSmall ? '18px' : responsive.isMobile ? '20px' : responsive.isTablet ? '24px' : '28px',
               margin: 0,
               fontWeight: 700,
-              background: 'linear-gradient(135deg, #60a5fa, #3b82f6)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
+              color: '#1a202c'
             }}>
               <div style={{
-                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                background: 'linear-gradient(135deg, #3ecf8e, #2dd4bf)',
                 borderRadius: 12,
                 padding: responsive.isSmall ? '8px' : responsive.isMobile ? '10px' : '12px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 8px 20px rgba(59, 130, 246, 0.4)'
+                boxShadow: '0 4px 12px rgba(62, 207, 142, 0.3)'
               }}>
                 <FaBookOpen size={responsive.isSmall ? 16 : responsive.isMobile ? 18 : 22} color="white" />
               </div>
@@ -979,7 +973,7 @@ export default function EnterScores() {
             borderRadius: 10,
             padding: '12px 16px',
             marginBottom: 20,
-            color: '#fca5a5',
+            color: '#dc2626',
             fontSize: 14
           }}>
             ⚠️ {error}
@@ -987,20 +981,19 @@ export default function EnterScores() {
         )}
         
         <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
+          background: '#ffffff',
           borderRadius: '16px',
           overflow: 'hidden',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-          border: '1px solid rgba(71, 85, 105, 0.3)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+          border: '1px solid #e2e8f0',
           marginBottom: '24px',
-          backdropFilter: 'blur(12px)',
           padding: responsive.isMobile ? '20px 16px' : '24px 20px'
         }}>
           <h3 style={{
             marginTop: 0,
             fontSize: responsive.isMobile ? '18px' : '20px',
             fontWeight: 600,
-            color: 'white',
+            color: '#1a202c',
             marginBottom: 16
           }}>
             {user?.role === 'TEACHER' ? 
@@ -1016,11 +1009,11 @@ export default function EnterScores() {
               borderRadius: 10, 
               fontSize: 13,
               border: '1px solid rgba(59, 130, 246, 0.2)',
-              color: '#93c5fd'
+              color: '#1e40af'
             }}>
-              <strong style={{color: 'white'}}>School Mode:</strong> {schoolSettings.score_entry_mode === 'CLASS_TEACHER' ? 'Class Teacher Mode' : 'Subject Teacher Mode'}
+              <strong style={{color: '#1a202c'}}>School Mode:</strong> {schoolSettings.score_entry_mode === 'CLASS_TEACHER' ? 'Class Teacher Mode' : 'Subject Teacher Mode'}
               <br />
-              <span style={{color: '#94a3b8', fontSize: '12px'}}>
+              <span style={{color: '#64748b', fontSize: '12px'}}>
                 {schoolSettings.score_entry_mode === 'CLASS_TEACHER' 
                   ? 'Class teachers enter scores for all subjects in their class'
                   : 'Subject teachers enter scores only for subjects they teach'}
@@ -1042,7 +1035,7 @@ export default function EnterScores() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: '600',
-                  color: 'white'
+                  color: '#1a202c'
                 }}>Class</label>
                 <ScrollableSelect
                   value={selectedClass}
@@ -1063,7 +1056,7 @@ export default function EnterScores() {
                   marginBottom: '8px',
                   fontSize: '14px',
                   fontWeight: '600',
-                  color: 'white'
+                  color: '#1a202c'
                 }}>Your Class</label>
                 <div style={{
                   padding: '12px 16px', 
@@ -1087,7 +1080,7 @@ export default function EnterScores() {
                 marginBottom: '8px',
                 fontSize: '14px',
                 fontWeight: '600',
-                color: 'white'
+                color: '#1a202c'
               }}>Term</label>
               <ScrollableSelect
                 value={selectedTerm}
@@ -1101,7 +1094,7 @@ export default function EnterScores() {
             </div>
 
             <div className="field" style={{marginBottom: 20}}>
-              <label style={{marginBottom: '12px', display: 'block', fontWeight: '600', color: 'white'}}>Subject Selection Mode</label>
+              <label style={{marginBottom: '12px', display: 'block', fontWeight: '600', color: '#1a202c'}}>Subject Selection Mode</label>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: responsive.isDesktop ? '1fr 1fr' : '1fr',
@@ -1118,7 +1111,7 @@ export default function EnterScores() {
                     padding: '12px 16px',
                     border: `2px solid ${!multiSubjectMode ? '#3b82f6' : '#e5e7eb'}`,
                     borderRadius: '10px',
-                    background: !multiSubjectMode ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : 'white',
+                    background: !multiSubjectMode ? 'linear-gradient(135deg, #3ecf8e, #2dd4bf)' : 'white',
                     color: !multiSubjectMode ? 'white' : '#374151',
                     fontWeight: '600',
                     cursor: 'pointer',
@@ -1139,9 +1132,9 @@ export default function EnterScores() {
                   }}
                   style={{
                     padding: '12px 16px',
-                    border: `2px solid ${multiSubjectMode ? '#10b981' : '#e5e7eb'}`,
+                    border: `2px solid ${multiSubjectMode ? '#3ecf8e' : '#e5e7eb'}`,
                     borderRadius: '10px',
-                    background: multiSubjectMode ? 'linear-gradient(135deg, #10b981, #047857)' : 'white',
+                    background: multiSubjectMode ? 'linear-gradient(135deg, #3ecf8e, #2dd4bf)' : 'white',
                     color: multiSubjectMode ? 'white' : '#374151',
                     fontWeight: '600',
                     cursor: 'pointer',
@@ -1415,7 +1408,16 @@ export default function EnterScores() {
               className="btn primary" 
               onClick={startScoring}
               disabled={!canProceedToScoring()}
-              style={{padding:'12px 32px'}}
+              style={{
+                padding:'12px 32px',
+                background: 'linear-gradient(135deg, #3ecf8e, #2dd4bf)',
+                border: 'none',
+                borderRadius: '8px',
+                color: 'white',
+                fontWeight: '600',
+                cursor: !canProceedToScoring() ? 'not-allowed' : 'pointer',
+                opacity: !canProceedToScoring() ? 0.6 : 1
+              }}
             >
               <FaBookReader style={{marginRight:8,verticalAlign:'-2px'}}/>
               {multiSubjectMode 
@@ -1430,33 +1432,43 @@ export default function EnterScores() {
   }
 
   return (
-    <div className="container" style={{
-      maxWidth: 1400,
-      margin: '0 auto',
-      padding: responsive.isSmall ? '16px 8px' : responsive.isMobile ? '20px 12px' : '24px 20px',
-      paddingTop: responsive.isSmall ? '80px' : responsive.isMobile ? '100px' : '24px',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+    <div style={{
+      width: '100vw',
       minHeight: '100vh',
-      color: 'white'
+      background: 'linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%)',
+      paddingTop: '80px',
+      padding: '80px 20px 20px 20px',
+      margin: 0,
+      boxSizing: 'border-box'
     }}>
       {/* Header with pre-selected info if available */}
       {preSelectedData.className && (
         <div style={{
-          background: 'linear-gradient(135deg, #059669, #047857)',
-          color: 'white',
-          padding: '20px 24px',
-          borderRadius: '12px',
+          background: '#ffffff',
+          borderRadius: '16px',
+          padding: '24px',
           marginBottom: '24px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+          border: '1px solid #e2e8f0'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <FaGraduationCap style={{ fontSize: '32px' }}/>
+              <div style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #3ecf8e, #2dd4bf)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <FaGraduationCap size={24} color="white" />
+              </div>
               <div>
-                <h1 style={{ margin: '0 0 4px 0', fontSize: '24px', fontWeight: '700' }}>
+                <h1 style={{ margin: '0 0 4px 0', fontSize: '24px', fontWeight: '700', color: '#1a202c' }}>
                   Enter Scores - {preSelectedData.className}
                 </h1>
-                <p style={{ margin: 0, fontSize: '16px', opacity: 0.9 }}>
+                <p style={{ margin: 0, fontSize: '16px', color: '#718096' }}>
                   {preSelectedData.isFormTeacher ? (
                     <>🏫 Form Teacher • Can enter scores for ALL subjects • {students.length} Students</>
                   ) : (
@@ -1468,19 +1480,20 @@ export default function EnterScores() {
             <button
               onClick={() => navigate('/classes')}
               style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: 'white',
+                background: 'linear-gradient(135deg, #fef2f2, #fee2e2)',
+                border: '1px solid #fecaca',
+                color: '#dc2626',
                 borderRadius: '8px',
                 padding: '8px 16px',
                 fontSize: '14px',
+                fontWeight: '600',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px'
               }}
             >
-              <FaArrowLeft style={{ fontSize: '12px' }}/>
+              <FaArrowLeft size={12} />
               Back to Classes
             </button>
           </div>
@@ -1501,25 +1514,23 @@ export default function EnterScores() {
 
       {/* Progress Bar */}
       <div style={{
-        background: 'rgba(15, 23, 42, 0.8)',
+        background: '#ffffff',
         borderRadius: '16px',
-        overflow: 'hidden',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-        border: '1px solid rgba(71, 85, 105, 0.3)',
+        padding: '20px',
         marginBottom: '24px',
-        backdropFilter: 'blur(12px)',
-        padding: responsive.isSmall ? '12px 8px' : responsive.isMobile ? '16px 12px' : '20px 16px'
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+        border: '1px solid #e2e8f0'
       }}>
-        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8, color: 'white'}}>
-          <span>Progress: {savedStudents.size}/{students.length} students</span>
-          <span>{progressPercent}% complete</span>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12, color: '#1a202c'}}>
+          <span style={{ fontWeight: '600' }}>Progress: {savedStudents.size}/{students.length} students</span>
+          <span style={{ fontWeight: '600' }}>{progressPercent}% complete</span>
         </div>
-        <div style={{width:'100%', height:8, background:'rgba(71, 85, 105, 0.3)', borderRadius:4, overflow:'hidden'}}>
+        <div style={{width:'100%', height:8, background:'#e2e8f0', borderRadius:4, overflow:'hidden'}}>
           <div 
             style={{
               width:`${progressPercent}%`,
               height:'100%',
-              background:'linear-gradient(90deg, #3b82f6, #10b981)',
+              background:'linear-gradient(90deg, #3ecf8e, #2dd4bf)',
               transition:'width 0.3s ease'
             }}
           />
@@ -1529,24 +1540,45 @@ export default function EnterScores() {
       {/* Current Student Card */}
       {currentStudent && (
         <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
+          background: '#ffffff',
           borderRadius: '16px',
-          overflow: 'hidden',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-          border: '1px solid rgba(71, 85, 105, 0.3)',
+          padding: '24px',
           marginBottom: '24px',
-          backdropFilter: 'blur(12px)',
-          padding: responsive.isMobile ? '20px 16px' : '24px 20px'
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+          border: '1px solid #e2e8f0'
         }}>
           <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16}}>
-            <h3 style={{margin:0, display:'flex', alignItems:'center', gap:8, color: 'white'}}>
-              <FaUser color="#93c5fd"/>
+            <h3 style={{margin:0, display:'flex', alignItems:'center', gap:8, color: '#1a202c'}}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #3ecf8e, #2dd4bf)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <FaUser size={18} color="white" />
+              </div>
               {currentStudent.full_name}
               {savedStudents.has(currentStudent.id) && (
-                <FaCheck color="#10b981" style={{marginLeft:8}}/>
+                <div style={{
+                  background: '#10b981',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  <FaCheck size={10} />
+                  Saved
+                </div>
               )}
             </h3>
-            <div style={{color: '#94a3b8', fontSize: '14px'}}>
+            <div style={{color: '#718096', fontSize: '14px', fontWeight: '500'}}>
               Student {currentStudentIndex + 1} of {students.length}
               {multiSubjectMode && (
                 <div style={{fontSize: '12px', marginTop: '2px'}}>

@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../state/AuthContext'
-import StudentDashboard from './StudentDashboard'
+import StudentPortalNew from './StudentPortalNew'
 
 export default function StudentPortal() {
   const { user } = useAuth()
@@ -16,6 +15,6 @@ export default function StudentPortal() {
     return <Navigate to="/login" replace />
   }
   
-  // If student is logged in, show dashboard
-  return <StudentDashboard />
+  // If student is logged in, show new portal
+  return <StudentPortalNew />
 }

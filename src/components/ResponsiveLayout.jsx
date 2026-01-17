@@ -42,19 +42,26 @@ const ResponsiveLayout = ({ children, showNavigation = true }) => {
   const isDesktop = windowSize.width >= 1024;
 
   // Check if current page should hide navigation
-  const hideNavPaths = ['/login', '/register', '/forgot-password', '/password-reset'];
+  const hideNavPaths = ['/login', '/register', '/forgot-password', '/password-reset', '/', '/features'];
   const shouldShowNav = showNavigation && !hideNavPaths.includes(location.pathname);
 
   return (
-    <div className="responsive-layout">
+    <div className="responsive-layout" style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, overflow: 'hidden' }}>
       {/* Navigation - Always on top for all screen sizes */}
       {shouldShowNav && <Navbar />}
 
       {/* Main Content - Adjust for navigation */}
       <main
         className={`responsive-main ${isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop'}`}
+        style={{ 
+          width: '100vw', 
+          height: (location.pathname === '/' || location.pathname === '/features') ? '100vh' : (shouldShowNav ? 'calc(100vh - 64px)' : '100vh'), 
+          margin: 0, 
+          padding: 0, 
+          overflow: 'auto' 
+        }}
       >
-        <div className="responsive-content-wrapper">
+        <div className="responsive-content-wrapper" style={{ width: '100%', height: '100%', margin: 0, padding: 0 }}>
           {children}
         </div>
       </main>

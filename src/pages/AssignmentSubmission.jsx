@@ -52,22 +52,89 @@ export default function AssignmentSubmission() {
     setSubmitting(true)
     
     try {
+      // Get current user from localStorage or context
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
+      
       // Simulate API submission
       const submissionData = {
-        assignment_id: id,
+        assignment_id: parseInt(id) || id, // Ensure consistent ID format
+        student_id: currentUser.id || 1,
         submission_text: submissionText,
         submission_file: selectedFile,
-        submitted_at: new Date().toISOString()
+        submitted_at: new Date().toISOString(),
+        status: 'SUBMITTED'
       }
+
+      console.log('📤 Submitting assignment with data:', submissionData)
 
       // Save to localStorage for demo
       const submissions = JSON.parse(localStorage.getItem('student_submissions') || '[]')
-      submissions.push({
+      const newSubmission = {
         ...submissionData,
-        id: Date.now(),
-        status: 'SUBMITTED'
-      })
+        id: Date.now()
+      }
+      submissions.push(newSubmission)
       localStorage.setItem('student_submissions', JSON.stringify(submissions))
+      
+      console.log('💾 Saved submission to localStorage:', newSubmission)
+      console.log('📊 All submissions now:', submissions)
+
+      // Auto-grade if it's a quiz
+      if (assignment?.assignment_type === 'QUIZ') {
+        const randomScore = Math.floor(Math.random() * 30) + 70 // 70-100 range
+        const maxScore = assignment?.max_score || 100
+        const finalScore = Math.min(randomScore, maxScore)
+        
+        // Create auto-graded submission
+        newSubmission.is_graded = true
+        newSubmission.score = finalScore
+        newSubmission.feedback = 'Auto-graded by system'
+        newSubmission.graded_by = 'system'
+        
+        // Update submissions with grade
+        const updatedSubmissions = submissions.map(sub => 
+          sub.id === newSubmission.id ? newSubmission : sub
+        )
+        localStorage.setItem('student_submissions', JSON.stringify(updatedSubmissions))
+        
+        // Create grade entry for student portal
+        const gradeEntry = {
+          id: Date.now() + 1,
+          assignment_id: id,
+          assignment_title: assignment?.title,
+          student_id: currentUser.id || 1,
+          score: finalScore,
+          max_score: maxScore,
+          feedback: 'Auto-graded by system',
+          graded_at: new Date().toISOString(),
+          subject: assignment?.subject || 'General',
+          assignment_type: assignment?.assignment_type
+        }
+        
+        const studentGrades = JSON.parse(localStorage.getItem('student_grades') || '[]')
+        studentGrades.push(gradeEntry)
+        localStorage.setItem('student_grades', JSON.stringify(studentGrades))
+      } else {
+        // For non-quiz assignments, create pending grade entry
+        const pendingGradeEntry = {
+          id: Date.now() + 1,
+          assignment_id: id,
+          assignment_title: assignment?.title,
+          student_id: currentUser.id || 1,
+          score: null,
+          max_score: assignment?.max_score || 100,
+          feedback: '',
+          submitted_at: new Date().toISOString(),
+          graded_at: null,
+          subject: assignment?.subject || 'General',
+          assignment_type: assignment?.assignment_type,
+          status: 'PENDING_REVIEW'
+        }
+        
+        const studentGrades = JSON.parse(localStorage.getItem('student_grades') || '[]')
+        studentGrades.push(pendingGradeEntry)
+        localStorage.setItem('student_grades', JSON.stringify(studentGrades))
+      }
 
       // Mark as submitted
       setSubmitted(true)

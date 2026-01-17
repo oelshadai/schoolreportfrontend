@@ -355,19 +355,16 @@ export default function Reports() {
 
   return (
     <div 
-      className="container" 
       style={{
-        maxWidth: 1400,
-        margin: '0 auto',
+        width: '100vw',
+        height: '100vh',
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
         padding: isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
-        paddingTop: isMobile ? '60px' : '80px',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-        minHeight: '100vh',
-        color: 'white',
-        width: '100%',
-        boxSizing: 'border-box'
+        paddingTop: isMobile ? '100px' : '100px',
+        overflow: 'auto'
       }}
     >
+      <div style={{ width: '100%' }}>
       {/* Enhanced mobile-specific style injection */}
       <style>
         {`
@@ -425,13 +422,12 @@ export default function Reports() {
       
       {/* Enhanced Header with Mobile-First Design */}
       <div className="page-header" style={{
-        background: 'rgba(15, 23, 42, 0.8)',
-        backdropFilter: 'blur(16px)',
+        background: 'white',
         borderRadius: isMobile ? 16 : 20,
         padding: isMobile ? '20px 16px' : isTablet ? '24px 20px' : '28px 24px',
         marginBottom: isMobile ? 20 : 24,
-        border: '1px solid rgba(34, 197, 94, 0.2)',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+        border: '1px solid #e5e7eb',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: isMobile ? 'flex-start' : 'center',
@@ -459,16 +455,13 @@ export default function Reports() {
               margin: 0,
               fontSize: isMobile ? 22 : isTablet ? 26 : 32,
               fontWeight: 700,
-              background: 'linear-gradient(135deg, #86efac, #22c55e)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: '#1f2937',
               lineHeight: 1.2
             }}>Report Generation</h1>
             <p style={{
               margin: '4px 0 0 0',
               fontSize: isMobile ? 13 : 14,
-              color: '#94a3b8',
+              color: '#6b7280',
               fontWeight: 500
             }}>
               Generate and manage student reports
@@ -661,68 +654,65 @@ export default function Reports() {
           marginBottom: isMobile ? 12 : 24
         }}>
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(59, 130, 246, 0.3)',
+            background: 'white',
+            border: '1px solid #e5e7eb',
             borderRadius: isMobile ? 14 : 16,
             padding: isMobile ? '16px 14px' : '20px 16px',
             textAlign: 'center',
-            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3)'
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
           }}>
-            <FaUsers style={{fontSize: isMobile ? 20 : 24, marginBottom: 8, color: '#60a5fa'}}/>
-            <div style={{fontSize: isMobile ? 20 : 24, fontWeight: 'bold', color: 'white'}}>{stats.totalStudents}</div>
-            <div style={{fontSize: isMobile ? 12 : 14, color: '#94a3b8'}}>Total Students</div>
+            <FaUsers style={{fontSize: isMobile ? 20 : 24, marginBottom: 8, color: '#3b82f6'}}/>
+            <div style={{fontSize: isMobile ? 20 : 24, fontWeight: 'bold', color: '#1f2937'}}>{stats.totalStudents}</div>
+            <div style={{fontSize: isMobile ? 12 : 14, color: '#6b7280'}}>Total Students</div>
           </div>
           
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(34, 197, 94, 0.3)',
+            background: 'white',
+            border: '1px solid #e5e7eb',
             borderRadius: isMobile ? 14 : 16,
             padding: isMobile ? '16px 14px' : '20px 16px',
             textAlign: 'center',
-            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3)'
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
           }}>
-            <FaFileAlt style={{fontSize: isMobile ? 20 : 24, marginBottom: 8, color: '#34d399'}}/>
-            <div style={{fontSize: isMobile ? 20 : 24, fontWeight: 'bold', color: 'white'}}>{stats.generatedReports}</div>
-            <div style={{fontSize: isMobile ? 12 : 14, color: '#94a3b8'}}>Generated Reports</div>
+            <FaFileAlt style={{fontSize: isMobile ? 20 : 24, marginBottom: 8, color: '#16a34a'}}/>
+            <div style={{fontSize: isMobile ? 20 : 24, fontWeight: 'bold', color: '#1f2937'}}>{stats.generatedReports}</div>
+            <div style={{fontSize: isMobile ? 12 : 14, color: '#6b7280'}}>Generated Reports</div>
           </div>
           
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
+            background: 'white',
+            border: '1px solid #e5e7eb',
             borderRadius: isMobile ? 14 : 16,
             padding: isMobile ? '16px 14px' : '20px 16px',
             textAlign: 'center',
-            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3)'
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
           }}>
-            <FaChartLine style={{fontSize: isMobile ? 20 : 24, marginBottom: 8, color: '#f87171'}}/>
-            <div style={{fontSize: isMobile ? 20 : 24, fontWeight: 'bold', color: 'white'}}>{stats.completionRate}%</div>
-            <div style={{fontSize: isMobile ? 12 : 14, color: '#94a3b8'}}>Completion Rate</div>
+            <FaChartLine style={{fontSize: isMobile ? 20 : 24, marginBottom: 8, color: '#ef4444'}}/>
+            <div style={{fontSize: isMobile ? 20 : 24, fontWeight: 'bold', color: '#1f2937'}}>{stats.completionRate}%</div>
+            <div style={{fontSize: isMobile ? 12 : 14, color: '#6b7280'}}>Completion Rate</div>
           </div>
         </div>
       )}
 
       {/* Report Generation Form */}
       <div style={{
-        background: 'rgba(15, 23, 42, 0.8)',
+        background: 'white',
         borderRadius: '16px',
         padding: '24px',
         marginBottom: '24px',
-        border: '1px solid rgba(71, 85, 105, 0.3)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+        border: '1px solid #e5e7eb',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
       }}>
         <h3 style={{
           margin: '0 0 20px 0',
-          color: '#e2e8f0',
+          color: '#1f2937',
           fontSize: '18px',
           fontWeight: '600',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
         }}>
-          <FaFileInvoice style={{color: '#22c55e'}}/>
+          <FaFileInvoice style={{color: '#16a34a'}}/>
           {isClassTeacher ? 'Generate Individual Student Report' : 'Report Generation Settings'}
         </h3>
         
@@ -734,7 +724,7 @@ export default function Reports() {
         }}>
           {(isAdmin || classes.length > 1) && (
             <div className="field">
-              <label style={{color: '#e2e8f0', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+              <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
                 Class {isClassTeacher && '(Your Classes)'}
               </label>
               <select 
@@ -743,11 +733,11 @@ export default function Reports() {
                 style={{
                   width: '100%',
                   padding: '10px 12px',
-                  border: '2px solid rgba(71, 85, 105, 0.4)',
+                  border: '1px solid #d1d5db',
                   borderRadius: '8px',
                   fontSize: '14px',
-                  background: 'rgba(30, 41, 59, 0.8)',
-                  color: 'white'
+                  background: 'white',
+                  color: '#1f2937'
                 }}
               >
                 <option value="">{isAdmin ? 'All classes' : 'Select class'}</option>
@@ -762,7 +752,7 @@ export default function Reports() {
           )}
           
           <div className="field">
-            <label style={{color: '#e2e8f0', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+            <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
               Student (Optional)
             </label>
             <select 
@@ -772,11 +762,11 @@ export default function Reports() {
               style={{
                 width: '100%',
                 padding: '10px 12px',
-                border: '2px solid rgba(71, 85, 105, 0.4)',
+                border: '1px solid #d1d5db',
                 borderRadius: '8px',
                 fontSize: '14px',
-                background: !classId && isClassTeacher ? 'rgba(71, 85, 105, 0.3)' : 'rgba(30, 41, 59, 0.8)',
-                color: 'white'
+                background: !classId && isClassTeacher ? '#f3f4f6' : 'white',
+                color: '#1f2937'
               }}
             >
               <option value="">Select for individual report</option>
@@ -787,7 +777,7 @@ export default function Reports() {
           </div>
           
           <div className="field">
-            <label style={{color: '#e2e8f0', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
+            <label style={{color: '#374151', fontWeight: '500', marginBottom: '6px', display: 'block'}}>
               Term
             </label>
             <select 
@@ -796,11 +786,11 @@ export default function Reports() {
               style={{
                 width: '100%',
                 padding: '10px 12px',
-                border: '2px solid rgba(71, 85, 105, 0.4)',
+                border: '1px solid #d1d5db',
                 borderRadius: '8px',
                 fontSize: '14px',
-                background: 'rgba(30, 41, 59, 0.8)',
-                color: 'white'
+                background: 'white',
+                color: '#1f2937'
               }}
             >
               <option value="">Select term</option>
@@ -816,7 +806,7 @@ export default function Reports() {
             onClick={handleGenerate}
             disabled={!studentId || !termId || loading}
             style={{
-              background: !studentId || !termId || loading ? 'rgba(107, 114, 128, 0.5)' : 'linear-gradient(135deg, #22c55e, #16a34a)',
+              background: !studentId || !termId || loading ? 'rgba(107, 114, 128, 0.5)' : '#16a34a',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
@@ -940,22 +930,22 @@ export default function Reports() {
 
       {/* Generated Reports List */}
       <div style={{
-        background: 'rgba(15, 23, 42, 0.8)',
+        background: 'white',
         borderRadius: '16px',
         padding: '24px',
-        border: '1px solid rgba(71, 85, 105, 0.3)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+        border: '1px solid #e5e7eb',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
       }}>
         <h3 style={{
           margin: '0 0 20px 0',
-          color: '#e2e8f0',
+          color: '#1f2937',
           fontSize: '18px',
           fontWeight: '600',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
         }}>
-          <FaFileAlt style={{color: '#22c55e'}}/>
+          <FaFileAlt style={{color: '#16a34a'}}/>
           Generated Reports {termId && reportCards.length > 0 && `(${reportCards.length})`}
         </h3>
         
@@ -963,7 +953,7 @@ export default function Reports() {
           <div style={{
             textAlign: 'center',
             padding: '40px 20px',
-            color: '#94a3b8',
+            color: '#6b7280',
             fontSize: '16px'
           }}>
             📋 Select a term to view generated reports
@@ -975,7 +965,7 @@ export default function Reports() {
             <div style={{
               textAlign: 'center',
               padding: '40px 20px',
-              color: '#94a3b8'
+              color: '#6b7280'
             }}>
               <div>Loading reports...</div>
             </div>
@@ -988,28 +978,28 @@ export default function Reports() {
               }}>
                 <thead>
                   <tr style={{
-                    borderBottom: '2px solid rgba(71, 85, 105, 0.3)'
+                    borderBottom: '2px solid #e5e7eb'
                   }}>
-                    <th style={{padding: '12px', textAlign: 'left', fontWeight: '600', color: '#e2e8f0'}}>Student</th>
-                    <th style={{padding: '12px', textAlign: 'left', fontWeight: '600', color: '#e2e8f0'}}>Class</th>
-                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#e2e8f0'}}>Status</th>
-                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#e2e8f0'}}>Generated</th>
-                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#e2e8f0'}}>Action</th>
+                    <th style={{padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151'}}>Student</th>
+                    <th style={{padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151'}}>Class</th>
+                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151'}}>Status</th>
+                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151'}}>Generated</th>
+                    <th style={{padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151'}}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {reportCards.map(rc => (
                     <tr key={rc.id} style={{
-                      borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
+                      borderBottom: '1px solid #e5e7eb',
                       transition: 'background-color 0.15s ease'
                     }}
-                    onMouseEnter={(e) => e.target.closest('tr').style.backgroundColor = 'rgba(30, 41, 59, 0.5)'}
+                    onMouseEnter={(e) => e.target.closest('tr').style.backgroundColor = '#f9fafb'}
                     onMouseLeave={(e) => e.target.closest('tr').style.backgroundColor = 'transparent'}
                     >
-                      <td style={{padding: '12px', fontWeight: '500', color: '#e2e8f0'}}>
+                      <td style={{padding: '12px', fontWeight: '500', color: '#1f2937'}}>
                         {rc.student_obj?.full_name || `Student ID: ${rc.student}`}
                       </td>
-                      <td style={{padding: '12px', color: '#94a3b8'}}>
+                      <td style={{padding: '12px', color: '#6b7280'}}>
                         {rc.student_obj?.class_name || '-'}
                       </td>
                       <td style={{padding: '12px', textAlign: 'center'}}>
@@ -1024,7 +1014,7 @@ export default function Reports() {
                           {rc.status}
                         </span>
                       </td>
-                      <td style={{padding: '12px', textAlign: 'center', color: '#94a3b8', fontSize: '12px'}}>
+                      <td style={{padding: '12px', textAlign: 'center', color: '#6b7280', fontSize: '12px'}}>
                         {rc.generated_at ? new Date(rc.generated_at).toLocaleDateString() : '-'}
                       </td>
                       <td style={{padding: '12px', textAlign: 'center'}}>
@@ -1032,7 +1022,7 @@ export default function Reports() {
                           <button
                             onClick={() => window.open(rc.pdf_file, '_blank')}
                             style={{
-                              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                              background: '#3b82f6',
                               color: 'white',
                               border: 'none',
                               borderRadius: '6px',
@@ -1062,7 +1052,7 @@ export default function Reports() {
             <div style={{
               textAlign: 'center',
               padding: '40px 20px',
-              color: '#94a3b8',
+              color: '#6b7280',
               fontSize: '16px'
             }}>
               📄 No reports found for this selection
@@ -1080,6 +1070,7 @@ export default function Reports() {
         onClose={() => setShowPreview(false)}
         previewData={previewData}
       />
+      </div>
     </div>
   )
 }

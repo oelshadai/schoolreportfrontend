@@ -282,16 +282,16 @@ export default function Students() {
   }
 
   return (
-    <div className="container" style={{
-      maxWidth: 1400,
-      margin: '0 auto',
+    <div style={{
+      width: '100vw',
+      height: '100vh',
+      margin: 0,
       padding: isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
       paddingTop: isMobile ? '60px' : '100px',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      minHeight: '100vh',
-      color: 'white',
-      width: '100%',
-      boxSizing: 'border-box'
+      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+      color: '#1f2937',
+      boxSizing: 'border-box',
+      overflow: 'auto'
     }}>
       {/* Enhanced mobile-specific style injection */}
       <style>
@@ -375,12 +375,12 @@ export default function Students() {
       {/* Enhanced Header with Mobile-First Design */}
       <div className="page-header" style={{ 
         marginBottom: isMobile ? 20 : 24,
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'white',
         backdropFilter: 'blur(16px)',
         borderRadius: isMobile ? 16 : 20,
         padding: isMobile ? '20px 16px' : isTablet ? '24px 20px' : '28px 24px',
-        border: '1px solid rgba(102, 126, 234, 0.2)',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+        border: '1px solid #e5e7eb',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: isMobile ? 'flex-start' : 'center',
@@ -393,13 +393,13 @@ export default function Students() {
           gap: isMobile ? 12 : 16
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, #667eea, #764ba2)',
+            background: 'linear-gradient(135deg, #16a34a, #15803d)',
             borderRadius: 12,
             padding: isMobile ? '12px' : '16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 8px 20px rgba(102, 126, 234, 0.4)'
+            boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)'
           }}>
             <FaUserGraduate size={isMobile ? 20 : 24} color="white" />
           </div>
@@ -438,7 +438,7 @@ export default function Students() {
               minWidth: isMobile ? '100%' : 'auto',
               fontSize: isMobile ? 14 : 16,
               padding: isMobile ? '14px 18px' : '12px 16px',
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              background: 'linear-gradient(135deg, #16a34a, #15803d)',
               border: 'none',
               borderRadius: 10,
               color: 'white',
@@ -448,7 +448,7 @@ export default function Students() {
               alignItems: 'center',
               justifyContent: 'center',
               gap: 8,
-              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+              boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)',
               transition: 'all 0.3s ease'
             }}
           >
@@ -487,12 +487,12 @@ export default function Students() {
       <div className="toolbar" style={{
         gap: 12, 
         flexWrap: 'wrap',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'white',
         backdropFilter: 'blur(12px)',
         borderRadius: isMobile ? 12 : 16,
         padding: isMobile ? '16px 12px' : isTablet ? '20px 16px' : '24px 20px',
         marginBottom: isMobile ? 20 : 24,
-        border: '1px solid rgba(71, 85, 105, 0.3)',
+        border: '1px solid #e5e7eb',
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: isMobile ? 'stretch' : 'center'
@@ -520,9 +520,9 @@ export default function Students() {
               width: '100%',
               padding: isMobile ? '16px 16px 16px 44px' : '14px 14px 14px 42px',
               fontSize: 16,
-              border: '1px solid rgba(102, 126, 234, 0.3)',
+              border: '1px solid #e5e7eb',
               borderRadius: 10,
-              background: 'rgba(255, 255, 255, 0.8)',
+              background: 'white',
               color: '#1f2937',
               outline: 'none',
               transition: 'all 0.3s ease',

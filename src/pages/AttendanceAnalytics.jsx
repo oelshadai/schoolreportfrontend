@@ -76,24 +76,27 @@ export default function AttendanceAnalytics() {
 
   return (
     <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+      width: '100vw',
+      height: '100vh',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
       padding: isMobile ? '20px 12px' : '24px 20px',
-      paddingTop: isMobile ? '100px' : '80px'
+      paddingTop: isMobile ? '100px' : '80px',
+      overflow: 'auto'
     }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ width: '100%' }}>
         {/* Header */}
         <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
+          background: 'white',
           borderRadius: '16px',
           padding: isMobile ? '20px 16px' : '24px',
           marginBottom: '24px',
-          border: '1px solid rgba(71, 85, 105, 0.3)'
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
         }}>
           <h1 style={{
             margin: '0 0 16px 0',
             fontSize: isMobile ? '20px' : '24px',
-            color: 'white',
+            color: '#1f2937',
             display: 'flex',
             alignItems: 'center',
             gap: '12px'

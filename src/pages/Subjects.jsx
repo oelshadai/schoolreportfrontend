@@ -444,9 +444,9 @@ export default function Subjects() {
         }
         
         .subjects-page {
-          min-height: 100vh;
-          max-height: 100vh;
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+          width: 100vw;
+          height: 100vh;
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
           padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
           -webkit-overflow-scrolling: touch;
           overscroll-behavior: contain;
@@ -455,8 +455,7 @@ export default function Subjects() {
         }
         
         .subjects-container {
-          max-width: 1400px;
-          margin: 0 auto;
+          width: 100%;
           padding: 16px;
           padding-top: 120px;
           min-height: calc(100vh - 32px);
@@ -464,14 +463,13 @@ export default function Subjects() {
         }
         
         .subjects-header {
-          background: rgba(15, 23, 42, 0.8);
-          backdrop-filter: blur(10px);
+          background: white;
           border-radius: 16px;
           padding: 24px;
           margin-top: 84px;
           margin-bottom: 24px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(71, 85, 105, 0.3);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          border: 1px solid #e5e7eb;
         }
         
         .subjects-title {
@@ -480,15 +478,13 @@ export default function Subjects() {
           gap: 12px;
           font-size: 28px;
           font-weight: 700;
-          color: #e2e8f0;
+          color: #1f2937;
           margin: 0;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         .subjects-title svg {
           font-size: 32px;
-          color: #22c55e;
-          filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.3));
+          color: #16a34a;
         }
         
         .search-filter-bar {
@@ -560,18 +556,17 @@ export default function Subjects() {
         }
         
         .subjects-card {
-          background: rgba(15, 23, 42, 0.8);
-          backdrop-filter: blur(10px);
+          background: white;
           border-radius: 16px;
           padding: 24px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(71, 85, 105, 0.3);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          border: 1px solid #e5e7eb;
           transition: all 0.3s ease;
         }
         
         .subjects-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
         
         .card-header {
@@ -580,19 +575,19 @@ export default function Subjects() {
           gap: 12px;
           margin-bottom: 20px;
           padding-bottom: 16px;
-          border-bottom: 2px solid #f3f4f6;
+          border-bottom: 2px solid #e5e7eb;
         }
         
         .card-title {
           font-size: 20px;
           font-weight: 600;
-          color: #e2e8f0;
+          color: #1f2937;
           margin: 0;
         }
         
         .card-icon {
           font-size: 20px;
-          color: #22c55e;
+          color: #16a34a;
         }
         
         .form-grid {
@@ -609,18 +604,18 @@ export default function Subjects() {
         
         .form-label {
           font-weight: 600;
-          color: #e2e8f0;
+          color: #374151;
           font-size: 14px;
         }
         
         .form-input {
           padding: 12px 16px;
-          border: 2px solid rgba(71, 85, 105, 0.4);
+          border: 2px solid #e5e7eb;
           border-radius: 8px;
           font-size: 16px;
           transition: all 0.3s ease;
-          background: rgba(30, 41, 59, 0.8);
-          color: white;
+          background: white;
+          color: #1f2937;
         }
         
         .form-input option {
@@ -630,8 +625,8 @@ export default function Subjects() {
         
         .form-input:focus {
           outline: none;
-          border-color: #22c55e;
-          box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+          border-color: #16a34a;
+          box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
         }
         
         .form-textarea {
@@ -658,24 +653,24 @@ export default function Subjects() {
         }
         
         .btn-primary {
-          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+          background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
           color: white;
-          box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+          box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
         }
         
         .btn-primary:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+          box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4);
         }
         
         .btn-secondary {
-          background: rgba(71, 85, 105, 0.3);
-          color: #d1d5db;
-          border: 2px solid rgba(71, 85, 105, 0.5);
+          background: #f3f4f6;
+          color: #374151;
+          border: 2px solid #e5e7eb;
         }
         
         .btn-secondary:hover {
-          background: rgba(71, 85, 105, 0.5);
+          background: #e5e7eb;
           transform: translateY(-1px);
         }
         
@@ -698,8 +693,8 @@ export default function Subjects() {
         }
         
         .toggle-container {
-          background: rgba(30, 41, 59, 0.8);
-          border: 2px solid rgba(71, 85, 105, 0.4);
+          background: #f9fafb;
+          border: 2px solid #e5e7eb;
           border-radius: 12px;
           padding: 16px;
           max-height: 250px;
@@ -707,7 +702,7 @@ export default function Subjects() {
           overflow-x: hidden;
           -webkit-overflow-scrolling: touch;
           scrollbar-width: thin;
-          scrollbar-color: #cbd5e1 rgba(30, 41, 59, 0.8);
+          scrollbar-color: #cbd5e1 #f9fafb;
         }
         
         .toggle-container::-webkit-scrollbar {
@@ -715,7 +710,7 @@ export default function Subjects() {
         }
         
         .toggle-container::-webkit-scrollbar-track {
-          background: rgba(30, 41, 59, 0.8);
+          background: #f9fafb;
           border-radius: 4px;
         }
         
@@ -749,8 +744,8 @@ export default function Subjects() {
         }
         
         .checkbox-badge {
-          background: rgba(34, 197, 94, 0.2);
-          color: #86efac;
+          background: rgba(22, 163, 74, 0.1);
+          color: #16a34a;
           padding: 4px 8px;
           border-radius: 6px;
           font-size: 12px;
@@ -762,8 +757,8 @@ export default function Subjects() {
           border-collapse: collapse;
           border-radius: 12px;
           overflow: hidden;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-          background: rgba(15, 23, 42, 0.8);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          background: white;
         }
         
         .table-wrapper {
@@ -797,7 +792,7 @@ export default function Subjects() {
         }
         
         .subjects-table th {
-          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+          background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
           color: white;
           padding: 16px;
           text-align: left;
@@ -809,12 +804,12 @@ export default function Subjects() {
         
         .subjects-table td {
           padding: 16px;
-          border-bottom: 1px solid rgba(71, 85, 105, 0.3);
-          color: #d1d5db;
+          border-bottom: 1px solid #e5e7eb;
+          color: #374151;
         }
         
         .subjects-table tr:hover {
-          background: rgba(30, 41, 59, 0.5);
+          background: #f9fafb;
         }
         
         .subjects-table tr:last-child td {
@@ -845,9 +840,9 @@ export default function Subjects() {
         }
         
         .alert-info {
-          background: rgba(59, 130, 246, 0.1);
-          color: #93c5fd;
-          border: 1px solid rgba(59, 130, 246, 0.3);
+          background: #eff6ff;
+          color: #1d4ed8;
+          border: 1px solid #bfdbfe;
         }
         
         .loading-spinner {
@@ -1333,11 +1328,11 @@ export default function Subjects() {
                     {filteredSubjects.map(subject => (
                       <tr key={subject.id}>
                         <td style={{fontWeight: '500'}}>{subject.name}</td>
-                        <td style={{fontFamily: 'monospace', background: 'rgba(71, 85, 105, 0.3)', color: '#d1d5db', padding: '4px 8px', borderRadius: '4px', display: 'inline-block'}}>{subject.code}</td>
+                        <td style={{fontFamily: 'monospace', background: '#f3f4f6', color: '#374151', padding: '4px 8px', borderRadius: '4px', display: 'inline-block'}}>{subject.code}</td>
                         <td>
                           <span style={{
-                            background: 'rgba(34, 197, 94, 0.2)',
-                            color: '#86efac',
+                            background: 'rgba(22, 163, 74, 0.1)',
+                            color: '#16a34a',
                             padding: '4px 8px',
                             borderRadius: '6px',
                             fontSize: '12px',
@@ -1490,7 +1485,7 @@ export default function Subjects() {
               <div className="form-group">
                 <label className="form-label">Assignment Mode</label>
                 <div style={{display: 'flex', gap: '16px', marginTop: '8px'}}>
-                  <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#e2e8f0'}}>
+                  <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#374151'}}>
                     <input
                       type="radio"
                       className="checkbox-input"
@@ -1502,7 +1497,7 @@ export default function Subjects() {
                     />
                     <span>Single Subject</span>
                   </label>
-                  <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#e2e8f0'}}>
+                  <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#374151'}}>
                     <input
                       type="radio"
                       className="checkbox-input"
@@ -1638,7 +1633,7 @@ export default function Subjects() {
 
             {/* Assigned Subjects Table */}
             <div style={{marginTop: '32px'}}>
-              <h3 style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: '#e2e8f0'}}>
+              <h3 style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: '#374151'}}>
                 <FaCheck style={{color: '#16a34a'}} />
                 Assigned Subjects ({classAssignments.length})
               </h3>
@@ -1655,7 +1650,7 @@ export default function Subjects() {
                     {classAssignments.map(assignment => (
                       <tr key={assignment.id}>
                         <td style={{fontWeight: '500'}}>{assignment.subject_name || assignment.subject?.name}</td>
-                        <td>{assignment.teacher_name || <span style={{color: '#64748b', fontStyle: 'italic'}}>No teacher assigned</span>}</td>
+                        <td>{assignment.teacher_name || <span style={{color: '#6b7280', fontStyle: 'italic'}}>No teacher assigned</span>}</td>
                         <td style={{textAlign: 'center'}}>
                           <div style={{display: 'flex', gap: '8px', justifyContent: 'center'}}>
                             <button
