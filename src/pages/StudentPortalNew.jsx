@@ -19,10 +19,7 @@ export default function StudentPortal() {
   const [loading, setLoading] = useState(true)
   const [availableTasks, setAvailableTasks] = useState([])
   const [scheduleData, setScheduleData] = useState([])
-  const [reports, setReports] = useState([
-    { id: 1, title: 'Term 1 Report', term: 'Term 1', date: new Date(), status: 'Available' },
-    { id: 2, title: 'Mid-term Report', term: 'Mid-term', date: new Date(), status: 'Available' }
-  ])
+  const [reports, setReports] = useState([])
 
   // If no user is logged in, redirect to student login
   if (!user) {
@@ -85,13 +82,58 @@ export default function StudentPortal() {
         setAvailableTasks([])
       }
       
-      // Load student schedule
+      // Load student reports from API
       try {
-        const scheduleRes = await api.get('/students/schedule/').catch(() => ({ data: [] }))
-        const schedules = Array.isArray(scheduleRes.data) ? scheduleRes.data : scheduleRes.data.results || []
-        setScheduleData(schedules)
-        // Also save to localStorage for offline access
-        localStorage.setItem('student_schedule', JSON.stringify(schedules))
+        const studentId = user?.id
+        const reportsRes = await api.get('/reports/report-cards/')
+        const allReports = reportsRes.data.results || reportsRes.data || []
+        
+        // Filter reports for this specific student
+        const studentReports = allReports.filter(report => 
+          report.student === studentId || report.student_id === studentId
+        ).map(report => ({
+          id: report.id,
+          title: `${report.term_name || 'Term'} Report Card`,
+          term: report.term_name || 'Academic Term',
+          date: report.generated_at || report.created_at || new Date().toISOString(),
+          status: report.status === 'GENERATED' ? 'Available' : 'Processing',
+          pdf_url: report.pdf_file,
+          student_name: report.student_name || user?.first_name + ' ' + user?.last_name,
+          student_id: studentId,
+          class_name: report.class_name || 'Class 11',
+          teacher_name: report.teacher_name || 'Form Teacher',
+          overall_grade: report.overall_grade,
+          attendance_rate: report.attendance_rate,
+          assignments_completed: report.assignments_completed,
+          subjects: report.subjects,
+          teacher_comments: report.teacher_comments
+        }))
+        
+        setReports(studentReports)
+        console.log('Loaded student reports from API:', studentReports)
+      } catch (error) {
+        console.error('Error loading reports:', error)
+        setReports([])
+      }
+      
+      // Load student schedule from localStorage
+      try {
+        console.log('Student user object:', user)
+        const classId = user?.current_class?.id || user?.class_instance || user?.current_class || 11
+        console.log('Using class ID:', classId)
+        
+        if (classId) {
+          const savedSchedules = localStorage.getItem(`schedules_class_${classId}`)
+          console.log('Looking for schedules with key:', `schedules_class_${classId}`)
+          console.log('Found schedules:', savedSchedules)
+          
+          const schedules = savedSchedules ? JSON.parse(savedSchedules) : []
+          setScheduleData(schedules)
+          console.log('Loaded schedules from localStorage:', schedules)
+        } else {
+          console.log('No class ID found for student')
+          setScheduleData([])
+        }
       } catch (scheduleError) {
         console.error('Error loading schedule:', scheduleError)
         setScheduleData([])
@@ -369,7 +411,7 @@ export default function StudentPortal() {
                   fontWeight: '800',
                   color: '#1a202c'
                 }}>
-                  {assignments.filter(a => a.status === 'graded').length}
+                  {assignments.filter(a => a.status === 'submitted' || a.status === 'graded').length}
                 </h3>
                 <p style={{
                   margin: 0,

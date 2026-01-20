@@ -224,6 +224,27 @@ export default function AssignmentView() {
     }
     
     localStorage.setItem('completed_assignments', JSON.stringify(completedAssignments))
+    
+    // ALSO save to student_submissions for GradeBook compatibility
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
+    const studentSubmissions = JSON.parse(localStorage.getItem('student_submissions') || '[]')
+    
+    const submissionData = {
+      id: Date.now(),
+      assignment_id: parseInt(id) || id,
+      student_id: currentUser.id || 1,
+      submission_text: `Quiz completed with ${gradeResult.correctAnswers}/${gradeResult.totalQuestions} correct answers`,
+      submitted_at: new Date().toISOString(),
+      status: 'SUBMITTED',
+      is_graded: true,
+      score: gradeResult.score,
+      feedback: 'Auto-graded by system'
+    }
+    
+    studentSubmissions.push(submissionData)
+    localStorage.setItem('student_submissions', JSON.stringify(studentSubmissions))
+    
+    console.log('🎯 Quiz submission saved to localStorage:', submissionData)
   }
 
   const formatTime = (seconds) => {

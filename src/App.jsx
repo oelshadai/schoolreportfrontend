@@ -30,6 +30,7 @@ import Attendance from './pages/Attendance'
 import AttendanceDashboard from './pages/AttendanceDashboard'
 import GradeBook from './pages/GradeBook'
 import StudentDetails from './pages/StudentDetails'
+import TerminalReports from './pages/TerminalReports'
 import AssignmentView from './pages/AssignmentView'
 import { NotificationProvider } from './components/NotificationSystem'
 import { SidebarProvider } from './state/SidebarContext'
@@ -39,7 +40,7 @@ export default function App() {
   return (
     <SidebarProvider>
       <NotificationProvider>
-        <div className="app" style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, overflow: 'hidden' }}>
+        <div className="app" style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, background: '#ffffff' }}>
           <NetworkStatus />
           <ResponsiveLayout>
             <Routes>
@@ -154,6 +155,14 @@ export default function App() {
           element={
             <ProtectedRoute roles={["TEACHER", "SCHOOL_ADMIN", "PRINCIPAL"]}>
               <StudentDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/terminal-reports"
+          element={
+            <ProtectedRoute roles={["TEACHER", "SCHOOL_ADMIN", "PRINCIPAL"]}>
+              <TerminalReports />
             </ProtectedRoute>
           }
         />

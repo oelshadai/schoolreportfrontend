@@ -78,6 +78,10 @@ export default function AssignmentSubmission() {
       
       console.log('💾 Saved submission to localStorage:', newSubmission)
       console.log('📊 All submissions now:', submissions)
+      
+      // Verify it was saved
+      const verifySubmissions = JSON.parse(localStorage.getItem('student_submissions') || '[]')
+      console.log('✅ Verification - localStorage now contains:', verifySubmissions.length, 'submissions')
 
       // Auto-grade if it's a quiz
       if (assignment?.assignment_type === 'QUIZ') {

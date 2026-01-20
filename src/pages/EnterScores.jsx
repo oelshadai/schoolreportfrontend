@@ -48,6 +48,14 @@ export default function EnterScores() {
   })
   const [allScores, setAllScores] = useState({})
   
+  // Persistent storage key for current session
+  const getStorageKey = () => {
+    const classId = selectedClass || preSelectedData.classId
+    const termId = selectedTerm
+    const teacherId = user?.id
+    return `enterScores_${teacherId}_${classId}_${termId}`
+  }
+  
   // State
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -101,6 +109,20 @@ export default function EnterScores() {
       loadSubjectDetails()
     }
   }, [user])
+  
+  // Load saved progress from localStorage when component mounts or key changes
+  useEffect(() => {
+    if (selectedClass && selectedTerm && user?.id) {
+      loadSavedProgress()
+    }
+  }, [selectedClass, selectedTerm, user?.id])
+  
+  // Auto-save progress to localStorage whenever scores change
+  useEffect(() => {
+    if (selectedClass && selectedTerm && user?.id && Object.keys(allScores).length > 0) {
+      saveProgressToStorage()
+    }
+  }, [allScores, currentStudentIndex, currentSubjectIndex, selectedClass, selectedTerm, user?.id])
 
   const loadSubjectDetails = async () => {
     try {
@@ -131,6 +153,19 @@ export default function EnterScores() {
       
       setSchoolSettings(schoolData)
       setTerms(termList)
+      
+      // Auto-select current term from school settings or find current term
+      let currentTerm = null
+      if (schoolData.current_term_id) {
+        currentTerm = termList.find(t => t.id === schoolData.current_term_id)
+      }
+      if (!currentTerm) {
+        currentTerm = termList.find(t => t.is_current) || termList[0]
+      }
+      if (currentTerm) {
+        setSelectedTerm(String(currentTerm.id))
+        console.log('🎯 Auto-selected current term:', currentTerm.name)
+      }
       
       // Handle class selection based on teacher role
       if (user?.role === 'TEACHER') {
@@ -163,11 +198,6 @@ export default function EnterScores() {
         setClasses(clsList)
       }
       
-      // Auto-select current term
-      const currentTerm = termList.find(t => t.is_current) || termList[0]
-      if (currentTerm) {
-        setSelectedTerm(String(currentTerm.id))
-      }
     } catch (e) {
       setError('Failed to load initial data')
     }
@@ -302,12 +332,12 @@ export default function EnterScores() {
   }
 
   const canProceedToScoring = () => {
-    // If data was pre-selected from Classes page, just check if we have students and term
+    // If data was pre-selected from Classes page, just check if we have students and current term is set
     if (preSelectedData.classId) {
       return selectedTerm && students.length > 0
     }
     
-    // Otherwise, use the normal validation
+    // Otherwise, use the normal validation (term is auto-selected, so just check class and subject)
     if (multiSubjectMode) {
       return selectedClass && selectedTerm && selectedSubjects.length > 0 && students.length > 0
     }
@@ -316,25 +346,37 @@ export default function EnterScores() {
 
   const startScoring = () => {
     if (!canProceedToScoring()) return
-    setCurrentStudentIndex(0)
-    setScores({ task: 0, homework: 0, group_work: 0, project_work: 0, class_test: 0, exam_score: 0 })
     
-    // Initialize allScores structure for multi-subject mode
-    if (multiSubjectMode) {
-      const initialScores = {}
-      students.forEach(student => {
-        initialScores[student.id] = {}
-        selectedSubjects.forEach(subjectId => {
-          initialScores[student.id][subjectId] = {
-            task: 0, homework: 0, group_work: 0, 
-            project_work: 0, class_test: 0, exam_score: 0
-          }
+    // Try to load saved progress first
+    const savedProgress = loadSavedProgress()
+    
+    if (savedProgress && savedProgress.allScores && Object.keys(savedProgress.allScores).length > 0) {
+      // Resume from saved progress
+      console.log('📂 Resuming from saved progress:', savedProgress)
+      setMessage(`📂 Resumed from previous session with ${Object.keys(savedProgress.allScores).length} students' progress`)
+    } else {
+      // Start fresh
+      setCurrentStudentIndex(0)
+      setScores({ task: 0, homework: 0, group_work: 0, project_work: 0, class_test: 0, exam_score: 0 })
+      
+      // Initialize allScores structure for multi-subject mode
+      if (multiSubjectMode) {
+        const initialScores = {}
+        students.forEach(student => {
+          initialScores[student.id] = {}
+          selectedSubjects.forEach(subjectId => {
+            initialScores[student.id][subjectId] = {
+              task: 0, homework: 0, group_work: 0, 
+              project_work: 0, class_test: 0, exam_score: 0
+            }
+          })
         })
-      })
-      setAllScores(initialScores)
+        setAllScores(initialScores)
+      }
+      
+      setSavedStudents(new Set())
     }
     
-    setSavedStudents(new Set())
     setStep('scoring')
   }
 
@@ -379,7 +421,10 @@ export default function EnterScores() {
       )
       
       if (confirmed) {
-        setScores(prev => ({ ...prev, [field]: maxLimit }))
+        const newScores = { ...scores, [field]: maxLimit }
+        setScores(newScores)
+        // Auto-save to localStorage when scores change
+        autoSaveCurrentProgress(newScores)
         setError('')
       } else {
         // Keep the previous valid value
@@ -389,7 +434,10 @@ export default function EnterScores() {
       setError(`Score cannot be negative for ${field.replace('_', ' ')}`)
       return
     } else {
-      setScores(prev => ({ ...prev, [field]: numValue }))
+      const newScores = { ...scores, [field]: numValue }
+      setScores(newScores)
+      // Auto-save to localStorage when scores change
+      autoSaveCurrentProgress(newScores)
       setError('') // Clear any previous errors
     }
   }
@@ -540,13 +588,14 @@ export default function EnterScores() {
       
       if (multiSubjectMode) {
         // Update allScores for tracking
-        setAllScores(prev => ({
-          ...prev,
+        const updatedAllScores = {
+          ...allScores,
           [currentStudent.id]: {
-            ...prev[currentStudent.id],
-            [currentSubjectId]: { ...scores, saved: true }
+            ...allScores[currentStudent.id],
+            [currentSubjectId]: { ...scores, saved: true, savedAt: new Date().toISOString() }
           }
-        }))
+        }
+        setAllScores(updatedAllScores)
         
         const subjectName = classSubjects.find(cs => String(cs.id) === currentSubjectId)?.subject_name
         setMessage(`✓ Saved ${currentStudent.get_full_name || currentStudent.full_name || (currentStudent.first_name + ' ' + currentStudent.last_name)} - ${subjectName} - Total: ${res.data.total_score}, Grade: ${res.data.grade}`)
@@ -554,6 +603,10 @@ export default function EnterScores() {
         setSavedStudents(prev => new Set([...prev, currentStudent.id]))
         setMessage(`✓ Saved ${currentStudent.get_full_name || currentStudent.full_name || (currentStudent.first_name + ' ' + currentStudent.last_name)} - Total: ${res.data.total_score}, Grade: ${res.data.grade}`)
       }
+      
+      // Update localStorage to mark as saved
+      saveProgressToStorage()
+      
     } catch (e) {
       console.error('❌ Save scores error:', e)
       console.error('❌ Error response:', e.response?.data)
@@ -808,7 +861,7 @@ export default function EnterScores() {
       setGeneratingPreviews(false)
     }
   }
-
+  
   // Navigate between preview students
   const navigatePreview = (direction) => {
     if (direction === 'next' && currentPreviewIndex < batchPreviewData.length - 1) {
@@ -817,7 +870,7 @@ export default function EnterScores() {
       setCurrentPreviewIndex(currentPreviewIndex - 1)
     }
   }
-
+  
   // Save all students with scores
   const saveAllStudents = async () => {
     setSaving(true)
@@ -873,8 +926,124 @@ export default function EnterScores() {
     }
   }
 
+  const autoSaveCurrentProgress = (newScores) => {
+    if (!currentStudent) return
+    
+    const currentSubjectId = multiSubjectMode ? selectedSubjects[currentSubjectIndex] : selectedSubject
+    if (!currentSubjectId) return
+    
+    // Update allScores with current progress (not saved to backend yet)
+    const updatedAllScores = {
+      ...allScores,
+      [currentStudent.id]: {
+        ...allScores[currentStudent.id],
+        [currentSubjectId]: { 
+          ...newScores, 
+          saved: false, 
+          lastModified: new Date().toISOString() 
+        }
+      }
+    }
+    
+    setAllScores(updatedAllScores)
+  }
+  
+  // localStorage helper functions for persistent progress
+  const saveProgressToStorage = () => {
+    try {
+      const storageKey = getStorageKey()
+      if (!storageKey) return
+      
+      const progressData = {
+        allScores,
+        currentStudentIndex,
+        currentSubjectIndex,
+        savedStudents: Array.from(savedStudents),
+        multiSubjectMode,
+        selectedSubjects,
+        selectedSubject,
+        timestamp: new Date().toISOString(),
+        studentsCount: students.length
+      }
+      
+      localStorage.setItem(storageKey, JSON.stringify(progressData))
+      console.log('💾 Progress saved to localStorage:', storageKey)
+    } catch (e) {
+      console.error('Failed to save progress to localStorage:', e)
+    }
+  }
+  
+  const loadSavedProgress = () => {
+    try {
+      const storageKey = getStorageKey()
+      if (!storageKey) return null
+      
+      const savedData = localStorage.getItem(storageKey)
+      if (!savedData) return null
+      
+      const progressData = JSON.parse(savedData)
+      console.log('📂 Loading saved progress:', progressData)
+      
+      // Validate that the saved data matches current session
+      if (progressData.studentsCount !== students.length) {
+        console.log('⚠️ Student count mismatch, clearing saved progress')
+        clearSavedProgress()
+        return null
+      }
+      
+      // Restore progress
+      if (progressData.allScores) {
+        setAllScores(progressData.allScores)
+      }
+      if (typeof progressData.currentStudentIndex === 'number') {
+        setCurrentStudentIndex(progressData.currentStudentIndex)
+      }
+      if (typeof progressData.currentSubjectIndex === 'number') {
+        setCurrentSubjectIndex(progressData.currentSubjectIndex)
+      }
+      if (Array.isArray(progressData.savedStudents)) {
+        setSavedStudents(new Set(progressData.savedStudents))
+      }
+      if (typeof progressData.multiSubjectMode === 'boolean') {
+        setMultiSubjectMode(progressData.multiSubjectMode)
+      }
+      if (Array.isArray(progressData.selectedSubjects)) {
+        setSelectedSubjects(progressData.selectedSubjects)
+      }
+      if (progressData.selectedSubject) {
+        setSelectedSubject(progressData.selectedSubject)
+      }
+      
+      return progressData
+    } catch (e) {
+      console.error('Failed to load saved progress:', e)
+      clearSavedProgress()
+      return null
+    }
+  }
+  
+  const clearSavedProgress = () => {
+    try {
+      const storageKey = getStorageKey()
+      if (storageKey) {
+        localStorage.removeItem(storageKey)
+        console.log('🗑️ Cleared saved progress:', storageKey)
+      }
+    } catch (e) {
+      console.error('Failed to clear saved progress:', e)
+    }
+  }
+
   const goToPreviousStudent = () => {
     if (currentStudentIndex > 0) {
+      // Auto-save current progress before switching
+      if (currentStudent) {
+        const currentSubjectId = multiSubjectMode ? selectedSubjects[currentSubjectIndex] : selectedSubject
+        if (currentSubjectId) {
+          autoSaveCurrentProgress(scores)
+        }
+      }
+      
       setCurrentStudentIndex(currentStudentIndex - 1)
       setMessage('')
       setError('')
@@ -883,6 +1052,14 @@ export default function EnterScores() {
 
   const goToNextStudent = () => {
     if (currentStudentIndex < students.length - 1) {
+      // Auto-save current progress before switching
+      if (currentStudent) {
+        const currentSubjectId = multiSubjectMode ? selectedSubjects[currentSubjectIndex] : selectedSubject
+        if (currentSubjectId) {
+          autoSaveCurrentProgress(scores)
+        }
+      }
+      
       setCurrentStudentIndex(currentStudentIndex + 1)
       setMessage('')
       setError('')
@@ -997,8 +1174,8 @@ export default function EnterScores() {
             marginBottom: 16
           }}>
             {user?.role === 'TEACHER' ? 
-              (schoolSettings?.score_entry_mode === 'CLASS_TEACHER' ? 'Select Term & Subject' : 'Select Class, Term & Subject') 
-              : 'Select Class, Term & Subject'}
+              (schoolSettings?.score_entry_mode === 'CLASS_TEACHER' ? 'Select Subject' : 'Select Class & Subject') 
+              : 'Select Class & Subject'}
           </h3>
           
           {schoolSettings?.score_entry_mode && (
@@ -1020,6 +1197,36 @@ export default function EnterScores() {
               </span>
             </div>
           )}
+          
+          {/* Current Term Display */}
+          <div style={{
+            marginBottom: 20,
+            padding: '12px 16px',
+            background: 'linear-gradient(135deg, #10b981, #047857)',
+            borderRadius: 10,
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8
+          }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.2)',
+              borderRadius: '6px',
+              padding: '6px',
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              📅
+            </div>
+            <div>
+              <div style={{fontSize: '14px', fontWeight: '600'}}>
+                Current Term: {terms.find(t => String(t.id) === selectedTerm)?.name_display || terms.find(t => String(t.id) === selectedTerm)?.name || 'Loading...'}
+              </div>
+              <div style={{fontSize: '12px', opacity: 0.9}}>
+                Automatically selected from school settings
+              </div>
+            </div>
+          </div>
           
           <div style={{
             display: 'grid',
@@ -1063,7 +1270,7 @@ export default function EnterScores() {
                   background: 'rgba(16, 185, 129, 0.1)', 
                   borderRadius: 10, 
                   border: '1px solid rgba(16, 185, 129, 0.3)', 
-                  color: '#86efac',
+                  color: '#065f46',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8
@@ -1073,25 +1280,6 @@ export default function EnterScores() {
                 </div>
               </div>
             )}
-
-            <div className="field" style={{marginBottom: 20}}>
-              <label style={{
-                display: 'block',
-                marginBottom: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#1a202c'
-              }}>Term</label>
-              <ScrollableSelect
-                value={selectedTerm}
-                onChange={setSelectedTerm}
-                options={terms.map(t => ({
-                  value: String(t.id),
-                  label: t.name_display || t.name
-                }))}
-                placeholder="Select term"
-              />
-            </div>
 
             <div className="field" style={{marginBottom: 20}}>
               <label style={{marginBottom: '12px', display: 'block', fontWeight: '600', color: '#1a202c'}}>Subject Selection Mode</label>
@@ -1420,12 +1608,46 @@ export default function EnterScores() {
               }}
             >
               <FaBookReader style={{marginRight:8,verticalAlign:'-2px'}}/>
-              {multiSubjectMode 
-                ? `Start Entering Scores (${selectedSubjects.length} subjects)`
-                : 'Start Entering Scores'
-              }
+              {(() => {
+                const storageKey = getStorageKey()
+                const hasSavedProgress = storageKey && localStorage.getItem(storageKey)
+                
+                if (hasSavedProgress) {
+                  return multiSubjectMode 
+                    ? `Resume Progress (${selectedSubjects.length} subjects)`
+                    : 'Resume Progress'
+                } else {
+                  return multiSubjectMode 
+                    ? `Start Entering Scores (${selectedSubjects.length} subjects)`
+                    : 'Start Entering Scores'
+                }
+              })()} 
             </button>
           </div>
+          
+          {(() => {
+            const storageKey = getStorageKey()
+            const hasSavedProgress = storageKey && localStorage.getItem(storageKey)
+            
+            return hasSavedProgress && (
+              <div style={{
+                marginTop: '16px',
+                padding: '12px 16px',
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '8px',
+                color: '#1e40af',
+                fontSize: '14px',
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}>
+                📂 <strong>Previous session found!</strong> You can continue from where you left off.
+              </div>
+            )
+          })()} 
         </div>
       </div>
     )
@@ -1523,7 +1745,43 @@ export default function EnterScores() {
       }}>
         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12, color: '#1a202c'}}>
           <span style={{ fontWeight: '600' }}>Progress: {savedStudents.size}/{students.length} students</span>
-          <span style={{ fontWeight: '600' }}>{progressPercent}% complete</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontWeight: '600' }}>{progressPercent}% complete</span>
+            {(() => {
+              const storageKey = getStorageKey()
+              const hasUnsavedProgress = storageKey && localStorage.getItem(storageKey)
+              return hasUnsavedProgress && (
+                <button
+                  onClick={() => {
+                    if (window.confirm('Clear all unsaved progress? This will remove all locally stored scores that haven\'t been saved to the server.')) {
+                      clearSavedProgress()
+                      setAllScores({})
+                      setSavedStudents(new Set())
+                      setCurrentStudentIndex(0)
+                      setCurrentSubjectIndex(0)
+                      setScores({ task: 0, homework: 0, group_work: 0, project_work: 0, class_test: 0, exam_score: 0 })
+                      setMessage('🗑️ Cleared all unsaved progress')
+                    }
+                  }}
+                  style={{
+                    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '6px 12px',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  🗑️ Clear Progress
+                </button>
+              )
+            })()} 
+          </div>
         </div>
         <div style={{width:'100%', height:8, background:'#e2e8f0', borderRadius:4, overflow:'hidden'}}>
           <div 
@@ -1535,6 +1793,30 @@ export default function EnterScores() {
             }}
           />
         </div>
+        {(() => {
+          const storageKey = getStorageKey()
+          const hasUnsavedProgress = storageKey && localStorage.getItem(storageKey)
+          const unsavedCount = Object.values(allScores).reduce((count, studentScores) => {
+            return count + Object.values(studentScores || {}).filter(scores => scores && !scores.saved).length
+          }, 0)
+          
+          return hasUnsavedProgress && unsavedCount > 0 && (
+            <div style={{
+              marginTop: '12px',
+              padding: '8px 12px',
+              background: 'rgba(251, 191, 36, 0.1)',
+              border: '1px solid rgba(251, 191, 36, 0.3)',
+              borderRadius: '6px',
+              color: '#92400e',
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              💾 {unsavedCount} unsaved score entries in progress • Auto-saved locally • Remember to save to server
+            </div>
+          )
+        })()} 
       </div>
 
       {/* Current Student Card */}
@@ -1577,6 +1859,30 @@ export default function EnterScores() {
                   Saved
                 </div>
               )}
+              {(() => {
+                const currentSubjectId = multiSubjectMode ? selectedSubjects[currentSubjectIndex] : selectedSubject
+                const currentScores = allScores[currentStudent.id]?.[currentSubjectId]
+                const hasUnsavedChanges = currentScores && !currentScores.saved && (
+                  currentScores.task > 0 || currentScores.homework > 0 || currentScores.group_work > 0 ||
+                  currentScores.project_work > 0 || currentScores.class_test > 0 || currentScores.exam_score > 0
+                )
+                
+                return hasUnsavedChanges && (
+                  <div style={{
+                    background: '#f59e0b',
+                    color: 'white',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    💾 Unsaved
+                  </div>
+                )
+              })()} 
             </h3>
             <div style={{color: '#718096', fontSize: '14px', fontWeight: '500'}}>
               Student {currentStudentIndex + 1} of {students.length}
@@ -2428,18 +2734,106 @@ export default function EnterScores() {
                     Next
                     <FaChevronRight size={12} />
                   </button>
+                  <button
+                    onClick={() => {
+                      if (batchPreviewData[currentPreviewIndex]?.previewUrl) {
+                        window.open(batchPreviewData[currentPreviewIndex].previewUrl, '_blank')
+                      }
+                    }}
+                    disabled={!batchPreviewData[currentPreviewIndex]?.hasScores}
+                    style={{
+                      background: !batchPreviewData[currentPreviewIndex]?.hasScores ? '#9ca3af' : '#10b981',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '8px 12px',
+                      cursor: !batchPreviewData[currentPreviewIndex]?.hasScores ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}
+                  >
+                    Open in New Tab
+                  </button>
                 </div>
               </div>
             )}
 
             {/* Preview Frame */}
-            <div style={{ flex: 1, border: '1px solid #d1d5db', borderRadius: '8px', overflow: 'hidden' }}>
+            <div style={{ flex: 1, border: '1px solid #d1d5db', borderRadius: '8px', overflow: 'hidden', position: 'relative' }}>
               {batchPreviewData[currentPreviewIndex]?.hasScores ? (
-                <iframe
-                  src={batchPreviewData[currentPreviewIndex].previewUrl}
-                  style={{ width: '100%', height: '100%', border: 'none' }}
-                  title={`Report for ${batchPreviewData[currentPreviewIndex].student.first_name}`}
-                />
+                <>
+                  <iframe
+                    key={`iframe-${currentPreviewIndex}`}
+                    src={batchPreviewData[currentPreviewIndex].previewUrl}
+                    style={{ width: '100%', height: '100%', border: 'none' }}
+                    title={`Report for ${batchPreviewData[currentPreviewIndex].student.first_name}`}
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                    onLoad={(e) => {
+                      // Check if iframe loaded successfully
+                      try {
+                        const iframeDoc = e.target.contentDocument || e.target.contentWindow.document
+                        if (!iframeDoc || iframeDoc.body.innerHTML.includes('X-Frame-Options')) {
+                          throw new Error('X-Frame-Options blocked')
+                        }
+                      } catch (error) {
+                        console.log('Iframe blocked by X-Frame-Options, showing fallback')
+                        e.target.style.display = 'none'
+                        e.target.nextElementSibling.style.display = 'flex'
+                      }
+                    }}
+                    onError={() => {
+                      console.log('Iframe failed to load')
+                      const iframe = document.querySelector(`iframe[title="Report for ${batchPreviewData[currentPreviewIndex].student.first_name}"]`)
+                      if (iframe) {
+                        iframe.style.display = 'none'
+                        iframe.nextElementSibling.style.display = 'flex'
+                      }
+                    }}
+                  />
+                  {/* Fallback content when iframe fails */}
+                  <div style={{
+                    display: 'none',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%',
+                    color: '#6b7280',
+                    textAlign: 'center',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'white'
+                  }}>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
+                    <h4 style={{ margin: '0 0 8px 0' }}>Preview Blocked</h4>
+                    <p style={{ margin: '0 0 16px 0', fontSize: '14px' }}>
+                      The report preview is blocked by security settings.
+                    </p>
+                    <button
+                      onClick={() => {
+                        window.open(batchPreviewData[currentPreviewIndex].previewUrl, '_blank')
+                      }}
+                      style={{
+                        background: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '12px 24px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      🔗 Open Report in New Tab
+                    </button>
+                  </div>
+                </>
               ) : (
                 <div style={{
                   display: 'flex',

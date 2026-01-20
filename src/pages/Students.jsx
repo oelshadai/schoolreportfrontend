@@ -67,65 +67,12 @@ export default function Students() {
   const isTablet = screenSize.width <= 1024
   const isDesktop = screenSize.width > 1024
 
-  // Enhanced mobile keyboard handling with comprehensive viewport management
+  // Prevent body scroll when modal is open
   useEffect(() => {
-    if (showAdd && isMobile) {
-      // Store original scroll position
-      const scrollY = window.scrollY
-      
-      // Prevent background scroll with better positioning
-      document.body.style.position = 'fixed'
-      document.body.style.top = `-${scrollY}px`
-      document.body.style.left = '0'
-      document.body.style.right = '0'
-      document.body.style.width = '100%'
+    if (showAdd) {
       document.body.style.overflow = 'hidden'
-      document.body.style.touchAction = 'none' // Prevent pull-to-refresh
-      
-      // Enhanced viewport height handling for mobile keyboards
-      const setViewportHeight = () => {
-        const vh = window.innerHeight * 0.01
-        document.documentElement.style.setProperty('--vh', `${vh}px`)
-        // Also set a safe area for notched devices
-        document.documentElement.style.setProperty('--safe-area-inset-top', 'env(safe-area-inset-top, 0px)')
-        document.documentElement.style.setProperty('--safe-area-inset-bottom', 'env(safe-area-inset-bottom, 0px)')
-      }
-      
-      setViewportHeight()
-      
-      // Listen for viewport changes (keyboard appearance/disappearance)
-      const handleResize = () => {
-        setViewportHeight()
-        // Dispatch custom event for form components to adjust
-        window.dispatchEvent(new CustomEvent('viewportHeightChange', {
-          detail: { innerHeight: window.innerHeight }
-        }))
-      }
-      
-      const handleOrientationChange = () => {
-        // Delay to ensure orientation change is complete
-        setTimeout(() => {
-          setViewportHeight()
-        }, 100)
-      }
-      
-      window.addEventListener('resize', handleResize, { passive: true })
-      window.addEventListener('orientationchange', handleOrientationChange)
-      
       return () => {
-        // Restore original scroll position and styles
-        document.body.style.position = ''
-        document.body.style.top = ''
-        document.body.style.left = ''
-        document.body.style.right = ''
-        document.body.style.width = ''
-        document.body.style.overflow = ''
-        document.body.style.touchAction = ''
-        
-        window.scrollTo(0, scrollY)
-        
-        window.removeEventListener('resize', handleResize)
-        window.removeEventListener('orientationchange', handleOrientationChange)
+        document.body.style.overflow = 'unset'
       }
     }
   }, [showAdd])
@@ -286,8 +233,10 @@ export default function Students() {
       width: '100vw',
       height: '100vh',
       margin: 0,
-      padding: isMobile ? '20px 12px' : isTablet ? '24px 16px' : '32px 20px',
       paddingTop: isMobile ? '60px' : '100px',
+      paddingLeft: isMobile ? '12px' : isTablet ? '16px' : '20px',
+      paddingRight: isMobile ? '12px' : isTablet ? '16px' : '20px',
+      paddingBottom: isMobile ? '20px' : isTablet ? '24px' : '32px',
       background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
       color: '#1f2937',
       boxSizing: 'border-box',
@@ -938,49 +887,40 @@ export default function Students() {
       </div>
       {!filtered.length && <p>No students found.</p>}
 
-      {/* Add Student Modal */}
+      {/* Add Student Modal - Rendered as Portal */}
       {showAdd && (
-        <div className="modal" onClick={() => setShowAdd(false)} style={{
+        <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 1000,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 10000,
           display: 'flex',
-          alignItems: isMobile ? 'flex-start' : 'center',
+          alignItems: 'center',
           justifyContent: 'center',
-          padding: isMobile ? '0' : '16px',
-          background: 'rgba(0, 0, 0, 0.8)',
-          backdropFilter: 'blur(12px)',
-          overflow: 'hidden'
-        }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{
-            width: isMobile ? '100vw' : '90%',
-            height: isMobile ? '100vh' : 'auto',
-            maxWidth: isMobile ? 'none' : '700px',
-            maxHeight: isMobile ? '100vh' : '90vh',
-            background: isMobile ? 'rgba(15, 23, 42, 1)' : 'rgba(15, 23, 42, 0.95)',
-            border: isMobile ? 'none' : '1px solid rgba(59, 130, 246, 0.3)',
-            borderRadius: isMobile ? 0 : 16,
-            backdropFilter: 'blur(20px)',
-            color: 'white',
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(8px)'
+        }} onClick={() => setShowAdd(false)}>
+          <div onClick={(e) => e.stopPropagation()} style={{
+            position: 'relative',
+            width: '90%',
+            maxWidth: '700px',
+            maxHeight: '90vh',
+            background: '#ffffff',
+            borderRadius: '16px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
             overflow: 'hidden',
             display: 'flex',
-            flexDirection: 'column',
-            position: 'relative'
+            flexDirection: 'column'
           }}>
             <div className="modal-header" style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: isMobile ? '20px 20px 16px' : '20px 24px 16px',
-              borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
-              background: isMobile ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.1))' : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05))',
-              backdropFilter: 'blur(8px)',
-              position: isMobile ? 'sticky' : 'static',
-              top: 0,
-              zIndex: 10
+              borderBottom: '1px solid #e5e7eb',
+              background: '#f9fafb'
             }}>
               <div style={{
                 display: 'flex',
@@ -1001,18 +941,15 @@ export default function Students() {
                   margin: 0,
                   fontSize: isMobile ? 18 : 20,
                   fontWeight: 600,
-                  background: 'linear-gradient(135deg, #60a5fa, #3b82f6)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
+                  color: '#1f2937'
                 }}>Add New Student</h3>
               </div>
               <button 
                 onClick={() => setShowAdd(false)}
                 style={{
-                  background: 'rgba(71, 85, 105, 0.1)',
-                  border: '1px solid rgba(71, 85, 105, 0.3)',
-                  color: '#94a3b8',
+                  background: '#f3f4f6',
+                  border: '1px solid #d1d5db',
+                  color: '#6b7280',
                   padding: '6px',
                   borderRadius: 6,
                   fontSize: 14,
@@ -1114,7 +1051,7 @@ export default function Students() {
                     marginBottom: isMobile ? 12 : 8,
                     fontSize: isMobile ? 15 : 14,
                     fontWeight: 600,
-                    color: '#e2e8f0',
+                    color: '#374151',
                     letterSpacing: '0.025em'
                   }}>Student ID <span style={{ color: '#ef4444' }}>*</span></label>
                   <input
@@ -1128,10 +1065,10 @@ export default function Students() {
                       width: '100%',
                       padding: isMobile ? '16px' : '12px',
                       fontSize: isMobile ? 16 : 15,
-                      border: formErrors.student_id ? '2px solid rgba(239, 68, 68, 0.4)' : '2px solid rgba(71, 85, 105, 0.4)',
+                      border: formErrors.student_id ? '2px solid #ef4444' : '2px solid #d1d5db',
                       borderRadius: isMobile ? 12 : 8,
-                      background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
+                      background: '#ffffff',
+                      color: '#1f2937',
                       outline: 'none',
                       transition: 'all 0.3s ease',
                       minHeight: isMobile ? '52px' : 'auto',
@@ -1162,10 +1099,10 @@ export default function Students() {
                       width: '100%',
                       padding: isMobile ? '16px' : '12px',
                       fontSize: isMobile ? 16 : 15,
-                      border: formErrors.first_name ? '2px solid rgba(239, 68, 68, 0.4)' : '2px solid rgba(71, 85, 105, 0.4)',
+                      border: formErrors.first_name ? '2px solid #ef4444' : '2px solid #d1d5db',
                       borderRadius: isMobile ? 12 : 8,
-                      background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
+                      background: '#ffffff',
+                      color: '#1f2937',
                       outline: 'none',
                       transition: 'all 0.3s ease',
                       minHeight: isMobile ? '52px' : 'auto',
@@ -1196,10 +1133,10 @@ export default function Students() {
                       width: '100%',
                       padding: isMobile ? '16px' : '12px',
                       fontSize: isMobile ? 16 : 15,
-                      border: formErrors.last_name ? '2px solid rgba(239, 68, 68, 0.4)' : '2px solid rgba(71, 85, 105, 0.4)',
+                      border: formErrors.last_name ? '2px solid #ef4444' : '2px solid #d1d5db',
                       borderRadius: isMobile ? 12 : 8,
-                      background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
+                      background: '#ffffff',
+                      color: '#1f2937',
                       outline: 'none',
                       transition: 'all 0.3s ease',
                       minHeight: isMobile ? '52px' : 'auto',
@@ -1216,7 +1153,7 @@ export default function Students() {
                     marginBottom: isMobile ? 12 : 8,
                     fontSize: isMobile ? 15 : 14,
                     fontWeight: 600,
-                    color: '#e2e8f0',
+                    color: '#374151',
                     letterSpacing: '0.025em'
                   }}>Other Names</label>
                   <input
@@ -1227,10 +1164,10 @@ export default function Students() {
                       width: '100%',
                       padding: isMobile ? '16px' : '12px',
                       fontSize: isMobile ? 16 : 15,
-                      border: '2px solid rgba(71, 85, 105, 0.4)',
+                      border: '2px solid #d1d5db',
                       borderRadius: isMobile ? 12 : 8,
-                      background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
+                      background: '#ffffff',
+                      color: '#1f2937',
                       outline: 'none',
                       transition: 'all 0.3s ease',
                       minHeight: isMobile ? '52px' : 'auto',
@@ -1256,10 +1193,10 @@ export default function Students() {
                       width: '100%',
                       padding: isMobile ? '16px' : '12px',
                       fontSize: isMobile ? 16 : 15,
-                      border: '2px solid rgba(71, 85, 105, 0.4)',
+                      border: '2px solid #d1d5db',
                       borderRadius: isMobile ? 12 : 8,
-                      background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
+                      background: '#ffffff',
+                      color: '#1f2937',
                       outline: 'none',
                       transition: 'all 0.3s ease',
                       minHeight: isMobile ? '52px' : 'auto',
@@ -1292,10 +1229,10 @@ export default function Students() {
                       width: '100%',
                       padding: isMobile ? '16px' : '12px',
                       fontSize: isMobile ? 16 : 15,
-                      border: formErrors.date_of_birth ? '2px solid rgba(239, 68, 68, 0.4)' : '2px solid rgba(71, 85, 105, 0.4)',
+                      border: formErrors.date_of_birth ? '2px solid #ef4444' : '2px solid #d1d5db',
                       borderRadius: isMobile ? 12 : 8,
-                      background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
+                      background: '#ffffff',
+                      color: '#1f2937',
                       outline: 'none',
                       transition: 'all 0.3s ease',
                       minHeight: isMobile ? '52px' : 'auto',
@@ -1322,10 +1259,10 @@ export default function Students() {
                         width: '100%',
                         padding: isMobile ? '16px' : '12px',
                         fontSize: isMobile ? 16 : 15,
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
+                        border: '2px solid #d1d5db',
                         borderRadius: isMobile ? 12 : 8,
-                        background: isMobile ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.8)',
-                        color: 'white',
+                        background: '#ffffff',
+                        color: '#1f2937',
                         cursor: 'pointer',
                         display: 'flex',
                         justifyContent: 'space-between',
@@ -1343,8 +1280,8 @@ export default function Students() {
                         top: '100%',
                         left: 0,
                         right: 0,
-                        background: 'rgba(30, 41, 59, 0.95)',
-                        border: '2px solid rgba(71, 85, 105, 0.4)',
+                        background: '#f9fafb',
+                        border: '2px solid #d1d5db',
                         borderRadius: 8,
                         maxHeight: '200px',
                         overflowY: 'auto',
@@ -1359,8 +1296,8 @@ export default function Students() {
                           style={{
                             padding: '12px 16px',
                             cursor: 'pointer',
-                            borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
-                            color: '#94a3b8'
+                            borderBottom: '1px solid #e5e7eb',
+                            color: '#6b7280'
                           }}
                         >
                           Select class
@@ -1375,9 +1312,9 @@ export default function Students() {
                             style={{
                               padding: '12px 16px',
                               cursor: 'pointer',
-                              borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
-                              backgroundColor: String(c.id) === addForm.current_class ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                              color: 'white'
+                              borderBottom: '1px solid #e5e7eb',
+                              backgroundColor: String(c.id) === addForm.current_class ? '#e0f2fe' : 'transparent',
+                              color: '#1f2937'
                             }}
                           >
                             {c.level_display || c.level}{c.section ? ` ${c.section}` : ''}
@@ -1583,25 +1520,19 @@ export default function Students() {
                 flexDirection: isMobile ? 'column-reverse' : 'row',
                 gap: isMobile ? 16 : 8,
                 padding: isMobile ? '20px 20px 24px' : '16px 24px 20px',
-                borderTop: '2px solid rgba(71, 85, 105, 0.3)',
-                background: isMobile 
-                  ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.8))' 
-                  : 'rgba(15, 23, 42, 0.3)',
-                justifyContent: 'flex-end',
-                backdropFilter: 'blur(8px)',
-                position: isMobile ? 'sticky' : 'static',
-                bottom: 0,
-                zIndex: 10
+                borderTop: '2px solid #e5e7eb',
+                background: '#f9fafb',
+                justifyContent: 'flex-end'
               }}>
                 <button
                   type="button"
                   onClick={() => setShowAdd(false)}
                   style={{
                     padding: isMobile ? '16px 20px' : '10px 16px',
-                    background: 'rgba(107, 114, 128, 0.15)',
-                    border: '2px solid rgba(107, 114, 128, 0.4)',
+                    background: '#f3f4f6',
+                    border: '2px solid #d1d5db',
                     borderRadius: isMobile ? 12 : 8,
-                    color: '#cbd5e1',
+                    color: '#6b7280',
                     fontWeight: 600,
                     fontSize: isMobile ? 15 : 15,
                     minHeight: isMobile ? 54 : 40,
@@ -1617,8 +1548,8 @@ export default function Students() {
                   style={{
                     padding: isMobile ? '16px 22px' : '10px 20px',
                     background: submitting 
-                      ? 'rgba(107, 114, 128, 0.5)' 
-                      : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                      ? '#9ca3af' 
+                      : 'linear-gradient(135deg, #16a34a, #15803d)',
                     border: 'none',
                     borderRadius: isMobile ? 12 : 8,
                     color: 'white',
@@ -1627,7 +1558,7 @@ export default function Students() {
                     minHeight: isMobile ? 54 : 40,
                     width: isMobile ? '100%' : 'auto',
                     transition: 'all 0.3s ease',
-                    boxShadow: submitting ? 'none' : '0 6px 16px rgba(59, 130, 246, 0.4)',
+                    boxShadow: submitting ? 'none' : '0 6px 16px rgba(22, 163, 74, 0.4)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',

@@ -56,6 +56,8 @@ export default function SchoolSettings() {
     grade_scale_f_min: 0,
     show_position_in_class: true,
     show_student_photos: true,
+    show_attendance: true,
+    show_behavior_comments: true,
     class_teacher_signature_required: true,
     show_headteacher_signature: true,
     report_template: 'STANDARD',
@@ -1189,8 +1191,9 @@ export default function SchoolSettings() {
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? '1fr 1fr' : isTablet ? '1fr 1fr' : 'repeat(4, 1fr)',
-              gap: isSmallMobile ? '12px' : '16px'
+              gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? '1fr 1fr' : isTablet ? '1fr 1fr' : 'repeat(3, 1fr)',
+              gap: isSmallMobile ? '12px' : '16px',
+              marginBottom: '20px'
             }}>
               <div style={{
                 display: 'flex',
@@ -1275,6 +1278,98 @@ export default function SchoolSettings() {
                   }}
                 >
                   Show Student Photos
+                </label>
+              </div>
+              
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <div 
+                  onClick={() => handleInputChange({target: {name: 'show_attendance', type: 'checkbox', checked: !settings.show_attendance}})}
+                  style={{
+                    width: '44px',
+                    height: '24px',
+                    borderRadius: '12px',
+                    background: settings.show_attendance ? '#3b82f6' : '#64748b',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent'
+                  }}
+                >
+                  <div style={{
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    position: 'absolute',
+                    top: '1px',
+                    left: settings.show_attendance ? '23px' : '3px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
+                <label 
+                  onClick={() => handleInputChange({target: {name: 'show_attendance', type: 'checkbox', checked: !settings.show_attendance}})}
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#374151',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Show Attendance
+                </label>
+              </div>
+            </div>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? '1fr 1fr' : isTablet ? '1fr 1fr' : 'repeat(3, 1fr)',
+              gap: isSmallMobile ? '12px' : '16px'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <div 
+                  onClick={() => handleInputChange({target: {name: 'show_behavior_comments', type: 'checkbox', checked: !settings.show_behavior_comments}})}
+                  style={{
+                    width: '44px',
+                    height: '24px',
+                    borderRadius: '12px',
+                    background: settings.show_behavior_comments ? '#3b82f6' : '#64748b',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent'
+                  }}
+                >
+                  <div style={{
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    position: 'absolute',
+                    top: '1px',
+                    left: settings.show_behavior_comments ? '23px' : '3px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
+                <label 
+                  onClick={() => handleInputChange({target: {name: 'show_behavior_comments', type: 'checkbox', checked: !settings.show_behavior_comments}})}
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#374151',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Show Behavior Comments
                 </label>
               </div>
               

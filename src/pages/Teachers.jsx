@@ -46,8 +46,9 @@ export default function Teachers() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Prevent body scroll when modal is open
   useEffect(() => {
-    if (showCreate && screenSize.width <= 768) {
+    if (showCreate) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
@@ -56,7 +57,7 @@ export default function Teachers() {
     return () => {
       document.body.style.overflow = ''
     }
-  }, [showCreate, screenSize.width])
+  }, [showCreate])
 
   const isMobile = screenSize.width <= 768
   const isTablet = screenSize.width <= 1024
@@ -230,7 +231,6 @@ export default function Teachers() {
         paddingBottom: isMobile ? '20px' : '40px',
         background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
         minHeight: '100vh',
-        height: '100%',
         color: '#1f2937',
         boxSizing: 'border-box',
         position: 'relative',
@@ -570,26 +570,25 @@ export default function Teachers() {
           position: 'fixed',
           top: 0,
           left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.8)',
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0, 0, 0, 0.5)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1000,
-          padding: isMobile ? '20px' : '40px'
-        }}>
-          <div style={{
-            background: 'rgba(15, 23, 42, 0.95)',
-            borderRadius: 20,
+          zIndex: 10000,
+          backdropFilter: 'blur(8px)'
+        }} onClick={() => setShowCreate(false)}>
+          <div onClick={(e) => e.stopPropagation()} style={{
+            background: '#ffffff',
+            borderRadius: 16,
             padding: isMobile ? '24px' : '32px',
-            width: '100%',
-            maxWidth: isMobile ? '100%' : '600px',
+            width: '90%',
+            maxWidth: '600px',
             maxHeight: '90vh',
             overflow: 'auto',
-            border: '1px solid rgba(34, 197, 94, 0.3)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
-            backdropFilter: 'blur(20px)'
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+            color: '#1f2937'
           }}>
             <div style={{
               display: 'flex',
@@ -601,19 +600,23 @@ export default function Teachers() {
                 margin: 0,
                 fontSize: isMobile ? 20 : 24,
                 fontWeight: 700,
-                color: '#22c55e'
+                color: '#1f2937'
               }}>Create New Teacher</h2>
               <button
                 onClick={() => setShowCreate(false)}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#94a3b8',
-                  fontSize: 20,
+                  background: '#f3f4f6',
+                  border: '1px solid #d1d5db',
+                  color: '#6b7280',
+                  fontSize: 16,
                   cursor: 'pointer',
                   padding: 8,
                   borderRadius: 8,
-                  transition: 'all 0.3s ease'
+                  width: 32,
+                  height: 32,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
               >
                 <FaTimes />
@@ -623,7 +626,7 @@ export default function Teachers() {
             <form onSubmit={handleCreate} style={{ display: 'grid', gap: 16 }}>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>First Name *</label>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>First Name *</label>
                   <input
                     type="text"
                     name="first_name"
@@ -633,17 +636,18 @@ export default function Teachers() {
                     style={{
                       width: '100%',
                       padding: '12px 16px',
-                      borderRadius: 10,
-                      border: '1px solid rgba(71, 85, 105, 0.5)',
-                      background: 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
+                      borderRadius: 8,
+                      border: '2px solid #d1d5db',
+                      background: '#ffffff',
+                      color: '#1f2937',
                       fontSize: 14,
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      outline: 'none'
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>Last Name *</label>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>Last Name *</label>
                   <input
                     type="text"
                     name="last_name"
@@ -653,19 +657,20 @@ export default function Teachers() {
                     style={{
                       width: '100%',
                       padding: '12px 16px',
-                      borderRadius: 10,
-                      border: '1px solid rgba(71, 85, 105, 0.5)',
-                      background: 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
+                      borderRadius: 8,
+                      border: '2px solid #d1d5db',
+                      background: '#ffffff',
+                      color: '#1f2937',
                       fontSize: 14,
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      outline: 'none'
                     }}
                   />
                 </div>
               </div>
               
               <div>
-                <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>Email *</label>
+                <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>Email *</label>
                 <input
                   type="email"
                   name="email"
@@ -675,18 +680,19 @@ export default function Teachers() {
                   style={{
                     width: '100%',
                     padding: '12px 16px',
-                    borderRadius: 10,
-                    border: '1px solid rgba(71, 85, 105, 0.5)',
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    borderRadius: 8,
+                    border: '2px solid #d1d5db',
+                    background: '#ffffff',
+                    color: '#1f2937',
                     fontSize: 14,
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    outline: 'none'
                   }}
                 />
               </div>
               
               <div>
-                <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>Employee ID *</label>
+                <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>Employee ID *</label>
                 <input
                   type="text"
                   name="employee_id"
@@ -696,19 +702,160 @@ export default function Teachers() {
                   style={{
                     width: '100%',
                     padding: '12px 16px',
-                    borderRadius: 10,
-                    border: '1px solid rgba(71, 85, 105, 0.5)',
-                    background: 'rgba(30, 41, 59, 0.8)',
-                    color: 'white',
+                    borderRadius: 8,
+                    border: '2px solid #d1d5db',
+                    background: '#ffffff',
+                    color: '#1f2937',
                     fontSize: 14,
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>Phone Number</label>
+                <input
+                  type="tel"
+                  name="phone_number"
+                  value={form.phone_number}
+                  onChange={handleChange}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    borderRadius: 8,
+                    border: '2px solid #d1d5db',
+                    background: '#ffffff',
+                    color: '#1f2937',
+                    fontSize: 14,
+                    boxSizing: 'border-box',
+                    outline: 'none'
                   }}
                 />
               </div>
               
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>Password *</label>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>Hire Date *</label>
+                  <input
+                    type="date"
+                    name="hire_date"
+                    value={form.hire_date}
+                    onChange={handleChange}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderRadius: 8,
+                      border: '2px solid #d1d5db',
+                      background: '#ffffff',
+                      color: '#1f2937',
+                      fontSize: 14,
+                      boxSizing: 'border-box',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>Experience (Years)</label>
+                  <input
+                    type="number"
+                    name="experience_years"
+                    value={form.experience_years}
+                    onChange={handleChange}
+                    min="0"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderRadius: 8,
+                      border: '2px solid #d1d5db',
+                      background: '#ffffff',
+                      color: '#1f2937',
+                      fontSize: 14,
+                      boxSizing: 'border-box',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>Qualification</label>
+                <input
+                  type="text"
+                  name="qualification"
+                  value={form.qualification}
+                  onChange={handleChange}
+                  placeholder="e.g., B.Ed, M.A. Mathematics"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    borderRadius: 8,
+                    border: '2px solid #d1d5db',
+                    background: '#ffffff',
+                    color: '#1f2937',
+                    fontSize: 14,
+                    boxSizing: 'border-box',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>Address</label>
+                <textarea
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    borderRadius: 8,
+                    border: '2px solid #d1d5db',
+                    background: '#ffffff',
+                    color: '#1f2937',
+                    fontSize: 14,
+                    boxSizing: 'border-box',
+                    outline: 'none',
+                    fontFamily: 'inherit',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+              
+              {classes.length > 0 && (
+                <div>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>Assign as Class Teacher (Optional)</label>
+                  <select
+                    name="class_id"
+                    value={form.class_id}
+                    onChange={handleChange}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderRadius: 8,
+                      border: '2px solid #d1d5db',
+                      background: '#ffffff',
+                      color: '#1f2937',
+                      fontSize: 14,
+                      boxSizing: 'border-box',
+                      outline: 'none'
+                    }}
+                  >
+                    <option value="">Select a class (optional)</option>
+                    {classes.map(cls => (
+                      <option key={cls.id} value={cls.id}>
+                        {cls.level_display || cls.level}{cls.section ? ` ${cls.section}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>Password *</label>
                   <input
                     type="password"
                     name="password"
@@ -718,17 +865,18 @@ export default function Teachers() {
                     style={{
                       width: '100%',
                       padding: '12px 16px',
-                      borderRadius: 10,
-                      border: '1px solid rgba(71, 85, 105, 0.5)',
-                      background: 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
+                      borderRadius: 8,
+                      border: '2px solid #d1d5db',
+                      background: '#ffffff',
+                      color: '#1f2937',
                       fontSize: 14,
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      outline: 'none'
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 8, color: '#e2e8f0', fontWeight: 500 }}>Confirm Password *</label>
+                  <label style={{ display: 'block', marginBottom: 8, color: '#374151', fontWeight: 600 }}>Confirm Password *</label>
                   <input
                     type="password"
                     name="password_confirm"
@@ -738,12 +886,13 @@ export default function Teachers() {
                     style={{
                       width: '100%',
                       padding: '12px 16px',
-                      borderRadius: 10,
-                      border: '1px solid rgba(71, 85, 105, 0.5)',
-                      background: 'rgba(30, 41, 59, 0.8)',
-                      color: 'white',
+                      borderRadius: 8,
+                      border: '2px solid #d1d5db',
+                      background: '#ffffff',
+                      color: '#1f2937',
                       fontSize: 14,
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      outline: 'none'
                     }}
                   />
                 </div>
@@ -755,10 +904,10 @@ export default function Teachers() {
                   onClick={() => setShowCreate(false)}
                   style={{
                     padding: '12px 24px',
-                    borderRadius: 10,
-                    border: '1px solid rgba(71, 85, 105, 0.5)',
-                    background: 'transparent',
-                    color: '#94a3b8',
+                    borderRadius: 8,
+                    border: '2px solid #d1d5db',
+                    background: '#f3f4f6',
+                    color: '#6b7280',
                     fontWeight: 600,
                     cursor: 'pointer'
                   }}
@@ -770,9 +919,9 @@ export default function Teachers() {
                   disabled={loading}
                   style={{
                     padding: '12px 24px',
-                    borderRadius: 10,
+                    borderRadius: 8,
                     border: 'none',
-                    background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                    background: 'linear-gradient(135deg, #16a34a, #15803d)',
                     color: 'white',
                     fontWeight: 600,
                     cursor: loading ? 'not-allowed' : 'pointer',

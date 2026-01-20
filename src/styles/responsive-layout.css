@@ -10,7 +10,7 @@
   width: 100vw;
   margin: 0;
   padding: 0;
-  background-color: transparent;
+  background-color: #ffffff;
 }
 
 /* ============================================
@@ -230,7 +230,7 @@
 
 @media (min-width: 640px) {
   .responsive-container {
-    max-width: 640px;
+    max-width: none;
     padding-left: var(--space-6);
     padding-right: var(--space-6);
   }
@@ -238,7 +238,7 @@
 
 @media (min-width: 1024px) {
   .responsive-container {
-    max-width: 1024px;
+    max-width: none;
     padding-left: var(--space-8);
     padding-right: var(--space-8);
   }
@@ -246,7 +246,7 @@
 
 @media (min-width: 1280px) {
   .responsive-container {
-    max-width: 1280px;
+    max-width: none;
   }
 }
 

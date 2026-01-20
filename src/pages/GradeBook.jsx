@@ -67,8 +67,9 @@ export default function GradeBook() {
       // Get submissions from localStorage first
       const localSubmissions = JSON.parse(localStorage.getItem('student_submissions') || '[]')
       console.log('🔍 All localStorage submissions:', localSubmissions)
-      console.log('🔍 Assignment IDs in localStorage:', localSubmissions.map(sub => sub.assignment_id))
+      console.log('🔍 Assignment IDs in localStorage:', localSubmissions.map(sub => `ID: ${sub.assignment_id}`))
       console.log('🎯 Selected assignment ID:', selectedAssignment, typeof selectedAssignment)
+      console.log('📋 Available assignments:', assignments.map(a => `ID: ${a.id} - ${a.title}`))
       
       // Filter submissions for this assignment (check both string and number IDs)
       const assignmentSubmissions = localSubmissions.filter(sub => {
@@ -91,7 +92,7 @@ export default function GradeBook() {
             id: localSub.student_id, 
             first_name: 'Bonsu', 
             last_name: 'Charity',
-            student_id: localSub.student_id ? `BC${String(localSub.student_id).padStart(3, '0')}` : 'BC001'
+            student_id: '2025BASIC_9001' // Use the real student ID from dashboard logs
           },
           submission_text: localSub.submission_text,
           submitted_at: localSub.submitted_at,
@@ -142,7 +143,7 @@ export default function GradeBook() {
             id: 1, 
             first_name: 'Bonsu', 
             last_name: 'Charity',
-            student_id: 'BC001' 
+            student_id: '2025BASIC_9001' // Use the real student ID
           },
           submission_text: null,
           submitted_at: null,

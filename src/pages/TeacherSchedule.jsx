@@ -53,9 +53,10 @@ export default function TeacherSchedule() {
       setTeacherData(formTeacherAssignment)
       
       if (formTeacherAssignment) {
-        // Load existing schedules for the form class
-        const schedulesRes = await api.get(`/teachers/schedules/?class_id=${formTeacherAssignment.class?.id}`).catch(() => ({ data: [] }))
-        setSchedules(Array.isArray(schedulesRes.data) ? schedulesRes.data : schedulesRes.data.results || [])
+        // Load existing schedules from localStorage
+        const savedSchedules = localStorage.getItem(`schedules_class_${formTeacherAssignment.class?.id}`)
+        const scheduleData = savedSchedules ? JSON.parse(savedSchedules) : []
+        setSchedules(scheduleData)
         
         // Set default class in form
         setFormData(prev => ({ ...prev, class_id: formTeacherAssignment.class?.id || '' }))
@@ -81,20 +82,33 @@ export default function TeacherSchedule() {
     try {
       const scheduleData = {
         ...formData,
-        teacher: user.id
+        teacher: user.id,
+        id: editingSchedule ? editingSchedule.id : Date.now() // Use timestamp as ID for new schedules
       }
 
+      // Get existing schedules from localStorage
+      const savedSchedules = localStorage.getItem(`schedules_class_${formData.class_id}`)
+      let schedulesList = savedSchedules ? JSON.parse(savedSchedules) : []
+
       if (editingSchedule) {
-        await api.put(`/teachers/schedules/${editingSchedule.id}/`, scheduleData)
+        // Update existing schedule
+        schedulesList = schedulesList.map(s => s.id === editingSchedule.id ? scheduleData : s)
       } else {
-        await api.post('/teachers/schedules/', scheduleData)
+        // Add new schedule
+        schedulesList.push(scheduleData)
       }
+
+      // Save to localStorage
+      localStorage.setItem(`schedules_class_${formData.class_id}`, JSON.stringify(schedulesList))
+
+      // Dispatch event to update student schedules
+      window.dispatchEvent(new CustomEvent('scheduleUpdated'))
 
       await loadData()
       setShowModal(false)
       setEditingSchedule(null)
       setFormData({
-        class_id: '',
+        class_id: formData.class_id, // Keep the class_id
         subject: '',
         day_of_week: '',
         start_time: '',
@@ -124,7 +138,19 @@ export default function TeacherSchedule() {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this schedule?')) {
       try {
-        await api.delete(`/teachers/schedules/${id}/`)
+        // Get existing schedules from localStorage
+        const savedSchedules = localStorage.getItem(`schedules_class_${teacherData?.class?.id}`)
+        let schedulesList = savedSchedules ? JSON.parse(savedSchedules) : []
+        
+        // Remove the schedule
+        schedulesList = schedulesList.filter(s => s.id !== id)
+        
+        // Save back to localStorage
+        localStorage.setItem(`schedules_class_${teacherData?.class?.id}`, JSON.stringify(schedulesList))
+        
+        // Dispatch event to update student schedules
+        window.dispatchEvent(new CustomEvent('scheduleUpdated'))
+        
         await loadData()
       } catch (error) {
         console.error('Error deleting schedule:', error)
@@ -165,8 +191,8 @@ export default function TeacherSchedule() {
         width: '100vw',
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%)',
-        paddingTop: '80px',
-        padding: '80px 20px 20px 20px',
+        paddingTop: '100px', // Increased padding for navbar visibility
+        padding: '100px 20px 20px 20px',
         margin: 0,
         boxSizing: 'border-box'
       }}>
@@ -229,8 +255,8 @@ export default function TeacherSchedule() {
       width: '100vw',
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%)',
-      paddingTop: '80px',
-      padding: '80px 20px 20px 20px',
+      paddingTop: '100px', // Increased padding to ensure navbar is visible
+      padding: '100px 20px 20px 20px',
       margin: 0,
       boxSizing: 'border-box'
     }}>

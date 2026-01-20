@@ -5,7 +5,7 @@ import NotificationSystem from './NotificationSystem'
 import { 
   FaTachometerAlt, FaUserGraduate, FaBookOpen, FaFileInvoice, 
   FaChalkboardTeacher, FaSignOutAlt, FaLayerGroup, 
-  FaClipboardList, FaUserEdit, FaUserCheck, FaBars, FaTimes, FaHome, FaCalendarAlt
+  FaClipboardList, FaUserEdit, FaUserCheck, FaBars, FaTimes, FaHome, FaCalendarAlt, FaGraduationCap
 } from 'react-icons/fa'
 
 export default function TeacherNavbar() {
@@ -70,7 +70,8 @@ export default function TeacherNavbar() {
     { to: '/scores', label: 'Enter Score', icon: FaClipboardList },
     { to: '/gradebook', label: 'Grades', icon: FaBookOpen },
     { to: '/reports', label: 'Student Reports', icon: FaFileInvoice },
-    { to: '/student-details', label: 'Student Details', icon: FaUserEdit }
+    { to: '/student-details', label: 'Student Details', icon: FaUserEdit },
+    { to: '/terminal-reports', label: 'Terminal Reports', icon: FaGraduationCap }
   ]
 
   const teacherNavItems = baseNavItems
@@ -162,15 +163,15 @@ export default function TeacherNavbar() {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
+            gap: '8px'
           }}>
             <nav style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              marginRight: '16px'
+              gap: '4px',
+              marginRight: '12px'
             }}>
-              {teacherNavItems.slice(0, 6).map(item => {
+              {teacherNavItems.slice(0, 7).map(item => {
                 const isActive = location.pathname.startsWith(item.to)
                 const Icon = item.icon
                 
@@ -181,15 +182,16 @@ export default function TeacherNavbar() {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      fontSize: '14px',
+                      gap: '4px',
+                      padding: '6px 8px',
+                      borderRadius: '6px',
+                      fontSize: '13px',
                       fontWeight: isActive ? 600 : 500,
                       color: isActive ? '#3ecf8e' : '#64748b',
                       backgroundColor: isActive ? 'rgba(62, 207, 142, 0.1)' : 'transparent',
                       textDecoration: 'none',
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s ease',
+                      whiteSpace: 'nowrap'
                     }}
                     onMouseEnter={e => {
                       if (!isActive) {
@@ -204,14 +206,14 @@ export default function TeacherNavbar() {
                       }
                     }}
                   >
-                    <Icon size={14} />
+                    <Icon size={13} />
                     <span>{item.label}</span>
                   </Link>
                 )
               })}
             </nav>
             
-            <span style={{ fontSize: '14px', color: '#64748b' }}>
+            <span style={{ fontSize: '13px', color: '#64748b', marginRight: '8px' }}>
               {user?.first_name || 'Teacher'}
             </span>
             <button
@@ -219,12 +221,12 @@ export default function TeacherNavbar() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
+                gap: '4px',
+                padding: '6px 10px',
                 background: 'none',
                 border: '1px solid #e2e8f0',
                 borderRadius: '6px',
-                fontSize: '14px',
+                fontSize: '13px',
                 color: '#64748b',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
@@ -238,7 +240,7 @@ export default function TeacherNavbar() {
                 e.currentTarget.style.color = '#64748b'
               }}
             >
-              <FaSignOutAlt size={16} />
+              <FaSignOutAlt size={14} />
               Logout
             </button>
           </div>

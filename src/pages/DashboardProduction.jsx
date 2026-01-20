@@ -6,7 +6,7 @@ import {
   FaLayerGroup, FaGraduationCap, FaBookOpen, FaChartLine,
   FaUserGraduate, FaChalkboardTeacher, FaUsers, FaClipboardList, FaCalendarAlt,
   FaChartBar, FaTasks, FaFileAlt, FaArrowRight, FaMicrochip, FaArrowCircleUp,
-  FaCheckCircle, FaClock, FaExclamationTriangle, FaEye, FaArrowUp, FaArrowDown
+  FaCheckCircle, FaClock, FaExclamationTriangle, FaEye, FaArrowUp, FaArrowDown, FaUserCheck
 } from 'react-icons/fa'
 
 export default function DashboardProduction() {
@@ -14,6 +14,7 @@ export default function DashboardProduction() {
   const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [teacherData, setTeacherData] = useState(null)
+  const [attendanceStats, setAttendanceStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -120,6 +121,100 @@ export default function DashboardProduction() {
               closed: createdAssignments.filter(a => a.status === 'CLOSED').length
             }
           })
+          
+          // Load attendance stats for form teachers
+          if (isFormTeacher && formClass) {
+            try {
+              const today = new Date().toISOString().split('T')[0]
+              console.log('Loading attendance for class:', formClass.class.id, 'date:', today)
+              
+              // Try multiple endpoints to get attendance data
+              let attendanceRecords = []
+              
+              // First try: teacher endpoint
+              try {
+                const teacherRes = await api.get(`/teachers/attendance/?class_id=${formClass.class.id}&date=${today}`)
+                console.log('Teacher endpoint response:', teacherRes.data)
+                if (teacherRes.data.students) {
+                  attendanceRecords = teacherRes.data.students
+                }
+              } catch (teacherError) {
+                console.log('Teacher endpoint failed:', teacherError.response?.status)
+              }
+              
+              // Second try: students endpoint with class_id
+              if (attendanceRecords.length === 0) {
+                try {
+                  const attendanceRes = await api.get(`/students/attendance/?class_id=${formClass.class.id}&date=${today}`)
+                  console.log('Students endpoint response:', attendanceRes.data)
+                  attendanceRecords = attendanceRes.data.results || attendanceRes.data || []
+                } catch (studentsError) {
+                  console.log('Students endpoint failed:', studentsError.response?.status)
+                }
+              }
+              
+              // Third try: get all attendance for today and filter by class
+              if (attendanceRecords.length === 0) {
+                try {
+                  const allAttendanceRes = await api.get(`/students/attendance/?date=${today}`)
+                  console.log('All attendance response:', allAttendanceRes.data)
+                  const allRecords = allAttendanceRes.data.results || allAttendanceRes.data || []
+                  
+                  // Filter by students in this class
+                  const formClassStudents = allStudents.filter(s => 
+                    s.current_class?.id === formClass.class.id || 
+                    s.class_instance === formClass.class.id ||
+                    s.current_class === formClass.class.id
+                  )
+                  const formClassStudentIds = formClassStudents.map(s => s.id)
+                  
+                  attendanceRecords = allRecords.filter(record => {
+                    const studentId = record.student?.id || record.student_id || record.student
+                    return formClassStudentIds.includes(studentId)
+                  })
+                  
+                  console.log('Filtered attendance records:', attendanceRecords)
+                } catch (allError) {
+                  console.log('All attendance endpoint failed:', allError.response?.status)
+                }
+              }
+              
+              const presentCount = attendanceRecords.filter(record => record.status === 'present').length
+              const absentCount = attendanceRecords.filter(record => record.status === 'absent').length
+              const totalStudents = myStudents
+              const markedStudents = attendanceRecords.length
+              const notMarkedCount = Math.max(0, totalStudents - markedStudents)
+              const attendanceRate = totalStudents > 0 ? Math.round((presentCount / totalStudents) * 100) : 0
+              
+              console.log('Final attendance stats:', {
+                present: presentCount,
+                absent: absentCount,
+                notMarked: notMarkedCount,
+                total: totalStudents,
+                rate: attendanceRate,
+                recordsFound: attendanceRecords.length
+              })
+              
+              setAttendanceStats({
+                present: presentCount,
+                absent: absentCount,
+                notMarked: notMarkedCount,
+                total: totalStudents,
+                rate: attendanceRate,
+                date: today
+              })
+            } catch (attendanceError) {
+              console.error('Attendance stats error:', attendanceError)
+              setAttendanceStats({
+                present: 0,
+                absent: 0,
+                notMarked: myStudents,
+                total: myStudents,
+                rate: 0,
+                date: new Date().toISOString().split('T')[0]
+              })
+            }
+          }
         } catch (teacherError) {
           console.error('Teacher data error:', teacherError)
         }
@@ -133,6 +228,18 @@ export default function DashboardProduction() {
 
   useEffect(() => {
     loadDashboardData()
+    
+    // Listen for attendance updates
+    const handleAttendanceUpdate = () => {
+      console.log('Attendance updated, refreshing dashboard...')
+      loadDashboardData()
+    }
+    
+    window.addEventListener('attendanceUpdated', handleAttendanceUpdate)
+    
+    return () => {
+      window.removeEventListener('attendanceUpdated', handleAttendanceUpdate)
+    }
   }, [])
 
   if (loading) {
@@ -738,7 +845,7 @@ export default function DashboardProduction() {
             {/* Teacher Stats Grid */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: window.innerWidth <= 480 ? 'repeat(2, 1fr)' : window.innerWidth <= 768 ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+              gridTemplateColumns: window.innerWidth <= 480 ? 'repeat(2, 1fr)' : window.innerWidth <= 768 ? 'repeat(2, 1fr)' : teacherData.isFormTeacher ? 'repeat(5, 1fr)' : 'repeat(4, 1fr)',
               gap: '20px',
               marginBottom: '24px'
             }}>
@@ -792,6 +899,42 @@ export default function DashboardProduction() {
                   {teacherData.isFormTeacher ? 'Form Class Students' : 'Total Students'}
                 </div>
               </div>
+              
+              {/* Attendance Stats - Only for Form Teachers */}
+              {teacherData.isFormTeacher && attendanceStats && (
+                <div style={{
+                  background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  textAlign: 'center',
+                  border: '1px solid #7dd3fc'
+                }}>
+                  <div style={{ fontSize: window.innerWidth <= 480 ? '24px' : '28px', fontWeight: '700', color: '#0369a1' }}>
+                    {attendanceStats.rate}%
+                  </div>
+                  <div style={{ fontSize: window.innerWidth <= 480 ? '12px' : '14px', color: '#0c4a6e', fontWeight: '600' }}>Today's Attendance</div>
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-around', 
+                    marginTop: '8px', 
+                    fontSize: '10px', 
+                    color: '#64748b' 
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
+                      <span>{attendanceStats.present}P</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ef4444' }} />
+                      <span>{attendanceStats.absent}A</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b' }} />
+                      <span>{attendanceStats.notMarked}NM</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Form Teacher Section */}

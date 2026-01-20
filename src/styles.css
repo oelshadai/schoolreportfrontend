@@ -29,15 +29,15 @@
 	--space-12: 3rem; --space-16: 4rem; --space-20: 5rem; --space-24: 6rem;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
+/* Light mode by default */
+@media (prefers-color-scheme: light) {
 	:root {
-		--bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+		--bg: #ffffff; --card: #f9fafb; --text: #1a202c; --muted: #718096;
 	}
 }
 
-[data-theme="dark"] {
-	--bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+[data-theme="light"] {
+	--bg: #ffffff; --card: #f9fafb; --text: #1a202c; --muted: #718096;
 }
 
 * { box-sizing: border-box; }
@@ -78,11 +78,12 @@ a:hover { color: var(--secondary); }
 	overflow-x: hidden;
 	margin: 0;
 	padding: 0;
+	background: #ffffff;
 }
 
 /* Modern Container System */
 .container { 
-	width: 100vw; 
+	width: 100%; 
 	margin: 0; 
 	padding: 0; 
 	overflow-x: hidden;
@@ -90,16 +91,16 @@ a:hover { color: var(--secondary); }
 	background: transparent;
 }
 
-/* Desktop layout with sidebar */
+/* Remove desktop sidebar constraints - no sidebar in this app */
 @media (min-width: 769px) {
 	.container {
-		margin-left: 260px;
+		margin-left: 0;
 		padding-top: calc(64px + var(--space-4));
-		transition: margin-left 0.3s ease;
+		transition: none;
 	}
 	
 	.container.sidebar-collapsed {
-		margin-left: 70px;
+		margin-left: 0;
 	}
 	
 	body {
@@ -107,11 +108,12 @@ a:hover { color: var(--secondary); }
 	}
 }
 
-@media (min-width: 640px) { .container { max-width: 640px; } }
-@media (min-width: 768px) { .container { max-width: 768px; padding: var(--space-6) var(--space-4); } }
-@media (min-width: 1024px) { .container { max-width: 1024px; } }
-@media (min-width: 1280px) { .container { max-width: 1280px; } }
-@media (min-width: 1536px) { .container { max-width: 1536px; } }
+/* Remove all max-width constraints for full-width layout */
+@media (min-width: 640px) { .container { max-width: none; } }
+@media (min-width: 768px) { .container { max-width: none; padding: var(--space-6) var(--space-4); } }
+@media (min-width: 1024px) { .container { max-width: none; } }
+@media (min-width: 1280px) { .container { max-width: none; } }
+@media (min-width: 1536px) { .container { max-width: none; } }
 
 /* Modern Card System */
 .card { 
@@ -364,11 +366,12 @@ button:active, .btn:active {
 	box-shadow: var(--shadow-sm);
 }
 
-/* Modern Grid System */
+/* Modern Grid System - full width by default */
 .grid { 
 	display: grid; 
 	grid-template-columns: 1fr; 
-	gap: var(--space-4); 
+	gap: var(--space-4);
+	width: 100%;
 }
 
 @media (min-width: 640px) {
@@ -1275,24 +1278,20 @@ input.error:focus, select.error:focus, textarea.error:focus {
 	input, select { min-height: 44px; font-size: 16px; }
 }
 
-/* Enhanced Mobile Responsiveness for Teachers Page */
+/* Remove mobile-specific dark background overrides */
 @media (max-width: 768px) {
   .page, .container {
     padding: 20px 12px !important;
     padding-top: 90px !important;
     padding-bottom: 20px !important;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-    background-attachment: fixed !important;
-    background-size: cover !important;
-    background-repeat: no-repeat !important;
     min-height: 100vh !important;
     height: 100% !important;
     width: 100vw !important;
     max-width: 100vw !important;
     margin: 0 !important;
-    color: white !important;
     overflow-x: hidden !important;
     position: relative !important;
+    background: #ffffff !important;
   }
   
   .page-header {
@@ -1364,23 +1363,19 @@ input.error:focus, select.error:focus, textarea.error:focus {
     padding: 0 !important;
   }
   
-  /* Global page styling for mobile */
+  /* Global page styling for mobile - clean white background */
   .page, .container, #root > div {
     padding: 20px 12px !important;
     padding-top: 90px !important;
     padding-bottom: 20px !important;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-    background-attachment: fixed !important;
-    background-size: cover !important;
-    background-repeat: no-repeat !important;
     min-height: 100vh !important;
     height: 100% !important;
-    color: white !important;
     width: 100vw !important;
     max-width: 100vw !important;
     margin: 0 !important;
     overflow-x: hidden !important;
     position: relative !important;
+    background: #ffffff !important;
   }
   
   /* Teacher page specific mobile fixes */
@@ -1417,21 +1412,21 @@ input.error:focus, select.error:focus, textarea.error:focus {
     display: none !important;
   }
   
-  /* Force card layout */
+  /* Force card layout with clean styling */
   .card {
-    background: rgba(15, 23, 42, 0.8) !important;
-    border: 1px solid rgba(71, 85, 105, 0.3) !important;
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
     border-radius: 16px !important;
     padding: 20px 16px !important;
     margin-bottom: 16px !important;
-    backdrop-filter: blur(12px) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
   }
 }
 
-/* Full-width container variants */
-.container.full { max-width: 100%; }
-.container.wide { max-width: 1400px; }
-.centered { min-height: 100%; display: grid; place-items: center; }
+/* Full-width container variants - ensure no width restrictions */
+.container.full { max-width: none; width: 100%; }
+.container.wide { max-width: none; width: 100%; }
+.centered { min-height: 100%; display: grid; place-items: center; width: 100%; }
 
 /* Mobile-first scrollable select */
 .scroll-select { 

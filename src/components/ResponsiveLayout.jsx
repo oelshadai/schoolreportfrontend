@@ -58,7 +58,8 @@ const ResponsiveLayout = ({ children, showNavigation = true }) => {
           height: (location.pathname === '/' || location.pathname === '/features') ? '100vh' : (shouldShowNav ? 'calc(100vh - 64px)' : '100vh'), 
           margin: 0, 
           padding: 0, 
-          overflow: 'auto' 
+          overflow: 'auto',
+          background: '#ffffff'
         }}
       >
         <div className="responsive-content-wrapper" style={{ width: '100%', height: '100%', margin: 0, padding: 0 }}>

@@ -7,7 +7,4 @@ self.addEventListener('activate', () => {
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-  // Let the browser handle all fetch requests normally
-  return;
-});
+// Remove no-op fetch handler to avoid navigation overhead
