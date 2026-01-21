@@ -10,6 +10,7 @@ class UnifiedApiClient {
     this.client = axios.create({
       baseURL: this.baseURL,
       timeout: 15000,
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
       }
