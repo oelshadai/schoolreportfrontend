@@ -15,12 +15,12 @@ const getApiBaseUrl = () => {
 }
 
 const base = getApiBaseUrl()
-console.log('API Base URL:', base)
 
 // Create axios instance with timeout
 const api = axios.create({ 
   baseURL: base,
   timeout: 15000, // 15 second timeout
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   }
@@ -175,7 +175,7 @@ export const corsEnabledRequest = async (endpoint, options = {}) => {
 // Health check function
 export const checkBackendHealth = async () => {
   try {
-    const response = await axios.get(`${base.replace('/api', '')}/admin/`, { timeout: 5000 })
+    const response = await axios.get(`${base}/health/`, { timeout: 5000 })
     return { healthy: true, status: response.status }
   } catch (error) {
     return { 
