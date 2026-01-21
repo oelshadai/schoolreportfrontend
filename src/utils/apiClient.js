@@ -17,16 +17,24 @@ class ApiClient {
   }
 
   getApiBaseUrl() {
+    // Force production API URL for deployed apps
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
+    
+    // Check if we're on a production domain
+    if (hostname.includes('netlify.app') || 
+        hostname.includes('vercel.app') || 
+        hostname.includes('render.com') ||
+        hostname !== 'localhost') {
+      return 'https://school-report-saas.onrender.com/api'
+    }
+    
+    // Check for explicit environment variable
     if (import.meta.env.VITE_API_BASE) {
       return import.meta.env.VITE_API_BASE.replace(/\/$/, '')
     }
     
-    const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
-    const isProduction = hostname.includes('netlify.app') || import.meta.env.PROD
-    
-    return isProduction 
-      ? 'https://school-report-saas.onrender.com/api'
-      : 'http://localhost:8000/api'
+    // Development fallback
+    return 'http://localhost:8000/api'
   }
 
   setupInterceptors() {
