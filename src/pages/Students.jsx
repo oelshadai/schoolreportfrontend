@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import api from '../utils/api'
 import { FaUserGraduate, FaPlus, FaUpload, FaSync, FaSearch, FaTimes, FaSave, FaUser, FaEye, FaEyeSlash, FaCopy } from 'react-icons/fa'
 import { useAuth } from '../state/AuthContext'
@@ -1591,62 +1592,93 @@ export default function Students() {
         </div>
       )}
       
-      {/* Success Modal */}
-      {showSuccess && createdStudent && (
-        <div className="modal" style={{
+      {/* Success Modal - Rendered as Portal */}
+      {showSuccess && createdStudent && createPortal(
+        <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0, 0, 0, 0.8)',
+          zIndex: 9999,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1001
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(8px)',
+          padding: '16px'
         }} onClick={() => setShowSuccess(false)}>
           <div style={{
-            background: 'linear-gradient(135deg, #1e293b, #334155)',
+            background: '#ffffff',
             borderRadius: '16px',
-            padding: '24px',
-            maxWidth: '400px',
+            padding: '32px 24px',
+            maxWidth: '450px',
             width: '90%',
             textAlign: 'center',
-            border: '1px solid rgba(16, 185, 129, 0.3)'
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            animation: 'modalSlideIn 0.3s ease-out'
           }} onClick={(e) => e.stopPropagation()}>
             <div style={{
-              width: '60px',
-              height: '60px',
+              width: '80px',
+              height: '80px',
               background: 'linear-gradient(135deg, #10b981, #059669)',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 16px'
+              margin: '0 auto 20px',
+              boxShadow: '0 8px 25px rgba(16, 185, 129, 0.3)'
             }}>
-              <FaUser size={24} color="white" />
+              <FaUser size={32} color="white" />
             </div>
-            <h3 style={{ color: 'white', marginBottom: '8px' }}>Student Created Successfully!</h3>
-            <p style={{ color: '#94a3b8', marginBottom: '20px' }}>
-              {createdStudent.full_name} has been added to the system.
+            <h3 style={{ color: '#1f2937', marginBottom: '12px', fontSize: '20px', fontWeight: '600' }}>Student Created Successfully!</h3>
+            <p style={{ color: '#6b7280', marginBottom: '24px', fontSize: '16px', lineHeight: '1.5' }}>
+              <strong>{createdStudent.full_name}</strong> has been added to the system with login credentials.
             </p>
+            <div style={{
+              background: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              marginBottom: '24px',
+              textAlign: 'left'
+            }}>
+              <div style={{ fontSize: '14px', fontWeight: '600', color: '#166534', marginBottom: '8px' }}>Login Credentials Generated:</div>
+              <div style={{ fontSize: '13px', color: '#15803d' }}>
+                <div><strong>Username:</strong> {createdStudent.student_id}</div>
+                <div><strong>Password:</strong> {createdStudent.first_name?.toLowerCase()}123</div>
+              </div>
+            </div>
             <button
               onClick={() => setShowSuccess(false)}
               style={{
-                padding: '12px 24px',
-                borderRadius: '8px',
+                padding: '14px 28px',
+                borderRadius: '10px',
                 border: 'none',
                 background: 'linear-gradient(135deg, #10b981, #059669)',
                 color: 'white',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: '600',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                transition: 'all 0.2s ease',
+                minWidth: '120px'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)'
+                e.target.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.4)'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)'
+                e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)'
               }}
             >
-              Close
+              Got it!
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
       
       {/* Delete Confirmation Modal */}
@@ -1661,44 +1693,74 @@ export default function Students() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1001
+          zIndex: 10001,
+          backdropFilter: 'blur(8px)'
         }} onClick={() => setDeleteConfirm(null)}>
           <div style={{
-            background: 'linear-gradient(135deg, #1e293b, #334155)',
+            background: '#ffffff',
             borderRadius: '16px',
-            padding: '24px',
-            maxWidth: '400px',
+            padding: '32px 28px',
+            maxWidth: '450px',
             width: '90%',
             textAlign: 'center',
-            border: '1px solid rgba(239, 68, 68, 0.3)'
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            animation: 'modalSlideIn 0.3s ease-out'
           }} onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ color: 'white', marginBottom: '16px' }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              background: user?.role === 'TEACHER' ? 
+                'linear-gradient(135deg, #f59e0b, #d97706)' : 
+                'linear-gradient(135deg, #ef4444, #dc2626)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px',
+              boxShadow: user?.role === 'TEACHER' ? 
+                '0 8px 25px rgba(245, 158, 11, 0.3)' : 
+                '0 8px 25px rgba(239, 68, 68, 0.3)'
+            }}>
+              <FaUser size={32} color="white" />
+            </div>
+            <h3 style={{ color: '#1f2937', marginBottom: '16px', fontSize: '20px', fontWeight: '600' }}>
               {user?.role === 'TEACHER' ? 
                 (deleteConfirm.is_active ? 'Deactivate Student?' : 'Activate Student?') : 
                 'Delete Student?'
               }
             </h3>
-            <p style={{ color: '#94a3b8', marginBottom: '20px' }}>
+            <p style={{ color: '#6b7280', marginBottom: '28px', fontSize: '16px', lineHeight: '1.5' }}>
               {user?.role === 'TEACHER' ? 
                 (deleteConfirm.is_active ? 
-                  `Are you sure you want to deactivate ${deleteConfirm.full_name}?` :
-                  `Are you sure you want to activate ${deleteConfirm.full_name}?`
+                  <>Are you sure you want to <strong>deactivate</strong> {deleteConfirm.full_name}? They will no longer be able to access the student portal.</> :
+                  <>Are you sure you want to <strong>activate</strong> {deleteConfirm.full_name}? They will regain access to the student portal.</>
                 ) :
-                `Are you sure you want to delete ${deleteConfirm.full_name}? This action cannot be undone.`
+                <>Are you sure you want to <strong>permanently delete</strong> {deleteConfirm.full_name}? This action cannot be undone and will remove all associated data.</>
               }
             </p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
               <button
                 onClick={() => setDeleteConfirm(null)}
                 style={{
-                  padding: '12px 20px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(71, 85, 105, 0.3)',
-                  background: 'rgba(71, 85, 105, 0.1)',
-                  color: '#94a3b8',
-                  fontSize: '14px',
+                  padding: '14px 24px',
+                  borderRadius: '10px',
+                  border: '2px solid #d1d5db',
+                  background: '#f9fafb',
+                  color: '#6b7280',
+                  fontSize: '16px',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  minWidth: '120px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#f3f4f6'
+                  e.target.style.borderColor = '#9ca3af'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = '#f9fafb'
+                  e.target.style.borderColor = '#d1d5db'
                 }}
               >
                 Cancel
@@ -1723,16 +1785,33 @@ export default function Students() {
                   }
                 }}
                 style={{
-                  padding: '12px 20px',
-                  borderRadius: '8px',
+                  padding: '14px 24px',
+                  borderRadius: '10px',
                   border: 'none',
                   background: user?.role === 'TEACHER' ? 
                     'linear-gradient(135deg, #f59e0b, #d97706)' : 
                     'linear-gradient(135deg, #ef4444, #dc2626)',
                   color: 'white',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: user?.role === 'TEACHER' ? 
+                    '0 4px 12px rgba(245, 158, 11, 0.3)' : 
+                    '0 4px 12px rgba(239, 68, 68, 0.3)',
+                  transition: 'all 0.2s ease',
+                  minWidth: '120px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)'
+                  e.target.style.boxShadow = user?.role === 'TEACHER' ? 
+                    '0 6px 20px rgba(245, 158, 11, 0.4)' : 
+                    '0 6px 20px rgba(239, 68, 68, 0.4)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)'
+                  e.target.style.boxShadow = user?.role === 'TEACHER' ? 
+                    '0 4px 12px rgba(245, 158, 11, 0.3)' : 
+                    '0 4px 12px rgba(239, 68, 68, 0.3)'
                 }}
               >
                 {user?.role === 'TEACHER' ? 
@@ -1745,82 +1824,110 @@ export default function Students() {
         </div>
       )}
 
-      {/* Student Login Credentials Modal */}
-      {showCredentials && (
-        <div className="modal" style={{
+      {/* Student Login Credentials Modal - Rendered as Portal */}
+      {showCredentials && createPortal(
+        <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0, 0, 0, 0.8)',
+          zIndex: 9999,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1001
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(8px)',
+          padding: '16px'
         }} onClick={() => setShowCredentials(null)}>
           <div style={{
-            background: 'linear-gradient(135deg, #1e293b, #334155)',
+            background: '#ffffff',
             borderRadius: '16px',
-            padding: '24px',
-            maxWidth: '500px',
+            padding: '28px',
+            maxWidth: '550px',
             width: '90%',
-            border: '1px solid rgba(16, 185, 129, 0.3)'
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            animation: 'modalSlideIn 0.3s ease-out'
           }} onClick={(e) => e.stopPropagation()}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: '20px'
+              marginBottom: '24px',
+              paddingBottom: '16px',
+              borderBottom: '1px solid #e5e7eb'
             }}>
-              <h3 style={{ color: 'white', margin: 0 }}>Student Login Credentials</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <FaUser size={16} color="white" />
+                </div>
+                <h3 style={{ color: '#1f2937', margin: 0, fontSize: '20px', fontWeight: '600' }}>Student Login Credentials</h3>
+              </div>
               <button
                 onClick={() => setShowCredentials(null)}
                 style={{
-                  background: 'rgba(71, 85, 105, 0.1)',
-                  border: '1px solid rgba(71, 85, 105, 0.3)',
-                  color: '#94a3b8',
-                  padding: '6px',
-                  borderRadius: 6,
+                  background: '#f3f4f6',
+                  border: '1px solid #d1d5db',
+                  color: '#6b7280',
+                  padding: '8px',
+                  borderRadius: 8,
                   fontSize: 14,
                   fontWeight: 600,
-                  width: 28,
-                  height: 28,
+                  width: 32,
+                  height: 32,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#e5e7eb'
+                  e.target.style.color = '#374151'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = '#f3f4f6'
+                  e.target.style.color = '#6b7280'
                 }}
               >
-                ×
+                <FaTimes size={14} />
               </button>
             </div>
             
             <div style={{
-              background: 'rgba(15, 23, 42, 0.8)',
+              background: '#f8fafc',
               borderRadius: '12px',
-              padding: '20px',
-              marginBottom: '16px'
+              padding: '24px',
+              marginBottom: '20px',
+              border: '1px solid #e2e8f0'
             }}>
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '4px' }}>Student Name</div>
-                <div style={{ color: 'white', fontSize: '16px', fontWeight: '600' }}>
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ color: '#6b7280', fontSize: '14px', marginBottom: '6px', fontWeight: '500' }}>Student Name</div>
+                <div style={{ color: '#1f2937', fontSize: '18px', fontWeight: '600' }}>
                   {showCredentials.full_name}
                 </div>
               </div>
               
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '4px' }}>Username</div>
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ color: '#6b7280', fontSize: '14px', marginBottom: '6px', fontWeight: '500' }}>Username</div>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  background: 'rgba(30, 41, 59, 0.8)',
-                  padding: '12px',
+                  background: '#ffffff',
+                  padding: '14px',
                   borderRadius: '8px',
-                  border: '1px solid rgba(71, 85, 105, 0.3)'
+                  border: '2px solid #e5e7eb'
                 }}>
-                  <span style={{ color: 'white', fontSize: '16px', fontWeight: '500', flex: 1 }}>
+                  <span style={{ color: '#1f2937', fontSize: '16px', fontWeight: '500', flex: 1, fontFamily: 'monospace' }}>
                     {showCredentials.username || showCredentials.student_id}
                   </span>
                   <button
@@ -1828,16 +1935,24 @@ export default function Students() {
                       navigator.clipboard.writeText(showCredentials.username || showCredentials.student_id)
                     }}
                     style={{
-                      background: 'rgba(59, 130, 246, 0.2)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      color: '#60a5fa',
-                      padding: '6px 8px',
+                      background: '#eff6ff',
+                      border: '1px solid #bfdbfe',
+                      color: '#1d4ed8',
+                      padding: '8px 12px',
                       borderRadius: '6px',
                       fontSize: '12px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px'
+                      gap: '4px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = '#dbeafe'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = '#eff6ff'
                     }}
                   >
                     <FaCopy size={12} /> Copy
@@ -1845,20 +1960,20 @@ export default function Students() {
                 </div>
               </div>
               
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '4px' }}>Password</div>
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ color: '#6b7280', fontSize: '14px', marginBottom: '6px', fontWeight: '500' }}>Password</div>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  background: 'rgba(30, 41, 59, 0.8)',
-                  padding: '12px',
+                  background: '#ffffff',
+                  padding: '14px',
                   borderRadius: '8px',
-                  border: '1px solid rgba(71, 85, 105, 0.3)'
+                  border: '2px solid #e5e7eb'
                 }}>
-                  <span style={{ color: 'white', fontSize: '16px', fontWeight: '500', flex: 1 }}>
+                  <span style={{ color: '#1f2937', fontSize: '16px', fontWeight: '500', flex: 1, fontFamily: 'monospace' }}>
                     {credentialsVisible[showCredentials.id] ? 
-                      (showCredentials.password || 'password123') : 
+                      (showCredentials.password || `${showCredentials.first_name?.toLowerCase()}123`) : 
                       '••••••••••'
                     }
                   </span>
@@ -1870,16 +1985,24 @@ export default function Students() {
                       }))
                     }}
                     style={{
-                      background: 'rgba(245, 158, 11, 0.2)',
-                      border: '1px solid rgba(245, 158, 11, 0.3)',
-                      color: '#fbbf24',
-                      padding: '6px 8px',
+                      background: '#fef3c7',
+                      border: '1px solid #fcd34d',
+                      color: '#92400e',
+                      padding: '8px 12px',
                       borderRadius: '6px',
                       fontSize: '12px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px'
+                      gap: '4px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = '#fde68a'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = '#fef3c7'
                     }}
                   >
                     {credentialsVisible[showCredentials.id] ? <FaEyeSlash size={12} /> : <FaEye size={12} />}
@@ -1887,19 +2010,27 @@ export default function Students() {
                   </button>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(showCredentials.password || 'password123')
+                      navigator.clipboard.writeText(showCredentials.password || `${showCredentials.first_name?.toLowerCase()}123`)
                     }}
                     style={{
-                      background: 'rgba(59, 130, 246, 0.2)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      color: '#60a5fa',
-                      padding: '6px 8px',
+                      background: '#eff6ff',
+                      border: '1px solid #bfdbfe',
+                      color: '#1d4ed8',
+                      padding: '8px 12px',
                       borderRadius: '6px',
                       fontSize: '12px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px'
+                      gap: '4px',
+                      fontWeight: '500',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = '#dbeafe'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = '#eff6ff'
                     }}
                   >
                     <FaCopy size={12} /> Copy
@@ -1909,17 +2040,17 @@ export default function Students() {
             </div>
             
             <div style={{
-              background: 'rgba(59, 130, 246, 0.1)',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              borderRadius: '8px',
-              padding: '12px',
-              marginBottom: '20px'
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              borderRadius: '10px',
+              padding: '16px',
+              marginBottom: '24px'
             }}>
-              <div style={{ color: '#60a5fa', fontSize: '14px', fontWeight: '600', marginBottom: '4px' }}>
+              <div style={{ color: '#1e40af', fontSize: '14px', fontWeight: '600', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 📱 Student Portal Access
               </div>
-              <div style={{ color: '#cbd5e1', fontSize: '13px' }}>
-                Students can use these credentials to log into the student portal and view their reports, assignments, and attendance.
+              <div style={{ color: '#475569', fontSize: '14px', lineHeight: '1.5' }}>
+                Students can use these credentials to log into the student portal and view their reports, assignments, and attendance records.
               </div>
             </div>
             
@@ -1927,21 +2058,33 @@ export default function Students() {
               <button
                 onClick={() => setShowCredentials(null)}
                 style={{
-                  padding: '12px 24px',
-                  borderRadius: '8px',
+                  padding: '14px 28px',
+                  borderRadius: '10px',
                   border: 'none',
                   background: 'linear-gradient(135deg, #10b981, #059669)',
                   color: 'white',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                  transition: 'all 0.2s ease',
+                  minWidth: '120px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)'
+                  e.target.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.4)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)'
+                  e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)'
                 }}
               >
                 Close
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Bulk Upload Modal */}
@@ -1956,79 +2099,106 @@ export default function Students() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1001
+          zIndex: 10001,
+          backdropFilter: 'blur(8px)'
         }}>
           <div className="modal-content" onClick={(e)=>e.stopPropagation()} style={{
-            background: 'linear-gradient(135deg, #1e293b, #334155)',
+            background: '#ffffff',
             borderRadius: '16px',
-            padding: '24px',
-            maxWidth: '500px',
+            padding: '28px',
+            maxWidth: '550px',
             width: '90%',
-            border: '1px solid rgba(59, 130, 246, 0.3)'
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            animation: 'modalSlideIn 0.3s ease-out'
           }}>
             <div className="modal-header" style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: '20px'
+              marginBottom: '24px',
+              paddingBottom: '16px',
+              borderBottom: '1px solid #e5e7eb'
             }}>
-              <h3 style={{ color: 'white', margin: 0 }}>Bulk Upload Students (Excel)</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <FaUpload size={16} color="white" />
+                </div>
+                <h3 style={{ color: '#1f2937', margin: 0, fontSize: '20px', fontWeight: '600' }}>Bulk Upload Students</h3>
+              </div>
               <button onClick={() => setShowBulk(false)} style={{
-                background: 'rgba(71, 85, 105, 0.1)',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                color: '#94a3b8',
-                padding: '6px',
-                borderRadius: 6,
+                background: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                color: '#6b7280',
+                padding: '8px',
+                borderRadius: 8,
                 fontSize: 14,
                 fontWeight: 600,
-                width: 28,
-                height: 28,
+                width: 32,
+                height: 32,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                cursor: 'pointer'
-              }}><FaTimes/></button>
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}>
+                <FaTimes size={14} />
+              </button>
             </div>
-            <div style={{ color: '#94a3b8', fontSize: '14px', marginBottom: 16 }}>Upload an .xlsx file with columns: student_id, first_name, last_name, other_names, gender, date_of_birth (YYYY-MM-DD), current_class_id, guardian_name, guardian_phone, guardian_email, guardian_address, admission_date (YYYY-MM-DD).</div>
-            <div style={{display:'flex', gap:10, alignItems:'center', marginBottom: 16}}>
+            <div style={{ color: '#6b7280', fontSize: '14px', marginBottom: 20, lineHeight: '1.5', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <strong>Required Excel columns:</strong> student_id, first_name, last_name, other_names, gender, date_of_birth (YYYY-MM-DD), current_class_id, guardian_name, guardian_phone, guardian_email, guardian_address, admission_date (YYYY-MM-DD)
+            </div>
+            <div style={{display:'flex', gap:12, alignItems:'center', marginBottom: 20}}>
               <input type="file" accept=".xlsx,.xls" onChange={(e)=>setBulkFile(e.target.files?.[0] || null)} style={{
-                padding: '8px',
+                padding: '12px',
                 borderRadius: '8px',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                background: 'rgba(30, 41, 59, 0.8)',
-                color: 'white',
-                flex: 1
+                border: '2px solid #d1d5db',
+                background: '#ffffff',
+                color: '#1f2937',
+                flex: 1,
+                fontSize: '14px'
               }} />
               <button onClick={async ()=>{
                 setBulkMessage('')
-                if (!bulkFile) { setBulkMessage('Choose a file'); return }
+                if (!bulkFile) { setBulkMessage('Please choose a file first'); return }
                 try {
                   const fd = new FormData(); fd.append('file', bulkFile)
                   const res = await api.post('/students/bulk_upload/', fd)
-                  setBulkMessage(res.data?.message || 'Uploaded')
+                  setBulkMessage(res.data?.message || 'Upload completed successfully!')
                   setLoading(true); await load()
                 } catch (err) {
-                  const msg = err?.response?.data?.error || err?.response?.data?.detail || 'Failed to upload (install openpyxl on backend to enable)'
+                  const msg = err?.response?.data?.error || err?.response?.data?.detail || 'Upload failed. Please ensure the backend has openpyxl installed.'
                   setBulkMessage(msg)
                 }
               }} style={{
-                padding: '10px 16px',
+                padding: '12px 20px',
                 borderRadius: '8px',
                 border: 'none',
                 background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                 color: 'white',
                 fontSize: '14px',
                 fontWeight: '600',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                transition: 'all 0.2s ease',
+                minWidth: '100px'
               }}>Upload</button>
             </div>
             {bulkMessage && <div style={{
-              background: 'rgba(59, 130, 246, 0.1)',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
+              background: bulkMessage.includes('failed') || bulkMessage.includes('error') ? '#fef2f2' : '#f0fdf4',
+              border: bulkMessage.includes('failed') || bulkMessage.includes('error') ? '1px solid #fecaca' : '1px solid #bbf7d0',
               borderRadius: '8px',
-              padding: '12px',
-              color: '#60a5fa',
-              fontSize: '14px'
+              padding: '16px',
+              color: bulkMessage.includes('failed') || bulkMessage.includes('error') ? '#991b1b' : '#166534',
+              fontSize: '14px',
+              lineHeight: '1.5'
             }}>{bulkMessage}</div>}
           </div>
         </div>

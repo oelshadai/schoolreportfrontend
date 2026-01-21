@@ -4,7 +4,9 @@ import axios from 'axios'
 const getApiBaseUrl = () => {
   // Check for explicit environment variable first
   if (import.meta.env.VITE_API_BASE) {
-    return import.meta.env.VITE_API_BASE.replace(/\/$/, '')
+    const url = import.meta.env.VITE_API_BASE.replace(/\/$/, '')
+    console.log('API Base URL:', url)
+    return url
   }
   
   // Force production API URL for deployed apps
@@ -15,10 +17,12 @@ const getApiBaseUrl = () => {
       hostname.includes('vercel.app') || 
       hostname.includes('render.com') ||
       hostname !== 'localhost') {
+    console.log('API Base URL:', 'https://school-report-saas.onrender.com/api')
     return 'https://school-report-saas.onrender.com/api'
   }
   
   // Development fallback
+  console.log('API Base URL:', 'http://localhost:8000/api')
   return 'http://localhost:8000/api'
 }
 
@@ -27,7 +31,7 @@ const base = getApiBaseUrl()
 const api = axios.create({ 
   baseURL: base,
   timeout: 30000, // Increased timeout for production
-  withCredentials: true,
+  withCredentials: false, // Changed to false for better CORS compatibility
   headers: {
     'Content-Type': 'application/json'
   }

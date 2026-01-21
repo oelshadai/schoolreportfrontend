@@ -166,10 +166,42 @@ const AddStudentForm = React.memo(({
   if (!isOpen) return null
 
   return (
-    <div className="modal-overlay add-student-modal" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '700px', width: '95%', maxHeight: '90vh' }}>
+    <div className="modal-overlay add-student-modal" onClick={onClose} style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 9999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'rgba(0, 0, 0, 0.5)',
+      backdropFilter: 'blur(8px)',
+      padding: '16px'
+    }}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ 
+        maxWidth: '700px', 
+        width: '95%', 
+        maxHeight: '90vh',
+        background: '#ffffff',
+        borderRadius: '16px',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        animation: 'modalSlideIn 0.3s ease-out'
+      }}>
         {/* Header */}
-        <div className="modal-header">
+        <div className="modal-header" style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '20px 24px 16px',
+          borderBottom: '1px solid #e5e7eb',
+          background: '#ffffff',
+          flexShrink: 0
+        }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
               <FaUserGraduate size={16} className="text-white" />
@@ -190,9 +222,22 @@ const AddStudentForm = React.memo(({
         </div>
 
         {/* Form */}
-        <div className="modal-body" style={{ overflowY: 'auto', maxHeight: 'calc(90vh - 140px)' }}>
-          <form onSubmit={handleSubmit} className="add-student-form">
-            <div className="form-container">
+        <div className="modal-body" style={{ 
+          overflowY: 'auto', 
+          maxHeight: 'calc(90vh - 140px)',
+          flex: 1,
+          padding: 0
+        }}>
+          <form onSubmit={handleSubmit} className="add-student-form" style={{
+            padding: '24px',
+            height: '100%'
+          }}>
+            <div className="form-container" style={{
+              display: 'grid',
+              gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : '1fr 1fr',
+              gap: '20px',
+              alignContent: 'start'
+            }}>
               {/* Student ID */}
               <div className="form-field">
                 <label className="form-label">
@@ -462,12 +507,31 @@ const AddStudentForm = React.memo(({
         </div>
 
         {/* Footer */}
-        <div className="modal-footer">
+        <div className="modal-footer" style={{
+          display: 'flex',
+          gap: '12px',
+          padding: '20px 24px',
+          borderTop: '1px solid #e5e7eb',
+          background: '#f9fafb',
+          justifyContent: 'flex-end',
+          flexShrink: 0
+        }}>
           <button
             type="button"
             onClick={onClose}
             className="btn btn-secondary"
             disabled={isSubmitting}
+            style={{
+              padding: '12px 20px',
+              background: '#f3f4f6',
+              border: '2px solid #d1d5db',
+              borderRadius: '8px',
+              color: '#6b7280',
+              fontWeight: '600',
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
           >
             Cancel
           </button>
@@ -476,10 +540,37 @@ const AddStudentForm = React.memo(({
             onClick={handleSubmit}
             className="btn btn-primary"
             disabled={isSubmitting || Object.keys(errors).length > 0}
+            style={{
+              padding: '12px 20px',
+              background: isSubmitting || Object.keys(errors).length > 0
+                ? '#9ca3af'
+                : 'linear-gradient(135deg, #16a34a, #15803d)',
+              border: 'none',
+              borderRadius: '8px',
+              color: 'white',
+              fontWeight: '600',
+              fontSize: '14px',
+              cursor: isSubmitting || Object.keys(errors).length > 0 ? 'not-allowed' : 'pointer',
+              boxShadow: isSubmitting || Object.keys(errors).length > 0
+                ? 'none'
+                : '0 4px 12px rgba(22, 163, 74, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              transition: 'all 0.2s ease'
+            }}
           >
             {isSubmitting ? (
               <>
-                <div className="spinner" />
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  borderTop: '2px solid white',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }} />
                 Creating...
               </>
             ) : (
