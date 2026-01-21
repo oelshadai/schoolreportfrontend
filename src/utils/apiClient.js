@@ -17,6 +17,11 @@ class ApiClient {
   }
 
   getApiBaseUrl() {
+    // Check for explicit environment variable first
+    if (import.meta.env.VITE_API_BASE) {
+      return import.meta.env.VITE_API_BASE.replace(/\/$/, '')
+    }
+    
     // Force production API URL for deployed apps
     const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
     
@@ -26,11 +31,6 @@ class ApiClient {
         hostname.includes('render.com') ||
         hostname !== 'localhost') {
       return 'https://school-report-saas-1.onrender.com/api'
-    }
-    
-    // Check for explicit environment variable
-    if (import.meta.env.VITE_API_BASE) {
-      return import.meta.env.VITE_API_BASE.replace(/\/$/, '')
     }
     
     // Development fallback
