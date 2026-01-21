@@ -270,7 +270,7 @@ class UnifiedApiClient {
   // Health check
   async checkHealth() {
     try {
-      const response = await axios.get(`${this.baseURL.replace('/api', '')}/admin/`, { timeout: 5000 })
+      const response = await axios.get(`${this.baseURL}/health/`, { timeout: 5000 })
       return { healthy: true, status: response.status }
     } catch (error) {
       return { 

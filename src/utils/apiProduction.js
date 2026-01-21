@@ -307,7 +307,7 @@ class ProductionApiClient {
   // Health check for backend connectivity
   async checkHealth() {
     try {
-      const response = await axios.get(`${this.baseURL.replace('/api', '')}/admin/`, { 
+      const response = await axios.get(`${this.baseURL}/health/`, { 
         timeout: 5000 
       })
       return { 

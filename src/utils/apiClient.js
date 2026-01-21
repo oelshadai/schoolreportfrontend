@@ -30,7 +30,7 @@ class ApiClient {
         hostname.includes('vercel.app') || 
         hostname.includes('render.com') ||
         hostname !== 'localhost') {
-      return 'https://school-report-saas-1.onrender.com/api'
+      return 'https://school-report-saas.onrender.com/api'
     }
     
     // Development fallback
