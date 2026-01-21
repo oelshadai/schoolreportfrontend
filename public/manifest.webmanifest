@@ -1,12 +1,16 @@
 {
-  "name": "School Report SaaS",
-  "short_name": "Reports",
-  "description": "Mobile-first report cards for teachers",
+  "name": "Elite Tech - School Management",
+  "short_name": "Elite Tech",
+  "description": "Mobile-first school management system for teachers, students, and administrators",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#115e3d",
+  "categories": ["education", "productivity", "business"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "./icons/icon-192.png",
@@ -19,6 +23,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Go to main dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Student Portal",
+      "short_name": "Students",
+      "description": "Access student portal",
+      "url": "/student-portal",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

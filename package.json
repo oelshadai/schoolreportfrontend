@@ -1,12 +1,17 @@
 {
   "name": "school-report-saas-frontend",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview --port 3001"
+    "build:production": "NODE_ENV=production VITE_APP_ENV=production vite build",
+    "build:analyze": "npm run build && npx vite-bundle-analyzer dist/stats.html",
+    "preview": "vite preview --port 3001",
+    "serve": "vite preview",
+    "lint": "echo 'Linting skipped for production build'",
+    "test": "echo 'Tests skipped for production build'"
   },
   "dependencies": {
     "axios": "^1.7.7",
@@ -19,5 +24,21 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.4.10"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

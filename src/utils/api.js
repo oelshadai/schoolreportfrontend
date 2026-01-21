@@ -7,9 +7,12 @@ const getApiBaseUrl = () => {
     return import.meta.env.VITE_API_BASE.replace(/\/$/, '')
   }
   
-  // Check if we're in production (Netlify)
+  // Check if we're in production
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
-  const isProduction = hostname.includes('netlify.app') || import.meta.env.PROD
+  const isProduction = hostname.includes('onrender.com') || 
+                      hostname.includes('netlify.app') || 
+                      hostname.includes('vercel.app') || 
+                      import.meta.env.PROD
   
   if (isProduction) {
     // Force production API URL
@@ -23,7 +26,13 @@ const getApiBaseUrl = () => {
 const base = getApiBaseUrl()
 console.log('API Base URL:', base) // Debug log for troubleshooting
 
-const api = axios.create({ baseURL: base })
+const api = axios.create({ 
+  baseURL: base,
+  timeout: 30000, // Increased timeout for production
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
 
 // CORS-enabled API call with fallback
 export const corsEnabledRequest = async (endpoint, options = {}) => {

@@ -1,17 +1,24 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import api from '../utils/api'
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react'
+import apiClient from '../utils/apiClient'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('sr_user')
-    return saved && saved !== 'undefined' ? JSON.parse(saved) : null
+    try {
+      const saved = localStorage.getItem('sr_user')
+      return saved && saved !== 'undefined' ? JSON.parse(saved) : null
+    } catch {
+      return null
+    }
   })
   const [token, setToken] = useState(() => localStorage.getItem('sr_token'))
   const [loading, setLoading] = useState(false)
+  const [initialized, setInitialized] = useState(false)
+  const [error, setError] = useState(null)
 
-  const refreshToken = async () => {
+  // Memoized refresh token function to prevent recreation
+  const refreshToken = useCallback(async () => {
     try {
       const refreshTokenValue = localStorage.getItem('sr_refresh')
       if (!refreshTokenValue) {
@@ -19,87 +26,100 @@ export function AuthProvider({ children }) {
         return false
       }
       
-      const res = await api.post('/auth/token/refresh/', { refresh: refreshTokenValue })
-      const { access } = res.data
-      
+      const access = await apiClient.refreshToken()
       setToken(access)
-      localStorage.setItem('sr_token', access)
-      api.defaults.headers.common['Authorization'] = `Bearer ${access}`
-      
       return true
     } catch (err) {
       console.warn('Token refresh failed:', err)
       logout()
       return false
     }
-  }
+  }, [])
 
-  const logout = async (userType = 'admin') => {
+  // Memoized logout function
+  const logout = useCallback(async (userType = 'admin') => {
     try {
       const refreshTokenValue = localStorage.getItem('sr_refresh')
       if (refreshTokenValue) {
         const endpoint = userType === 'student' ? '/students/auth/logout/' : '/auth/logout/'
-        await api.post(endpoint, { refresh: refreshTokenValue })
+        await apiClient.post(endpoint, { refresh: refreshTokenValue })
       }
     } catch (err) {
       console.warn('Logout API call failed:', err)
     } finally {
       setToken(null)
       setUser(null)
-      localStorage.removeItem('sr_token')
-      localStorage.removeItem('sr_refresh')
-      localStorage.removeItem('sr_user')
+      apiClient.clearAuth()
     }
-  }
+  }, [])
 
-  // Check token validity on load
+  // Check token validity on mount only - prevent infinite loops
   useEffect(() => {
+    let mounted = true
+    
     const checkToken = async () => {
+      if (!mounted) return
+      
       const savedToken = localStorage.getItem('sr_token')
       if (savedToken) {
         try {
-          // Try a simple API call to verify token
-          await api.get('/auth/profile/')
+          const response = await apiClient.get('/auth/profile/')
+          if (mounted && response.data) {
+            setUser(response.data)
+            localStorage.setItem('sr_user', JSON.stringify(response.data))
+          }
         } catch (error) {
-          if (error.response?.status === 401) {
+          if (mounted && error.response?.status === 401) {
             console.log('Token expired, attempting refresh...')
-            await refreshToken()
+            const refreshed = await refreshToken()
+            if (!refreshed && mounted) {
+              logout()
+            }
           }
         }
       }
+      if (mounted) {
+        setInitialized(true)
+      }
     }
-    checkToken()
-  }, [])
-
-  useEffect(() => {
-    if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-    } else {
-      delete api.defaults.headers.common['Authorization']
+    
+    if (!initialized) {
+      checkToken()
     }
-  }, [token])
+    
+    return () => {
+      mounted = false
+    }
+  }, []) // Remove refreshToken from dependencies to prevent loops
 
-  const login = async (email, password, userType = 'admin') => {
+  // Memoized login function with enhanced error handling
+  const login = useCallback(async (email, password, userType = 'admin') => {
     setLoading(true)
+    setError(null)
+    
     try {
       const endpoint = userType === 'student' ? '/students/auth/login/' : '/auth/login/'
       const payload = userType === 'student' 
         ? { student_id: email, password } 
         : { email, password }
       
-      const res = await api.post(endpoint, payload)
+      const res = await apiClient.post(endpoint, payload)
       
-      // Handle different response structures
       let access, refresh, userData
       
       if (userType === 'student') {
         access = res.data.access
         refresh = res.data.refresh
-        userData = res.data.student // Student data is in 'student' field
+        userData = res.data.student
       } else {
         access = res.data.access
         refresh = res.data.refresh
-        userData = res.data.user // Admin/teacher data is in 'user' field
+        userData = res.data.user
+      }
+      
+      // Validate required data
+      if (!access || !refresh || !userData) {
+        throw new Error('Invalid response from server')
       }
       
       setToken(access)
@@ -107,8 +127,6 @@ export function AuthProvider({ children }) {
       localStorage.setItem('sr_token', access)
       localStorage.setItem('sr_refresh', refresh)
       localStorage.setItem('sr_user', JSON.stringify(userData))
-      
-      console.log('Login successful:', { userType, userData }) // Debug log
       
       return { ok: true }
     } catch (err) {
@@ -137,18 +155,20 @@ export function AuthProvider({ children }) {
           : 'Email and password are required.'
       }
       
+      setError(message)
       return { ok: false, message }
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-
-
-  const registerSchool = async ({ school_name, admin_email, password, password_confirm, levels = ['BOTH'], first_name = 'Admin', last_name = 'User' }) => {
+  // Memoized register function
+  const registerSchool = useCallback(async ({ school_name, admin_email, password, password_confirm, levels = ['BOTH'], first_name = 'Admin', last_name = 'User' }) => {
     setLoading(true)
     try {
-      const res = await api.post('/auth/register-school/', { school_name, admin_email, password, password_confirm, levels, first_name, last_name })
+      const res = await apiClient.post('/auth/register-school/', { 
+        school_name, admin_email, password, password_confirm, levels, first_name, last_name 
+      })
       const { access, refresh, user } = res.data
       setToken(access)
       setUser(user)
@@ -162,13 +182,29 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const value = useMemo(() => ({ user, token, login, logout, registerSchool, refreshToken, loading }), [user, token, loading])
+  // Memoized context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({ 
+    user, 
+    token, 
+    login, 
+    logout, 
+    registerSchool, 
+    refreshToken, 
+    loading,
+    initialized,
+    error,
+    clearError: () => setError(null)
+  }), [user, token, login, logout, registerSchool, refreshToken, loading, initialized, error])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
-  return useContext(AuthContext)
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
 }

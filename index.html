@@ -1,17 +1,50 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Cache refresh: 20250109-mobile-first -->
+    <!-- Cache refresh: 20250109-production-ready -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes, maximum-scale=5" />
-    <meta name="description" content="Elite Tech - Mobile-First School Management SaaS" />
+    
+    <!-- SEO and Meta -->
+    <title>Elite Tech - School Management System</title>
+    <meta name="description" content="Elite Tech - Mobile-first school management system for teachers, students, and administrators. Manage classes, attendance, grades, and reports efficiently." />
+    <meta name="keywords" content="school management, education, teachers, students, grades, attendance, reports, mobile-first" />
+    <meta name="author" content="Elite Tech" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Elite Tech - School Management System" />
+    <meta property="og:description" content="Mobile-first school management system for modern education" />
+    <meta property="og:image" content="/icons/icon-512.png" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Elite Tech - School Management System" />
+    <meta name="twitter:description" content="Mobile-first school management system for modern education" />
+    <meta name="twitter:image" content="/icons/icon-512.png" />
+    
+    <!-- PWA Meta -->
     <meta name="theme-color" content="#115e3d" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Elite Tech" />
+    <meta name="application-name" content="Elite Tech" />
+    
+    <!-- Icons and Manifest -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    
+    <!-- Preconnect to API domain -->
+    <link rel="preconnect" href="https://school-report-saas.onrender.com" />
+    <link rel="dns-prefetch" href="https://school-report-saas.onrender.com" />
+    
+    <!-- Performance optimizations -->
+    <link rel="preload" href="/src/main.jsx" as="script" type="module" />
+    
+    <!-- Critical CSS to prevent FOUC -->
     <style>
       html, body, #root {
         width: 100vw;
@@ -19,12 +52,58 @@
         margin: 0;
         padding: 0;
         overflow-x: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        background-color: #ffffff;
+      }
+      
+      /* Loading spinner */
+      .loading-spinner {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        border: 3px solid #e5e7eb;
+        border-top: 3px solid #3ecf8e;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        z-index: 9999;
+      }
+      
+      @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+      
+      /* Hide spinner when app loads */
+      .app-loaded .loading-spinner {
+        display: none;
       }
     </style>
-    <title>Elite Tech - School Management System</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Loading spinner shown until React app loads -->
+      <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Main app script -->
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
