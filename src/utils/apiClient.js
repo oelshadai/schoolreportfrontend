@@ -4,6 +4,7 @@ import axios from 'axios'
 class ApiClient {
   constructor() {
     this.baseURL = this.getApiBaseUrl()
+    console.log('API Client initialized with base URL:', this.baseURL)
     this.client = axios.create({
       baseURL: this.baseURL,
       timeout: 15000,
@@ -120,21 +121,45 @@ class ApiClient {
     
     if (error.response) {
       const data = error.response.data
-      if (error.response.status === 404 && error.config.url?.includes('/auth/user/')) {
+      const status = error.response.status
+      
+      // Log response details for debugging
+      console.error('API Error Response:', {
+        status,
+        data,
+        headers: error.response.headers,
+        url: error.config?.url
+      })
+      
+      if (status === 404 && error.config.url?.includes('/auth/user/')) {
         message = 'Student not found. Please check your username.'
-      } else {
-        message = data?.detail || data?.message || message
-        if (message === 'Request failed' && data && typeof data === 'object') {
-          const parts = []
-          for (const [k, v] of Object.entries(data)) {
-            if (k === 'detail' || k === 'message') continue
-            if (Array.isArray(v) && v.length) parts.push(`${k}: ${v[0]}`)
-            else if (typeof v === 'string') parts.push(`${k}: ${v}`)
-          }
-          if (parts.length) message = parts.join(' | ')
+      } else if (typeof data === 'string') {
+        // Handle HTML responses (like Django admin redirects)
+        if (data.includes('<html>') || data.includes('<!DOCTYPE')) {
+          message = 'Server returned HTML instead of JSON. Check API endpoint configuration.'
+        } else {
+          message = data
         }
+      } else if (data?.detail) {
+        message = data.detail
+      } else if (data?.message) {
+        message = data.message
+      } else if (data && typeof data === 'object') {
+        const parts = []
+        for (const [k, v] of Object.entries(data)) {
+          if (k === 'detail' || k === 'message') continue
+          if (Array.isArray(v) && v.length) parts.push(`${k}: ${v[0]}`)
+          else if (typeof v === 'string') parts.push(`${k}: ${v}`)
+        }
+        if (parts.length) message = parts.join(' | ')
       }
     } else if (error.request) {
+      console.error('Network Error:', {
+        message: error.message,
+        code: error.code,
+        config: error.config
+      })
+      
       if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
         message = 'Request timed out. Please check your connection and try again.'
       } else if (error.message?.includes('CORS')) {

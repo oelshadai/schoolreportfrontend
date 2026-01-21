@@ -103,7 +103,16 @@ export function AuthProvider({ children }) {
         ? { student_id: email, password } 
         : { email, password }
       
+      console.log(`Attempting login to: ${endpoint}`)
       const res = await apiClient.post(endpoint, payload)
+      
+      // Log raw response for debugging
+      console.log('Login response:', res)
+      
+      // Validate response structure
+      if (!res.data) {
+        throw new Error('No data in response')
+      }
       
       let access, refresh, userData
       
@@ -119,7 +128,8 @@ export function AuthProvider({ children }) {
       
       // Validate required data
       if (!access || !refresh || !userData) {
-        throw new Error('Invalid response from server')
+        console.error('Missing required fields in response:', { access: !!access, refresh: !!refresh, userData: !!userData })
+        throw new Error('Invalid response from server - missing required authentication data')
       }
       
       setToken(access)
@@ -153,6 +163,8 @@ export function AuthProvider({ children }) {
         message = userType === 'student'
           ? 'Student ID and password are required.'
           : 'Email and password are required.'
+      } else if (err.message) {
+        message = err.message
       }
       
       setError(message)

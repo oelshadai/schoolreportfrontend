@@ -2,6 +2,11 @@ import axios from 'axios'
 
 // Production-first API base URL configuration
 const getApiBaseUrl = () => {
+  // Check for explicit environment variable first
+  if (import.meta.env.VITE_API_BASE) {
+    return import.meta.env.VITE_API_BASE.replace(/\/$/, '')
+  }
+  
   // Force production API URL for deployed apps
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
   
@@ -13,17 +18,11 @@ const getApiBaseUrl = () => {
     return 'https://school-report-saas.onrender.com/api'
   }
   
-  // Check for explicit environment variable
-  if (import.meta.env.VITE_API_BASE) {
-    return import.meta.env.VITE_API_BASE.replace(/\/$/, '')
-  }
-  
   // Development fallback
   return 'http://localhost:8000/api'
 }
 
 const base = getApiBaseUrl()
-console.log('API Base URL:', base) // Debug log for troubleshooting
 
 const api = axios.create({ 
   baseURL: base,
