@@ -1,6 +1,6 @@
 // Production Service Worker for Elite Tech School Management
-const CACHE_NAME = 'elite-tech-v1.1.0'
-const API_CACHE_NAME = 'elite-tech-api-v1.0.0'
+const CACHE_NAME = 'elite-tech-v1.2.0'
+const API_CACHE_NAME = 'elite-tech-api-v1.1.0'
 
 // Static assets to cache
 const STATIC_ASSETS = [
