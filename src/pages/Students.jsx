@@ -1681,20 +1681,21 @@ export default function Students() {
         document.body
       )}
       
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="modal" style={{
+      {/* Delete Confirmation Modal - Rendered as Portal */}
+      {deleteConfirm && createPortal(
+        <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0, 0, 0, 0.8)',
+          zIndex: 9999,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 10001,
-          backdropFilter: 'blur(8px)'
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(8px)',
+          padding: '16px'
         }} onClick={() => setDeleteConfirm(null)}>
           <div style={{
             background: '#ffffff',
@@ -1821,7 +1822,8 @@ export default function Students() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Student Login Credentials Modal - Rendered as Portal */}
@@ -2087,21 +2089,22 @@ export default function Students() {
         document.body
       )}
 
-      {/* Bulk Upload Modal */}
-      {showBulk && (
-        <div className="modal" onClick={() => setShowBulk(false)} style={{
+      {/* Bulk Upload Modal - Rendered as Portal */}
+      {showBulk && createPortal(
+        <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0, 0, 0, 0.8)',
+          zIndex: 9999,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 10001,
-          backdropFilter: 'blur(8px)'
-        }}>
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(8px)',
+          padding: '16px'
+        }} onClick={() => setShowBulk(false)}>
           <div className="modal-content" onClick={(e)=>e.stopPropagation()} style={{
             background: '#ffffff',
             borderRadius: '16px',
@@ -2201,7 +2204,8 @@ export default function Students() {
               lineHeight: '1.5'
             }}>{bulkMessage}</div>}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
