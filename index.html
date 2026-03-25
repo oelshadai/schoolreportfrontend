@@ -6,22 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes, maximum-scale=5" />
     
     <!-- SEO and Meta -->
-    <title>Elite Tech - School Management System</title>
-    <meta name="description" content="Elite Tech - Mobile-first school management system for teachers, students, and administrators. Manage classes, attendance, grades, and reports efficiently." />
-    <meta name="keywords" content="school management, education, teachers, students, grades, attendance, reports, mobile-first" />
+    <title>School Report SaaS - Elite Tech</title>
+    <meta name="description" content="School Report SaaS by Elite Tech - Comprehensive school management system for teachers, students, and administrators. Manage classes, attendance, grades, and reports efficiently." />
+    <meta name="keywords" content="school management, education, teachers, students, grades, attendance, reports, SaaS, Elite Tech" />
     <meta name="author" content="Elite Tech" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Elite Tech - School Management System" />
-    <meta property="og:description" content="Mobile-first school management system for modern education" />
-    <meta property="og:image" content="/icons/icon-512.png" />
+    <meta property="og:title" content="School Report SaaS - Elite Tech" />
+    <meta property="og:description" content="Comprehensive school management system for modern education" />
+    <meta property="og:image" content="/EliteTech logo with sleek design.png" />
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Elite Tech - School Management System" />
-    <meta name="twitter:description" content="Mobile-first school management system for modern education" />
-    <meta name="twitter:image" content="/icons/icon-512.png" />
+    <meta name="twitter:title" content="School Report SaaS - Elite Tech" />
+    <meta name="twitter:description" content="Comprehensive school management system for modern education" />
+    <meta name="twitter:image" content="/EliteTech logo with sleek design.png" />
     
     <!-- PWA Meta -->
     <meta name="theme-color" content="#115e3d" />
@@ -31,11 +31,9 @@
     <meta name="apple-mobile-web-app-title" content="Elite Tech" />
     <meta name="application-name" content="Elite Tech" />
     
-    <!-- Icons and Manifest -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="/EliteTech logo with sleek design.png" />
+    <link rel="shortcut icon" type="image/png" href="/EliteTech logo with sleek design.png" />
     
     <!-- Preconnect to API domain -->
     <link rel="preconnect" href="https://school-report-saas.onrender.com" />
@@ -86,21 +84,8 @@
     </div>
     
     <!-- Main app script -->
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Service Worker Registration -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-              console.log('SW registered: ', registration);
-            })
-            .catch((registrationError) => {
-              console.log('SW registration failed: ', registrationError);
-            });
-        });
-      }
-    </script>
+
   </body>
 </html>

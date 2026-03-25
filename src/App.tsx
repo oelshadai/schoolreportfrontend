@@ -1,0 +1,175 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useAuthStore, getRoleDashboardPath } from "@/stores/authStore";
+
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import AuthShowcase from "./pages/AuthShowcase";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
+import NotFound from "./pages/NotFound";
+import AppLayout from "./components/AppLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+// Dashboards
+import SuperAdminDashboard from "./pages/dashboards/SuperAdminDashboard";
+import SchoolAdminDashboard from "./pages/dashboards/SchoolAdminDashboard";
+import TeacherDashboard from "./pages/dashboards/TeacherDashboard";
+import StudentDashboard from "./pages/dashboards/StudentDashboard";
+
+// Super Admin
+import SchoolsManagement from "./pages/admin/SchoolsManagement";
+import UsersManagement from "./pages/admin/UsersManagement";
+import SystemAnalytics from "./pages/admin/SystemAnalytics";
+import SubscriptionManagement from "./pages/admin/SubscriptionManagement";
+import SystemSettings from "./pages/admin/SystemSettings";
+import AuditLogs from "./pages/admin/AuditLogs";
+import SupportTickets from "./pages/admin/SupportTickets";
+
+// School Admin
+import AcademicYearManagement from "./pages/school/AcademicYearManagement";
+import ClassesManagement from "./pages/school/ClassesManagement";
+import TeachersManagement from "./pages/school/TeachersManagement";
+import StudentsManagement from "./pages/school/StudentsManagement";
+import SubjectsManagement from "./pages/school/SubjectsManagement";
+import ReportsDashboard from "./pages/school/ReportsDashboard";
+import SchoolSettings from "./pages/school/SchoolSettings";
+import Announcements from "./pages/school/Announcements";
+import EventPlanner from "./pages/school/EventPlanner";
+import AdminAttendanceOverview from "./pages/school/AdminAttendanceOverview";
+import FeeManagement from "./pages/school/FeeManagement";
+import ParentPortalSettings from "./pages/school/ParentPortalSettings";
+import SchoolScoreEntry from "./pages/school/ScoreEntry";
+import ScoreEntrySetup from "./pages/school/ScoreEntrySetup";
+import ScoreEntryForm from "./pages/school/ScoreEntryForm";
+import MultiSubjectScoreEntry from "./pages/school/MultiSubjectScoreEntry";
+
+// Teacher
+import TeacherAssignments from "./pages/teacher/TeacherAssignments";
+import AssignmentSubmissions from "./pages/teacher/AssignmentSubmissions";
+import AssignmentEdit from "./pages/teacher/AssignmentEdit";
+import MyClasses from "./pages/teacher/MyClasses";
+import CreateAssignment from "./pages/teacher/CreateAssignment";
+import GradeBook from "./pages/teacher/GradeBook";
+import AttendanceManagement from "./pages/teacher/AttendanceManagement";
+import StudentBehavior from "./pages/teacher/StudentBehavior";
+import Students from "./pages/teacher/Students";
+import ScoreEntry from "./pages/teacher/ScoreEntry";
+import ClassReports from "./pages/teacher/ClassReports";
+import TeacherProfile from "./pages/teacher/TeacherProfile";
+import TimetableManagement from "./pages/teacher/TimetableManagement";
+import HelpSupport from "./pages/teacher/HelpSupport";
+
+// Student
+import StudentAssignments from "./pages/student/StudentAssignments";
+import AssignmentSubmission from "./pages/student/AssignmentSubmission";
+import MyGrades from "./pages/student/MyGrades";
+import AttendanceRecords from "./pages/student/AttendanceRecords";
+import ClassSchedule from "./pages/student/ClassSchedule";
+import StudentAnnouncements from "./pages/student/StudentAnnouncements";
+import StudentProfile from "./pages/student/StudentProfile";
+import StudentReports from "./pages/student/StudentReports";
+
+import StudentList from "./pages/shared/StudentList";
+
+const queryClient = new QueryClient();
+
+const HomeRedirect = () => {
+  // Force clear all auth data and redirect to login
+  useAuthStore.getState().logout();
+  sessionStorage.clear();
+  localStorage.clear();
+  
+  return <Navigate to="/login" replace />;
+};
+
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Routes>
+            <Route path="/" element={<HomeRedirect />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/auth-demo" element={<AuthShowcase />} />
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+          {/* Super Admin */}
+          <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><AppLayout /></ProtectedRoute>}>
+            <Route path="/admin/dashboard" element={<SuperAdminDashboard />} />
+            <Route path="/admin/schools" element={<SchoolsManagement />} />
+            <Route path="/admin/users" element={<UsersManagement />} />
+            <Route path="/admin/analytics" element={<SystemAnalytics />} />
+            <Route path="/admin/subscriptions" element={<SubscriptionManagement />} />
+            <Route path="/admin/settings" element={<SystemSettings />} />
+            <Route path="/admin/audit-logs" element={<AuditLogs />} />
+            <Route path="/admin/support" element={<SupportTickets />} />
+          </Route>
+
+          {/* School Admin / Principal */}
+          <Route element={<ProtectedRoute allowedRoles={['SCHOOL_ADMIN', 'PRINCIPAL']}><AppLayout /></ProtectedRoute>}>
+            <Route path="/school/dashboard" element={<SchoolAdminDashboard />} />
+            <Route path="/school/academic-years" element={<AcademicYearManagement />} />
+            <Route path="/school/classes" element={<ClassesManagement />} />
+            <Route path="/school/teachers" element={<TeachersManagement />} />
+            <Route path="/school/students" element={<StudentsManagement />} />
+            <Route path="/school/subjects" element={<SubjectsManagement />} />
+            <Route path="/school/reports" element={<ReportsDashboard />} />
+            <Route path="/school/settings" element={<SchoolSettings />} />
+            <Route path="/school/announcements" element={<Announcements />} />
+            <Route path="/school/events" element={<EventPlanner />} />
+            <Route path="/school/event-planner" element={<AdminAttendanceOverview />} />
+            <Route path="/school/fees" element={<FeeManagement />} />
+            <Route path="/school/parent-portal" element={<ParentPortalSettings />} />
+            <Route path="/school/score-entry" element={<SchoolScoreEntry />} />
+            <Route path="/school/score-entry-setup" element={<ScoreEntrySetup />} />
+            <Route path="/school/score-entry-form" element={<ScoreEntryForm />} />
+            <Route path="/school/multi-subject-score-entry" element={<MultiSubjectScoreEntry />} />
+          </Route>
+
+          {/* Teacher */}
+          <Route element={<ProtectedRoute allowedRoles={['TEACHER']}><AppLayout /></ProtectedRoute>}>
+            <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+            <Route path="/teacher/classes" element={<MyClasses />} />
+            <Route path="/teacher/assignments" element={<TeacherAssignments />} />
+            <Route path="/teacher/assignments/:assignmentId/submissions" element={<AssignmentSubmissions />} />
+            <Route path="/teacher/assignments/:assignmentId/edit" element={<AssignmentEdit />} />
+            <Route path="/teacher/assignments/create" element={<CreateAssignment />} />
+            <Route path="/teacher/gradebook" element={<GradeBook />} />
+            <Route path="/teacher/attendance" element={<AttendanceManagement />} />
+            <Route path="/teacher/behavior" element={<StudentBehavior />} />
+            <Route path="/teacher/scores" element={<ScoreEntry />} />
+            <Route path="/teacher/reports" element={<ClassReports />} />
+            <Route path="/teacher/students" element={<Students />} />
+            <Route path="/teacher/profile" element={<TeacherProfile />} />
+            <Route path="/teacher/timetable" element={<TimetableManagement />} />
+            <Route path="/teacher/help" element={<HelpSupport />} />
+          </Route>
+
+          {/* Student */}
+          <Route element={<ProtectedRoute allowedRoles={['STUDENT']}><AppLayout /></ProtectedRoute>}>
+            <Route path="/student/dashboard" element={<StudentDashboard />} />
+            <Route path="/student/assignments" element={<StudentAssignments />} />
+            <Route path="/student/assignments/:id" element={<AssignmentSubmission />} />
+            <Route path="/student/grades" element={<MyGrades />} />
+            <Route path="/student/attendance" element={<AttendanceRecords />} />
+            <Route path="/student/schedule" element={<ClassSchedule />} />
+            <Route path="/student/announcements" element={<StudentAnnouncements />} />
+            <Route path="/student/reports" element={<StudentReports />} />
+            <Route path="/student/profile" element={<StudentProfile />} />
+          </Route>
+
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+};
+
+export default App;

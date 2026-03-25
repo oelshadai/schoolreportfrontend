@@ -1,0 +1,366 @@
+import { useEffect, useState } from 'react';
+import PageHeader from '@/components/shared/PageHeader';
+import DataTable from '@/components/shared/DataTable';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Edit, Trash2, Eye } from 'lucide-react';
+import secureApiClient from '@/lib/secureApiClient';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const StudentsManagement = () => {
+  const [students, setStudents] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
+  const [showViewDialog, setShowViewDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [editingStudent, setEditingStudent] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [form, setForm] = useState({
+    student_id: '',
+    first_name: '',
+    last_name: '',
+    other_names: '',
+    gender: '',
+    date_of_birth: '',
+    current_class: '',
+    guardian_name: '',
+    guardian_phone: '',
+    guardian_email: '',
+    guardian_address: '',
+    admission_date: '',
+    photo: null as File | null,
+  });
+  const [creating, setCreating] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const handleViewStudent = (student: any) => {
+    setSelectedStudent(student);
+    setShowViewDialog(true);
+  };
+
+  const handleEditStudent = (student: any) => {
+    setEditingStudent(student);
+    setForm({
+      student_id: student.student_id || '',
+      first_name: student.first_name || '',
+      last_name: student.last_name || '',
+      other_names: student.other_names || '',
+      gender: student.gender || '',
+      date_of_birth: student.date_of_birth || '',
+      current_class: student.current_class?.toString() || '',
+      guardian_name: student.guardian_name || '',
+      guardian_phone: student.guardian_phone || '',
+      guardian_email: student.guardian_email || '',
+      guardian_address: student.guardian_address || '',
+      admission_date: student.admission_date || '',
+      photo: null
+    });
+    setShowDialog(true);
+  };
+
+  const handleDeleteStudent = (student: any) => {
+    setSelectedStudent(student);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedStudent) return;
+    
+    setDeleting(true);
+    try {
+      await secureApiClient.delete(`/students/${selectedStudent.id}/`);
+      setShowDeleteDialog(false);
+      setSelectedStudent(null);
+      await fetchStudents();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete student');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const columns = [
+    { key: 'student_id', label: 'ID', render: (s: any) => <span className="font-mono text-muted-foreground">{s.student_id}</span> },
+    { key: 'full_name', label: 'Name', render: (s: any) => <span className="font-medium text-foreground">{s.full_name}</span> },
+    { key: 'class_name', label: 'Class', render: (s: any) => <Badge variant="outline">{s.class_name || 'No Class'}</Badge> },
+    { key: 'gender', label: 'Gender', render: (s: any) => <span className="text-muted-foreground">{s.gender === 'M' ? 'Male' : 'Female'}</span> },
+    { key: 'guardian_name', label: 'Guardian', render: (s: any) => <span className="text-muted-foreground">{s.guardian_name}</span> },
+    { key: 'guardian_phone', label: 'Phone', render: (s: any) => <span className="text-muted-foreground text-xs">{s.guardian_phone}</span> },
+    { key: 'is_active', label: 'Status', render: (s: any) => (
+      <Badge variant="outline" className={s.is_active ? 'bg-success/10 text-success border-success/20' : 'bg-warning/10 text-warning border-warning/20'}>
+        {s.is_active ? 'Active' : 'Inactive'}
+      </Badge>
+    )},
+    { key: 'actions', label: '', render: (s: any) => (
+      <div className="flex items-center gap-1">
+        <Button variant="ghost" size="icon" className="h-8 w-8" title="View Student" onClick={() => handleViewStudent(s)}><Eye className="h-4 w-4" /></Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8" title="Edit Student" onClick={() => handleEditStudent(s)}><Edit className="h-4 w-4" /></Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" title="Delete Student" onClick={() => handleDeleteStudent(s)}><Trash2 className="h-4 w-4" /></Button>
+      </div>
+    )},
+  ];
+
+  const fetchStudents = async () => {
+    setLoading(true);
+    try {
+      const response = await secureApiClient.get('/students/');
+      console.log('Students API response:', response);
+      setStudents(Array.isArray(response) ? response : response.results || response.data || []);
+      setError(null);
+    } catch (err: any) {
+      console.error('Students API error:', err);
+      setError(err.message || 'Failed to load students');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchClasses = async () => {
+    try {
+      const response = await secureApiClient.get('/schools/classes/');
+      console.log('Classes API response:', response);
+      setClasses(Array.isArray(response) ? response : response.results || response.data || []);
+    } catch (err: any) {
+      console.error('Failed to load classes:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudents();
+    fetchClasses();
+  }, []);
+
+  const handleOpenDialog = () => {
+    setForm({
+      student_id: '',
+      first_name: '',
+      last_name: '',
+      other_names: '',
+      gender: '',
+      date_of_birth: '',
+      current_class: '',
+      guardian_name: '',
+      guardian_phone: '',
+      guardian_email: '',
+      guardian_address: '',
+      admission_date: '',
+      photo: null,
+    });
+    setFormError(null);
+    setEditingStudent(null);
+    setShowDialog(true);
+  };
+
+  const handleFormChange = (field: string, value: string | File | null) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleCreateStudent = async () => {
+    setCreating(true);
+    setFormError(null);
+    
+    try {
+      if (!form.student_id || !form.first_name || !form.last_name || !form.gender || !form.date_of_birth || !form.guardian_name || !form.guardian_phone || !form.guardian_address || !form.admission_date) {
+        setFormError('Please fill all required fields.');
+        return;
+      }
+      
+      const formData = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        if (value !== null && value !== '') {
+          if (key === 'photo' && value instanceof File) {
+            formData.append(key, value);
+          } else if (key !== 'photo') {
+            formData.append(key, value as string);
+          }
+        }
+      });
+      
+      if (editingStudent) {
+        await secureApiClient.put(`/students/${editingStudent.id}/`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      } else {
+        await secureApiClient.post('/students/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      }
+      
+      setShowDialog(false);
+      setEditingStudent(null);
+      await fetchStudents();
+    } catch (err: any) {
+      setFormError(err.message || `Failed to ${editingStudent ? 'update' : 'create'} student`);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <PageHeader 
+        title="Students Management" 
+        description="Manage student records and enrollment"
+        actionLabel="Add Student"
+        onAction={handleOpenDialog}
+      />
+      
+      {loading ? (
+        <div className="bg-muted/50 rounded-lg p-8 text-center text-muted-foreground">Loading students...</div>
+      ) : error ? (
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-destructive">{error}</div>
+      ) : (
+        <DataTable columns={columns} data={Array.isArray(students) ? students : []} searchKey="full_name" searchPlaceholder="Search students..." />
+      )}
+
+      {/* Add/Edit Student Dialog */}
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingStudent ? 'Edit Student' : 'Add New Student'}</DialogTitle>
+            <DialogDescription>
+              Fill in the student information below. Fields marked with * are required.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2 max-h-96 overflow-y-auto">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Student ID *</label>
+                <Input value={form.student_id} onChange={e => handleFormChange('student_id', e.target.value)} placeholder="Student ID" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Admission Date *</label>
+                <Input value={form.admission_date} onChange={e => handleFormChange('admission_date', e.target.value)} type="date" />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">First Name *</label>
+                <Input value={form.first_name} onChange={e => handleFormChange('first_name', e.target.value)} placeholder="First Name" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Last Name *</label>
+                <Input value={form.last_name} onChange={e => handleFormChange('last_name', e.target.value)} placeholder="Last Name" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Other Names</label>
+                <Input value={form.other_names} onChange={e => handleFormChange('other_names', e.target.value)} placeholder="Other Names" />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Gender *</label>
+                <Select value={form.gender} onValueChange={value => handleFormChange('gender', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="M">Male</SelectItem>
+                    <SelectItem value="F">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Date of Birth *</label>
+                <Input value={form.date_of_birth} onChange={e => handleFormChange('date_of_birth', e.target.value)} type="date" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Current Class</label>
+                <Select value={form.current_class} onValueChange={value => handleFormChange('current_class', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Class" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {classes.map((cls: any) => (
+                      <SelectItem key={cls.id} value={cls.id.toString()}>{cls.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Guardian Name *</label>
+                <Input value={form.guardian_name} onChange={e => handleFormChange('guardian_name', e.target.value)} placeholder="Guardian Name" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Guardian Phone *</label>
+                <Input value={form.guardian_phone} onChange={e => handleFormChange('guardian_phone', e.target.value)} placeholder="Guardian Phone" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Guardian Email</label>
+                <Input value={form.guardian_email} onChange={e => handleFormChange('guardian_email', e.target.value)} placeholder="Guardian Email" type="email" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Guardian Address *</label>
+                <Input value={form.guardian_address} onChange={e => handleFormChange('guardian_address', e.target.value)} placeholder="Guardian Address" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Student Photo</label>
+              <Input onChange={e => handleFormChange('photo', e.target.files?.[0] || null)} type="file" accept="image/*" />
+            </div>
+          </div>
+          <DialogFooter>
+            {formError && <div className="text-destructive text-sm">{formError}</div>}
+            <Button variant="outline" onClick={() => { setShowDialog(false); setEditingStudent(null); }}>Cancel</Button>
+            <Button onClick={handleCreateStudent} disabled={creating}>
+              {creating ? 'Saving...' : editingStudent ? 'Update Student' : 'Create Student'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Student Dialog */}
+      <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Student Details</DialogTitle>
+          </DialogHeader>
+          {selectedStudent && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div><strong>Student ID:</strong> {selectedStudent.student_id}</div>
+                <div><strong>Name:</strong> {selectedStudent.full_name}</div>
+                <div><strong>Gender:</strong> {selectedStudent.gender === 'M' ? 'Male' : 'Female'}</div>
+                <div><strong>Class:</strong> {selectedStudent.class_name || 'No Class'}</div>
+                <div><strong>Guardian:</strong> {selectedStudent.guardian_name}</div>
+                <div><strong>Phone:</strong> {selectedStudent.guardian_phone}</div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setShowViewDialog(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Student</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {selectedStudent?.full_name}? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={deleting}>
+              {deleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default StudentsManagement;
