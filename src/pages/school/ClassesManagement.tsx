@@ -80,11 +80,7 @@ const ClassesManagement = () => {
     setLoading(true);
     try {
       let response;
-      try {
-        response = await secureApiClient.get('/schools/classes/');
-      } catch {
-        response = await secureApiClient.get('/classes/');
-      }
+      response = await secureApiClient.get('/schools/classes/');
       const data = (response.results || response) as any[];
       console.log('Raw classes data:', data); // Debug log
       
@@ -214,7 +210,7 @@ const ClassesManagement = () => {
         section: form.section,
         capacity: form.capacity,
       };
-      await secureApiClient.post('/classes/', payload);
+      await secureApiClient.post('/schools/classes/', payload);
       setShowDialog(false);
       if (!form.teacher) {
         setFormError('Please select a class teacher.');

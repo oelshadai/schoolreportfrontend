@@ -20,7 +20,7 @@ export class StudentValidationService {
     phone?: string;
   }): Promise<StudentValidationResult> {
     try {
-      const response = await secureApiClient.post('/api/students/validate/', {
+      const response = await secureApiClient.post('/students/validate/', {
         student_id: studentData.student_id,
         email: studentData.email,
         phone: studentData.phone
@@ -41,7 +41,7 @@ export class StudentValidationService {
 
   static async checkStudentExists(studentId: string): Promise<boolean> {
     try {
-      const response = await secureApiClient.get(`/api/students/check/${studentId}/`);
+      const response = await secureApiClient.get(`/students/check/${studentId}/`);
       return response.data.exists;
     } catch {
       return false;

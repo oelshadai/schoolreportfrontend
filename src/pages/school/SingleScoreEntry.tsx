@@ -28,7 +28,7 @@ const SingleScoreEntry = () => {
       const [studentsRes, classRes, subjectRes] = await Promise.all([
         secureApiClient.get(`/students/?class=${classId}`),
         secureApiClient.get(`/schools/classes/${classId}/`),
-        secureApiClient.get(`/subjects/${subjectId}/`)
+        secureApiClient.get(`/schools/subjects/${subjectId}/`)
       ]);
       
       const studentsList = Array.isArray(studentsRes) ? studentsRes : studentsRes.results || [];

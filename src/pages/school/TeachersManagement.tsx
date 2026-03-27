@@ -113,7 +113,7 @@ const TeachersManagement = () => {
       const classList = res?.results || res || [];
       setClasses(classList);
     }).catch(() => setClasses([]));
-    secureApiClient.get('/subjects/').then(res => setSubjects(res)).catch(() => setSubjects([]));
+    secureApiClient.get('/schools/subjects/').then(res => setSubjects(res)).catch(() => setSubjects([]));
     setFormError(null);
     setShowDialog(true);
   };

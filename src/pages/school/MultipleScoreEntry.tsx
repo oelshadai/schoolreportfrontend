@@ -35,7 +35,7 @@ const MultipleScoreEntry = () => {
       const [studentsRes, classRes, ...subjectPromises] = await Promise.all([
         secureApiClient.get(`/students/?class=${classId}`),
         secureApiClient.get(`/schools/classes/${classId}/`),
-        ...subjectIds.map((id: string) => secureApiClient.get(`/subjects/${id}/`))
+        ...subjectIds.map((id: string) => secureApiClient.get(`/schools/subjects/${id}/`))
       ]);
       
       const studentsList = Array.isArray(studentsRes) ? studentsRes : studentsRes.results || [];

@@ -25,7 +25,7 @@ const ScoreEntry = () => {
     try {
       const [classesRes, subjectsRes] = await Promise.all([
         secureApiClient.get('/schools/classes/'),
-        secureApiClient.get('/subjects/')
+        secureApiClient.get('/schools/subjects/')
       ]);
       setClasses(Array.isArray(classesRes) ? classesRes : classesRes.results || []);
       setSubjects(Array.isArray(subjectsRes) ? subjectsRes : subjectsRes.results || []);
