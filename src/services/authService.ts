@@ -475,7 +475,7 @@ export const authService = {
     }
     
     try {
-      const data = await secureApiClient.post<LoginResponse>('/accounts/register-school/', {
+      const data = await secureApiClient.post<LoginResponse>('/auth/register-school/', {
         school_name: registrationData.school_name.trim(),
         admin_email: registrationData.admin_email.toLowerCase().trim(),
         first_name: registrationData.first_name.trim(),
