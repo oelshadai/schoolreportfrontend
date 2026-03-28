@@ -172,10 +172,13 @@ const AppLayout = () => {
       </aside>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 border-b border-border flex items-center justify-between px-6 bg-card/50 backdrop-blur-sm">
-          <button onClick={() => setMobileOpen(true)} className="lg:hidden text-muted-foreground hover:text-foreground">
-            <Menu className="h-6 w-6" />
+        <header className="h-14 sm:h-16 border-b border-border flex items-center justify-between px-4 sm:px-6 bg-card/50 backdrop-blur-sm">
+          <button onClick={() => setMobileOpen(true)} className="lg:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted">
+            <Menu className="h-5 w-5" />
           </button>
+          <div className="lg:hidden text-sm font-semibold text-foreground truncate mx-2">
+            {navItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
+          </div>
           <div className="hidden lg:block" />
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
@@ -184,7 +187,7 @@ const AppLayout = () => {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
           <Outlet />
         </main>
       </div>

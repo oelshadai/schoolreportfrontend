@@ -60,7 +60,7 @@ function DataTable<T extends Record<string, any>>({
             <thead>
               <tr className="border-b border-border bg-muted/50">
                 {columns.map((col) => (
-                  <th key={col.key} className="text-left p-4 text-sm font-medium text-muted-foreground whitespace-nowrap">
+                  <th key={col.key} className="text-left p-2.5 sm:p-4 text-xs sm:text-sm font-medium text-muted-foreground whitespace-nowrap">
                     {col.label}
                   </th>
                 ))}
@@ -81,7 +81,7 @@ function DataTable<T extends Record<string, any>>({
                     className={`border-b border-border last:border-0 hover:bg-muted/30 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
                   >
                     {columns.map((col) => (
-                      <td key={col.key} className="p-4 text-sm">
+                      <td key={col.key} className="p-2.5 sm:p-4 text-xs sm:text-sm">
                         {col.render ? col.render(item, actions) : item[col.key]}
                       </td>
                     ))}
@@ -94,15 +94,15 @@ function DataTable<T extends Record<string, any>>({
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, filtered.length)} of {filtered.length}
           </p>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-sm text-muted-foreground">Page {page + 1} of {totalPages}</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">Page {page + 1} of {totalPages}</span>
             <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>
               <ChevronRight className="h-4 w-4" />
             </Button>

@@ -259,34 +259,34 @@ const StudentsManagement = () => {
               Fill in the student information below. Fields marked with * are required.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2 max-h-96 overflow-y-auto">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Student ID *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Student ID *</label>
                 <Input value={form.student_id} onChange={e => handleFormChange('student_id', e.target.value)} placeholder="Student ID" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Admission Date *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Admission Date *</label>
                 <Input value={form.admission_date} onChange={e => handleFormChange('admission_date', e.target.value)} type="date" />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">First Name *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">First Name *</label>
                 <Input value={form.first_name} onChange={e => handleFormChange('first_name', e.target.value)} placeholder="First Name" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Last Name *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Last Name *</label>
                 <Input value={form.last_name} onChange={e => handleFormChange('last_name', e.target.value)} placeholder="Last Name" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Other Names</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Other Names</label>
                 <Input value={form.other_names} onChange={e => handleFormChange('other_names', e.target.value)} placeholder="Other Names" />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Gender *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Gender *</label>
                 <Select value={form.gender} onValueChange={value => handleFormChange('gender', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select Gender" />
@@ -298,11 +298,11 @@ const StudentsManagement = () => {
                 </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Date of Birth *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Date of Birth *</label>
                 <Input value={form.date_of_birth} onChange={e => handleFormChange('date_of_birth', e.target.value)} type="date" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Current Class</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Current Class</label>
                 <Select value={form.current_class} onValueChange={value => handleFormChange('current_class', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select Class" />
@@ -315,23 +315,23 @@ const StudentsManagement = () => {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Guardian Name *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Guardian Name *</label>
                 <Input value={form.guardian_name} onChange={e => handleFormChange('guardian_name', e.target.value)} placeholder="Guardian Name" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Guardian Phone *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Guardian Phone *</label>
                 <Input value={form.guardian_phone} onChange={e => handleFormChange('guardian_phone', e.target.value)} placeholder="Guardian Phone" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Guardian Email</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Guardian Email</label>
                 <Input value={form.guardian_email} onChange={e => handleFormChange('guardian_email', e.target.value)} placeholder="Guardian Email" type="email" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Guardian Address *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Guardian Address *</label>
                 <Input value={form.guardian_address} onChange={e => handleFormChange('guardian_address', e.target.value)} placeholder="Guardian Address" />
               </div>
             </div>
@@ -358,7 +358,7 @@ const StudentsManagement = () => {
           </DialogHeader>
           {selectedStudent && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                 <div><strong>Student ID:</strong> {selectedStudent.student_id}</div>
                 <div><strong>Name:</strong> {selectedStudent.full_name}</div>
                 <div><strong>Gender:</strong> {selectedStudent.gender === 'M' ? 'Male' : 'Female'}</div>

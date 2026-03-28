@@ -304,11 +304,11 @@ const SchoolAdminDashboard = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{data?.admin?.school || 'School Dashboard'}</h1>
-          <p className="text-muted-foreground mt-1">Last updated: {new Date().toLocaleDateString()}</p>
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground truncate">{data?.admin?.school || 'School Dashboard'}</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">Last updated: {new Date().toLocaleDateString()}</p>
           {error && (
             <p className="text-orange-600 text-sm mt-1">⚠️ {error}</p>
           )}

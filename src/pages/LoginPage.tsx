@@ -107,7 +107,7 @@ const LoginPage = () => {
       <AnimatedLogoBackground />
       
       {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center p-12 relative">
+      <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center p-8 xl:p-12 relative">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,hsl(175_42%_46%/0.15),transparent_60%)]" style={{ zIndex: 2 }} />
         <div className="relative z-10 text-primary-foreground max-w-md space-y-6">
           <div className="flex items-center gap-3">
@@ -137,20 +137,22 @@ const LoginPage = () => {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-background">
-        <div className="w-full max-w-md space-y-8">
-          <div className="lg:hidden flex items-center gap-2 justify-center mb-4">
-            <img 
-              src="/EliteTech logo with sleek design.png" 
-              alt="School Report SaaS" 
-              className="h-8 w-8 object-contain"
-            />
-            <span className="text-xl font-bold text-foreground">School Report SaaS</span>
+      <div className="flex-1 flex items-center justify-center px-4 py-6 sm:p-8 bg-background">
+        <div className="w-full max-w-md space-y-6 sm:space-y-8">
+          <div className="lg:hidden flex flex-col items-center gap-3 mb-2">
+            <div className="p-3 rounded-xl bg-primary/10">
+              <img 
+                src="/EliteTech logo with sleek design.png" 
+                alt="School Report SaaS" 
+                className="h-10 w-10 object-contain"
+              />
+            </div>
+            <span className="text-lg sm:text-xl font-bold text-foreground">School Report SaaS</span>
           </div>
 
-          <div className="space-y-2 text-center">
-            <h2 className="text-2xl font-bold text-foreground">Welcome back</h2>
-            <p className="text-muted-foreground">Sign in to your account to continue</p>
+          <div className="space-y-1 text-center">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Welcome back</h2>
+            <p className="text-sm text-muted-foreground">Sign in to your account to continue</p>
           </div>
 
           <div className="space-y-3">
@@ -161,20 +163,20 @@ const LoginPage = () => {
                   key={key}
                   type="button"
                   onClick={() => handleRoleChange(key)}
-                  className={`py-2 px-3 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1 ${
+                  className={`py-2.5 px-3 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center justify-center gap-1.5 ${
                     loginRole === key
                       ? 'bg-primary text-primary-foreground shadow-md'
                       : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
-                  <Icon className="h-3 w-3" />
+                  <Icon className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
                   <span>{label}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {error && (
               <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm border border-destructive/20">
                 {error}
@@ -207,7 +209,7 @@ const LoginPage = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full h-11 text-sm sm:text-base" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign In
             </Button>

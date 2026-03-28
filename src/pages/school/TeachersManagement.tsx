@@ -228,57 +228,57 @@ const TeachersManagement = () => {
 
       {/* Add Teacher Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add New Teacher</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Employee ID *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Employee ID *</label>
                 <Input value={form.employee_id} onChange={e => handleFormChange('employee_id', e.target.value)} placeholder="Employee ID" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Hire Date *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Hire Date *</label>
                 <Input value={form.hire_date} onChange={e => handleFormChange('hire_date', e.target.value)} placeholder="YYYY-MM-DD" type="date" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">First Name *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">First Name *</label>
                 <Input value={form.first_name} onChange={e => handleFormChange('first_name', e.target.value)} placeholder="First Name" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Last Name *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Last Name *</label>
                 <Input value={form.last_name} onChange={e => handleFormChange('last_name', e.target.value)} placeholder="Last Name" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Email *</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Email *</label>
                 <Input value={form.email} onChange={e => handleFormChange('email', e.target.value)} placeholder="Email" type="email" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Phone Number</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Phone Number</label>
                 <Input value={form.phone_number} onChange={e => handleFormChange('phone_number', e.target.value)} placeholder="Phone Number" />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Password *</label>
+              <label className="block text-xs sm:text-sm font-medium mb-1">Password *</label>
               <Input value={form.password} onChange={e => handleFormChange('password', e.target.value)} placeholder="Password" type="password" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Qualification</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Qualification</label>
                 <Input value={form.qualification} onChange={e => handleFormChange('qualification', e.target.value)} placeholder="e.g., B.Ed, M.A" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Experience (Years)</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1">Experience (Years)</label>
                 <Input value={form.experience_years} onChange={e => handleFormChange('experience_years', e.target.value)} placeholder="0" type="number" min="0" />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Emergency Contact</label>
+              <label className="block text-xs sm:text-sm font-medium mb-1">Emergency Contact</label>
               <Input value={form.emergency_contact} onChange={e => handleFormChange('emergency_contact', e.target.value)} placeholder="Emergency Contact Number" />
             </div>
             <div>

@@ -11,15 +11,15 @@ interface PageHeaderProps {
 }
 
 const PageHeader = ({ title, description, actionLabel, onAction, actionIcon, action }: PageHeaderProps) => (
-  <div className="flex items-center justify-between">
-    <div>
-      <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-      <p className="text-muted-foreground mt-1">{description}</p>
+  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="min-w-0">
+      <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground truncate">{title}</h1>
+      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">{description}</p>
     </div>
     {action || (actionLabel && (
-      <Button onClick={onAction}>
-        {actionIcon || <Plus className="h-4 w-4 mr-2" />}
-        {actionLabel}
+      <Button onClick={onAction} size="sm" className="self-start sm:self-auto shrink-0">
+        {actionIcon || <Plus className="h-4 w-4 mr-1.5" />}
+        <span className="text-xs sm:text-sm">{actionLabel}</span>
       </Button>
     ))}
   </div>

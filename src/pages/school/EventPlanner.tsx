@@ -260,7 +260,7 @@ const EventPlanner = () => {
                   rows={3}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label htmlFor="date">Date</Label>
                   <Input
@@ -291,7 +291,7 @@ const EventPlanner = () => {
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label htmlFor="type">Event Type</Label>
                   <Select value={formData.type} onValueChange={(value) => setFormData({...formData, type: value as Event['type']})}>

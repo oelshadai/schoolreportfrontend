@@ -89,8 +89,8 @@ const ScoreEntrySetup = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Score Entry Setup</h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Score Entry Setup</h1>
       </div>
 
       <Card>
@@ -98,7 +98,7 @@ const ScoreEntrySetup = () => {
           <CardTitle>Select Entry Parameters</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Class *</label>
               <Select value={selectedClass} onValueChange={setSelectedClass}>
