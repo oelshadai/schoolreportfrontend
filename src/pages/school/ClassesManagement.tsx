@@ -196,6 +196,17 @@ const ClassesManagement = () => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleDeleteClass = async (classData: ClassData) => {
+    if (!confirm(`Are you sure you want to delete ${classData.level} ${classData.section}?`)) return;
+    try {
+      await secureApiClient.delete(`/schools/classes/${classData.id}/`);
+      toast({ title: 'Success', description: 'Class deleted successfully' });
+      await fetchClasses();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message || 'Failed to delete class', variant: 'destructive' });
+    }
+  };
+
   const handleCreateClass = async () => {
     setCreating(true);
     setFormError(null);
@@ -205,23 +216,20 @@ const ClassesManagement = () => {
         setCreating(false);
         return;
       }
-      const payload = {
+      const payload: any = {
         level: form.level,
         section: form.section,
         capacity: form.capacity,
       };
+      if (form.teacher) {
+        payload.class_teacher = parseInt(form.teacher);
+      }
       await secureApiClient.post('/schools/classes/', payload);
       setShowDialog(false);
-      if (!form.teacher) {
-        setFormError('Please select a class teacher.');
-        setCreating(false);
-        return;
-      }
       await fetchClasses();
     } catch (err: any) {
       setFormError(err.message || 'Failed to create class');
     } finally {
-        class_teacher: form.teacher,
       setCreating(false);
     }
   };
@@ -272,7 +280,7 @@ const ClassesManagement = () => {
                   )}
                   <Button variant="ghost" size="icon" className="h-8 w-8"><Users className="h-4 w-4" /></Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8"><Edit className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteClass(c)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
               )
             }

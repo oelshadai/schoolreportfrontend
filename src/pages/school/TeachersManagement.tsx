@@ -49,7 +49,8 @@ const TeachersManagement = () => {
     setLoading(true);
     try {
       const response = await secureApiClient.get('/teachers/');
-      setTeachers(response);
+      const list = Array.isArray(response) ? response : response?.results || response?.data || [];
+      setTeachers(list);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to load teachers');
@@ -113,7 +114,10 @@ const TeachersManagement = () => {
       const classList = res?.results || res || [];
       setClasses(classList);
     }).catch(() => setClasses([]));
-    secureApiClient.get('/schools/subjects/').then(res => setSubjects(res)).catch(() => setSubjects([]));
+    secureApiClient.get('/schools/subjects/').then(res => {
+      const list = res?.results || res || [];
+      setSubjects(Array.isArray(list) ? list : []);
+    }).catch(() => setSubjects([]));
     setFormError(null);
     setShowDialog(true);
   };

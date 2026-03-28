@@ -30,6 +30,7 @@ const BulkReportPreviewModal = ({
   
   if (!isOpen) return null;
 
+  const apiBase = import.meta.env.VITE_API_URL || '/api';
   const currentStudent = students[currentStudentIndex];
   const isFirstStudent = currentStudentIndex === 0;
   const isLastStudent = currentStudentIndex === students.length - 1;
@@ -106,8 +107,8 @@ const BulkReportPreviewModal = ({
       const currentScoresParam = encodeURIComponent(JSON.stringify(currentStudentScores));
       
       const pdfUrl = accessToken && accessToken.length > 0
-        ? `http://localhost:8000/api/reports/template-preview-public/?student_id=${currentStudent.id}&term_id=${termId}&current_scores=${currentScoresParam}&token=${encodeURIComponent(accessToken)}&format=pdf`
-        : `http://localhost:8000/api/reports/preview-iframe/?student_id=${currentStudent.id}&term_id=${termId}&current_scores=${currentScoresParam}&format=pdf`;
+        ? `${apiBase}/reports/template-preview-public/?student_id=${currentStudent.id}&term_id=${termId}&current_scores=${currentScoresParam}&token=${encodeURIComponent(accessToken)}&format=pdf`
+        : `${apiBase}/reports/preview-iframe/?student_id=${currentStudent.id}&term_id=${termId}&current_scores=${currentScoresParam}&format=pdf`;
       
       window.open(pdfUrl, '_blank');
       
@@ -131,8 +132,8 @@ const BulkReportPreviewModal = ({
     const currentScoresParam = encodeURIComponent(JSON.stringify(currentStudentScores));
     
     return accessToken && accessToken.length > 0
-      ? `http://localhost:8000/api/reports/template-preview-public/?student_id=${currentStudent.id}&term_id=${termId}&current_scores=${currentScoresParam}&token=${encodeURIComponent(accessToken)}`
-      : `http://localhost:8000/api/reports/preview-iframe/?student_id=${currentStudent.id}&term_id=${termId}&current_scores=${currentScoresParam}`;
+      ? `${apiBase}/reports/template-preview-public/?student_id=${currentStudent.id}&term_id=${termId}&current_scores=${currentScoresParam}&token=${encodeURIComponent(accessToken)}`
+      : `${apiBase}/reports/preview-iframe/?student_id=${currentStudent.id}&term_id=${termId}&current_scores=${currentScoresParam}`;
   };
 
   return (

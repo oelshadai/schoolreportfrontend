@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { secureApiClient } from '@/lib/secureApiClient';
+import { useAuthStore } from '@/stores/authStore';
 
 interface Notification {
   id: number;
@@ -81,8 +82,9 @@ const SchoolAdminDashboard = () => {
       try {
         setLoading(true);
         
-        // Skip admin dashboard endpoint and use individual calls
-        const [studentsRes, teachersRes, classesRes, assignmentsRes] = await Promise.all([
+        // Fetch profile and dashboard data from API
+        const [profileRes, studentsRes, teachersRes, classesRes, assignmentsRes] = await Promise.all([
+          secureApiClient.get('/auth/profile/').catch(() => null),
           secureApiClient.get('/students/').catch(() => ({ results: [], count: 0 })),
           secureApiClient.get('/teachers/').catch(() => ({ results: [], count: 0 })),
           secureApiClient.get('/schools/classes/').catch(() => ({ results: [], count: 0 })),
@@ -104,9 +106,9 @@ const SchoolAdminDashboard = () => {
         const absentToday = todayAttendance.filter((a: any) => a.status === 'absent' || a.present === false).length;
         const attendanceRate = todayAttendance.length > 0 ? Math.round((presentToday / todayAttendance.length) * 100) : 0;
         
-        // Get user data from localStorage as fallback
-        const userData = localStorage.getItem('user');
-        const userRes = userData ? JSON.parse(userData) : null;
+        // Use API profile data, fall back to auth store
+        const storeUser = useAuthStore.getState().user;
+        const userRes = profileRes || storeUser;
         
         setData({
           admin: {
@@ -116,7 +118,7 @@ const SchoolAdminDashboard = () => {
             last_name: userRes?.last_name || 'User',
             email: userRes?.email || 'admin@school.com',
             phone_number: userRes?.phone_number || '',
-            school: userRes?.school?.name || 'School Management System',
+            school: userRes?.school?.name || (typeof userRes?.school === 'string' ? userRes.school : 'School Management System'),
             school_id: userRes?.school?.id || 1,
             role: userRes?.role || 'Administrator'
           },

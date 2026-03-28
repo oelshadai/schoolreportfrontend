@@ -144,8 +144,9 @@ const StudentReports = () => {
     // Use direct server URL with token in query param — exactly like the teacher's preview.
     // This ensures the iframe loads CSS, images and fonts from the server correctly
     // (a blob: URL would break all relative resource paths).
+    const apiBase = import.meta.env.VITE_API_URL || '/api';
     const tokenValue = token || '';
-    const src = `/api/students/published-reports/${termId}/view/?token=${encodeURIComponent(tokenValue)}`;
+    const src = `${apiBase}/students/published-reports/${termId}/view/?token=${encodeURIComponent(tokenValue)}`;
     setPreviewUrl(src);
     setShowPreview(true);
   };
@@ -156,7 +157,8 @@ const StudentReports = () => {
 
     try {
       // Use raw fetch with Authorization header — same pattern as ReportPreviewModal
-      const response = await fetch('/api/reports/report-cards/generate_pdf_report/', {
+      const apiBase = import.meta.env.VITE_API_URL || '/api';
+      const response = await fetch(`${apiBase}/reports/report-cards/generate_pdf_report/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

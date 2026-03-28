@@ -3,7 +3,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import DataTable from '@/components/shared/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Eye } from 'lucide-react';
+import { Edit, Trash2, Eye, KeyRound, Copy, Check } from 'lucide-react';
 import secureApiClient from '@/lib/secureApiClient';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -37,10 +37,29 @@ const StudentsManagement = () => {
   });
   const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [showCredentialsDialog, setShowCredentialsDialog] = useState(false);
+  const [credentials, setCredentials] = useState<{ student_name: string; username: string; password: string; class_name: string } | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const handleViewStudent = (student: any) => {
     setSelectedStudent(student);
     setShowViewDialog(true);
+  };
+
+  const handleViewCredentials = async (student: any) => {
+    try {
+      const response = await secureApiClient.get(`/students/${student.id}/credentials/`);
+      setCredentials(response);
+      setShowCredentialsDialog(true);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load credentials');
+    }
+  };
+
+  const handleCopyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
   };
 
   const handleEditStudent = (student: any) => {
@@ -98,6 +117,7 @@ const StudentsManagement = () => {
     )},
     { key: 'actions', label: '', render: (s: any) => (
       <div className="flex items-center gap-1">
+        <Button variant="ghost" size="icon" className="h-8 w-8" title="View Credentials" onClick={() => handleViewCredentials(s)}><KeyRound className="h-4 w-4 text-amber-600" /></Button>
         <Button variant="ghost" size="icon" className="h-8 w-8" title="View Student" onClick={() => handleViewStudent(s)}><Eye className="h-4 w-4" /></Button>
         <Button variant="ghost" size="icon" className="h-8 w-8" title="Edit Student" onClick={() => handleEditStudent(s)}><Edit className="h-4 w-4" /></Button>
         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" title="Delete Student" onClick={() => handleDeleteStudent(s)}><Trash2 className="h-4 w-4" /></Button>
@@ -185,14 +205,26 @@ const StudentsManagement = () => {
         await secureApiClient.put(`/students/${editingStudent.id}/`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
+        setShowDialog(false);
+        setEditingStudent(null);
       } else {
-        await secureApiClient.post('/students/', formData, {
+        const response = await secureApiClient.post('/students/', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
+        setShowDialog(false);
+        setEditingStudent(null);
+        // Show credentials after successful creation
+        const newStudent = response?.data || response;
+        if (newStudent) {
+          setCredentials({
+            student_name: `${newStudent.first_name || form.first_name} ${newStudent.last_name || form.last_name}`,
+            username: newStudent.generated_username || newStudent.username || `std_${form.student_id}`,
+            password: newStudent.generated_password || newStudent.password || 'Contact admin',
+            class_name: newStudent.class_name || 'Assigned class',
+          });
+          setShowCredentialsDialog(true);
+        }
       }
-      
-      setShowDialog(false);
-      setEditingStudent(null);
       await fetchStudents();
     } catch (err: any) {
       setFormError(err.message || `Failed to ${editingStudent ? 'update' : 'create'} student`);
@@ -338,6 +370,52 @@ const StudentsManagement = () => {
           )}
           <DialogFooter>
             <Button onClick={() => setShowViewDialog(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Student Credentials Dialog */}
+      <Dialog open={showCredentialsDialog} onOpenChange={setShowCredentialsDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-amber-600" />
+              Student Portal Credentials
+            </DialogTitle>
+            <DialogDescription>
+              Use these credentials to log in to the student portal.
+            </DialogDescription>
+          </DialogHeader>
+          {credentials && (
+            <div className="space-y-4">
+              <div className="text-center font-medium text-lg">{credentials.student_name}</div>
+              <div className="text-center text-sm text-muted-foreground">{credentials.class_name}</div>
+              <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-muted-foreground">Username</div>
+                    <div className="font-mono font-medium text-base">{credentials.username}</div>
+                  </div>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyToClipboard(credentials.username, 'username')}>
+                    {copiedField === 'username' ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
+                <div className="border-t border-border" />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-muted-foreground">Password</div>
+                    <div className="font-mono font-medium text-base">{credentials.password}</div>
+                  </div>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopyToClipboard(credentials.password, 'password')}>
+                    {copiedField === 'password' ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground text-center">Students should change their password on first login.</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setShowCredentialsDialog(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

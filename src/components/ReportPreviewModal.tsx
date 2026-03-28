@@ -28,19 +28,21 @@ const ReportPreviewModal = ({
   
   if (!isOpen) return null;
 
+  const apiBase = import.meta.env.VITE_API_URL || '/api';
+
   // Determine iframe source based on preview type
   const getIframeSrc = () => {
     if (previewType === 'student-report' && studentId && termId) {
       // Use existing template preview with student context parameters and current scores
       const currentScoresParam = encodeURIComponent(JSON.stringify(currentScores));
       return accessToken && accessToken.length > 0
-        ? `/api/reports/template-preview-public/?student_id=${studentId}&term_id=${termId}&current_scores=${currentScoresParam}&token=${encodeURIComponent(accessToken)}`
-        : `/api/reports/preview-iframe/?student_id=${studentId}&term_id=${termId}&current_scores=${currentScoresParam}`;
+        ? `${apiBase}/reports/template-preview-public/?student_id=${studentId}&term_id=${termId}&current_scores=${currentScoresParam}&token=${encodeURIComponent(accessToken)}`
+        : `${apiBase}/reports/preview-iframe/?student_id=${studentId}&term_id=${termId}&current_scores=${currentScoresParam}`;
     } else {
       // General template preview
       return accessToken && accessToken.length > 0
-        ? `/api/reports/template-preview-public/?token=${encodeURIComponent(accessToken)}`
-        : `/api/reports/preview-iframe/`;
+        ? `${apiBase}/reports/template-preview-public/?token=${encodeURIComponent(accessToken)}`
+        : `${apiBase}/reports/preview-iframe/`;
     }
   };
 
@@ -67,7 +69,7 @@ const ReportPreviewModal = ({
     try {
       if (previewType === 'student-report' && studentId && termId) {
         // Use the dedicated PDF generation endpoint for student reports
-        const response = await fetch('/api/reports/report-cards/generate_pdf_report/', {
+        const response = await fetch(`${apiBase}/reports/report-cards/generate_pdf_report/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -100,8 +102,8 @@ const ReportPreviewModal = ({
       } else {
         // For template preview, use the same endpoint with format=pdf
         const pdfUrl = accessToken && accessToken.length > 0
-          ? `http://localhost:8000/api/reports/template-preview-public/?token=${encodeURIComponent(accessToken)}&format=pdf`
-          : `http://localhost:8000/api/reports/preview-iframe/?format=pdf`;
+          ? `${apiBase}/reports/template-preview-public/?token=${encodeURIComponent(accessToken)}&format=pdf`
+          : `${apiBase}/reports/preview-iframe/?format=pdf`;
         
         window.open(pdfUrl, '_blank');
         
