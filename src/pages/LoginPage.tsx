@@ -211,8 +211,14 @@ const LoginPage = () => {
 
             <Button type="submit" className="w-full h-11 text-sm sm:text-base" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign In
+              {loading ? 'Connecting...' : 'Sign In'}
             </Button>
+
+            {loading && (
+              <p className="text-xs text-muted-foreground text-center animate-pulse">
+                Server may take a moment to wake up on first request
+              </p>
+            )}
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">

@@ -137,16 +137,31 @@ const TeachersManagement = () => {
       }
       
       await secureApiClient.post('/teachers/', {
-        ...form,
+        employee_id: form.employee_id,
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email,
+        password: form.password,
+        hire_date: form.hire_date,
+        phone_number: form.phone_number || '',
+        qualification: form.qualification || '',
         experience_years: form.experience_years ? parseInt(form.experience_years) : 0,
-        specializations: form.specializations,
-        class_id: form.class_id || null,
+        emergency_contact: form.emergency_contact || '',
+        address: form.address || '',
+        specializations: form.specializations.length > 0 ? form.specializations : [],
+        ...(form.class_id ? { class_id: parseInt(form.class_id) } : {}),
       });
       
       setShowDialog(false);
       await fetchTeachers();
     } catch (err: any) {
-      setFormError(err.message || 'Failed to create teacher');
+      const details = err.response?.data?.details || err.response?.data;
+      if (details && typeof details === 'object' && !(details instanceof Error)) {
+        const messages = Object.entries(details).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join('\n');
+        setFormError(messages || err.message || 'Failed to create teacher');
+      } else {
+        setFormError(err.message || 'Failed to create teacher');
+      }
     } finally {
       setCreating(false);
     }

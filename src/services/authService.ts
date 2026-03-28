@@ -205,12 +205,6 @@ export const authService = {
     // Production-ready input sanitization
     const sanitizedStudentId = studentId.trim().replace(/[^a-zA-Z0-9_-]/g, '');
     
-    // Check backend health first
-    const isHealthy = await secureApiClient.healthCheck();
-    if (!isHealthy) {
-      throw new Error('Unable to connect to server. Please check your internet connection and try again.');
-    }
-    
     const attemptCheck = LoginAttemptTracker.canAttemptLogin(sanitizedStudentId);
     if (!attemptCheck.allowed) {
       const minutes = Math.ceil((attemptCheck.remainingTime || 0) / 60000);
@@ -237,9 +231,9 @@ export const authService = {
       
       // Production-friendly error messages
       if (error.isTimeout) {
-        throw new Error('Login request timed out. Please check your connection and try again.');
+        throw new Error('Login request timed out. The server may be starting up — please try again in a moment.');
       } else if (error.isNetwork) {
-        throw new Error('Network error. Please check your internet connection.');
+        throw new Error('Unable to reach server. It may be starting up — please wait a moment and try again.');
       }
       
       throw error;
@@ -257,12 +251,6 @@ export const authService = {
     }
     
     const sanitizedEmail = email.toLowerCase().trim();
-    
-    // Check backend health first
-    const isHealthy = await secureApiClient.healthCheck();
-    if (!isHealthy) {
-      throw new Error('Unable to connect to server. Please check your internet connection and try again.');
-    }
     
     const attemptCheck = LoginAttemptTracker.canAttemptLogin(sanitizedEmail);
     if (!attemptCheck.allowed) {
@@ -290,9 +278,9 @@ export const authService = {
       
       // Production-friendly error messages
       if (error.isTimeout) {
-        throw new Error('Login request timed out. Please check your connection and try again.');
+        throw new Error('Login request timed out. The server may be starting up — please try again in a moment.');
       } else if (error.isNetwork) {
-        throw new Error('Network error. Please check your internet connection.');
+        throw new Error('Unable to reach server. It may be starting up — please wait a moment and try again.');
       }
       
       throw error;
@@ -310,12 +298,6 @@ export const authService = {
     }
     
     const sanitizedEmail = email.toLowerCase().trim();
-    
-    // Check backend health first
-    const isHealthy = await secureApiClient.healthCheck();
-    if (!isHealthy) {
-      throw new Error('Unable to connect to server. Please check your internet connection and try again.');
-    }
     
     const attemptCheck = LoginAttemptTracker.canAttemptLogin(sanitizedEmail);
     if (!attemptCheck.allowed) {
@@ -343,9 +325,9 @@ export const authService = {
       
       // Production-friendly error messages
       if (error.isTimeout) {
-        throw new Error('Login request timed out. Please check your connection and try again.');
+        throw new Error('Login request timed out. The server may be starting up — please try again in a moment.');
       } else if (error.isNetwork) {
-        throw new Error('Network error. Please check your internet connection.');
+        throw new Error('Unable to reach server. It may be starting up — please wait a moment and try again.');
       }
       
       throw error;

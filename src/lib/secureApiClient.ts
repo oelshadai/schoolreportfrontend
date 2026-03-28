@@ -56,7 +56,7 @@ class SecureApiClient {
       },
       withCredentials: false,
       // Production-ready retry configuration
-      validateStatus: (status) => status < 500, // Don't retry on 4xx errors
+      validateStatus: (status) => status >= 200 && status < 300, // Only accept 2xx as success
     });
 
     this.setupInterceptors();
@@ -206,12 +206,36 @@ class SecureApiClient {
   // Production-ready health check
   async healthCheck(): Promise<boolean> {
     try {
-      const response = await this.client.get('/auth/csrf-token/', { timeout: 3000 });
+      const response = await this.client.get('/auth/csrf-token/', { timeout: 5000 });
       return response.status === 200;
     } catch (error) {
       console.warn('Backend health check failed:', error);
       return false;
     }
+  }
+
+  // Retry helper for cold-start resilience (Render free tier can take 30-60s to wake)
+  private async withRetry<T>(fn: () => Promise<T>, retries = 2, delayMs = 3000): Promise<T> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        return await fn();
+      } catch (error: any) {
+        const isConnectionError = !error.response && (
+          error.code === 'ERR_NETWORK' ||
+          error.code === 'ECONNREFUSED' ||
+          error.message?.includes('Network Error') ||
+          error.message?.includes('ERR_CONNECTION_REFUSED')
+        );
+        
+        if (isConnectionError && attempt < retries) {
+          console.info(`Request failed (attempt ${attempt + 1}/${retries + 1}), retrying in ${delayMs / 1000}s...`);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          continue;
+        }
+        throw error;
+      }
+    }
+    throw new Error('Request failed after retries');
   }
 
   // Public API methods
@@ -221,6 +245,12 @@ class SecureApiClient {
   }
 
   async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    // Login endpoints get automatic retry for cold-start resilience
+    const isLoginEndpoint = url.includes('/auth/') && url.includes('login');
+    if (isLoginEndpoint) {
+      const response = await this.withRetry(() => this.client.post<T>(url, data, config));
+      return response.data;
+    }
     const response = await this.client.post<T>(url, data, config);
     return response.data;
   }
